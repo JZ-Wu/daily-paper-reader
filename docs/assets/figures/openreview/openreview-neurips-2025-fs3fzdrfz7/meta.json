@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "extractor": "pymupdf-images",
+  "figures": [
+    {
+      "url": "assets/figures/openreview/openreview-neurips-2025-fs3fzdrfz7/fig-001.webp",
+      "caption": "",
+      "page": 2,
+      "index": 1,
+      "width": 3094,
+      "height": 2475
+    }
+  ]
+}
