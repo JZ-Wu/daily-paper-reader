@@ -1,0 +1,974 @@
+Title: VCIFBench: Evaluating Complex Instruction Following for Video Understanding
+
+URL Source: https://arxiv.org/pdf/2606.04588v1
+
+Published Time: Thu, 04 Jun 2026 00:58:31 GMT
+
+Number of Pages: 30
+
+Markdown Content:
+## VCIFBench: Evaluating Complex Instruction Following for Video Understanding 
+
+Huangchen Xu 1, Yuan Wu 1,* , Yi Chang 1,2,3,* 
+
+> 1
+
+School of Artificial Intelligence, Jilin University 
+
+> 2
+
+Engineering Research Center of Knowledge-Driven Human-Machine Intelligence, Jilin University 
+
+> 3
+
+International Center of Future Science, Jilin University 
+
+> xuhc9924@mails.jlu.edu.cn, yuanwu@jlu.edu.cn, yichang@jlu.edu.cn
+
+Abstract 
+
+Multimodal large language models have made rapid progress in video understanding, yet existing benchmarks largely rely on simple prompts and provide limited evidence about whether models can satisfy explicit output con-straints. We introduce VCIFBench, a bench-mark for evaluating complex instruction fol-lowing in video understanding. VCIFBench constructs constraint-rich instructions from both benchmark-adapted and directly video-grounded prompts, covering content, format, style, and structure requirements, and evalu-ates model outputs with a hybrid verification pipeline. The benchmark contains 306 satisfi-able test instructions, a 540-pair DPO prefer-ence dataset, and a 30-item conflict diagnos-tic subset. Experiments on 10 MLLMs show that joint constraint satisfaction remains chal-lenging. We further show that DPO training on VCIFBench data can improve instruction-following performance. 
+
+1 Introduction 
+
+Multimodal large language models (MLLMs) have shown strong capabilities in understanding im-ages, videos, and other heterogeneous inputs (Dai et al., 2023; Comanici et al., 2025). A growing set of benchmarks evaluates multimodal reason-ing, long-video understanding, and general multi-modal competence (Yue et al., 2024; Zhou et al., 2025; Liu et al., 2024b; Chang et al., 2024). How-ever, these benchmarks mainly assess task-level performance under relatively simple prompts, leav-ing unclear whether MLLMs can reliably follow complex instructions with explicit constraints in video-grounded settings. This gap matters in practical use. A model of-ten needs not only to understand what happens in a video, but also to satisfy user requirements on output content, format, style, and structure. Such requirements are especially important in agentic or tool-use settings, where schema violations or un-controlled outputs may cause downstream failures (Zhang et al., 2025a). Although instruction follow-ing has been widely studied in language models (He et al., 2024; Jiang et al., 2024; Wen et al., 2024), multimodal instruction-following benchmarks re-main more limited, often focusing on images (Ding et al., 2025; Bitton et al., 2023) or narrow video tasks such as captioning (Li et al., 2025). Such benchmarks capture only part of the broader task design space. Practical video instructions may also require prediction, temporal or causal reasoning, option selection, or structured generation. As a result, constraints such as length limits, evidence requirements, and ordering rules can behave differ-ently across task types and lead to different failure modes. Evaluation is another challenge. Rule-based checks are reliable for programmable requirements such as length, format, or exact surface forms (Zhou et al., 2023a), but they cannot cover many se-mantic or video-grounded constraints. LLM-based judging is more flexible, but may introduce biases such as length or positional bias (Fu et al., 2024b; Liu et al., 2024a). A useful benchmark therefore needs both diverse constraint coverage and reason-ably reliable verification. We introduce VCIFBench , a benchmark for 
+
+Video Complex Instruction Following. VCIF-Bench constructs constraint-rich instructions from both benchmark-adapted prompts and directly video-grounded prompts, using videos from Tem-pCompass (Liu et al., 2024c), MMWorld (He et al., 2025), NExT-QA (Xiao et al., 2021), and YouCook2 (Zhou et al., 2017). The benchmark covers 20 task types and 40 constraint types across content, format, style, and structure. The current release includes 306 satisfiable test instructions, a 540-pair DPO preference split, and a separate 30-item conflict diagnostic subset for unsatisfiable constraint combinations. 1
+
+> arXiv:2606.04588v1 [cs.CL] 3 Jun 2026 Figure 1: Overview of VCIFBench. In Stage 1, we derive task prompts from both original benchmark questions and direct video-grounded prompting. In Stage 2, each final instruction is constructed by combining a task prompt with sampled constraints. The resulting model output is then assessed using a hybrid evaluation pipeline.
+
+To evaluate model outputs, we develop a hy-brid verification pipeline that combines rule-based verification, hybrid parameter extraction with ex-ecutable checkers, and LLM-based judging. For semantic content constraints, we further decom-pose high-level requirements into targeted sub-constraints, enabling finer-grained diagnosis of video-grounded failures. Experiments on 10 pro-prietary and open-source MLLMs show that re-liable joint constraint satisfaction remains chal-lenging, especially for video-grounded content constraints. We also show that data derived from the same construction pipeline can improve instruction-following performance through DPO. Anonymous code and data are available at https: //anonymous.4open.science/r/annoym0 .
+
+2 Related Work 
+
+2.1 Multimodal Large Language Models and Benchmarks 
+
+Recent multimodal large language models (MLLMs) have demonstrated strong capabilities in understanding and reasoning over images, videos, and other heterogeneous inputs (Dai et al., 2023; Comanici et al., 2025). To evaluate these capabilities, many multimodal benchmarks have been proposed, covering settings such as multimodal reasoning (Yue et al., 2024), long-video understanding (Zhou et al., 2025), spatial reasoning (Guo et al., 2025), and video summarization (Jung and Kim, 2025). These benchmarks have been valuable for tracking model progress and exposing failure modes across tasks and modalities. Many multimodal benchmarks still emphasize task-level performance under relatively simple prompts, offering limited insight into whether mod-els can satisfy fine-grained requirements on content, format, style, and structure (Fu et al., 2024a). This motivates our focus on complex instruction follow-ing in video settings, where task completion must be coupled with explicit constraint satisfaction. 
+
+2.2 Instruction Following 
+
+Instruction following has been studied extensively in language models. Early work focused on ex-plicit and verifiable requirements. For example, IFEval (Zhou et al., 2023a) evaluates programmat-ically checkable format constraints, while more recent benchmarks study complex instruction fol-lowing across diverse task types and composition patterns, including combinations of semantic and format constraints (He et al., 2024; Wen et al., 2024). EifBench further considers settings with multiple instructions and multiple constraints (Zou et al., 2025). Prior work has also explored meth-ods for improving compliance in such scenarios, including in-context learning (Zhou et al., 2023b), supervised fine-tuning (Zhang et al., 2025b), and DPO (Ding et al., 2025). In contrast, multimodal instruction following re-mains less developed, particularly for video. Ex-isting studies mostly examine image-based set-tings (Ding et al., 2025; Bitton et al., 2023), while 2video introduces temporally distributed evidence and more varied response goals. IF-VidCap (Li et al., 2025) is an important step toward video-based instruction following, but its scope is mainly caption-oriented. Less is known about how mod-els handle constraints across broader video tasks, such as prediction, option selection, reasoning, and structured response generation. Our work studies this broader setting by combining diverse video task types, multiple constraint categories, and a hybrid evaluation pipeline with rule-based, exe-cutable, and judge-based checks. 
+
+3 VCIFBench 
+
+3.1 Data Collection 
+
+We construct VCIFBench from four complemen-tary video sources, focusing on short videos with durations under two minutes: TempCompass (Liu et al., 2024c), MMWorld (He et al., 2025), NExT-QA (Xiao et al., 2021), and YouCook2 (Zhou et al., 2017). These sources cover diverse video scenarios and reasoning demands: TempCompass provides temporal and state-change cases, MMWorld cov-ers scientific and general video-understanding sce-narios, NExT-QA contributes causal and temporal reasoning over daily activities, and YouCook2 pro-vides procedural cooking videos. The satisfiable test split contains 306 items. The overall construc-tion and evaluation pipeline is shown in Figure 1. 
+
+3.2 Instruction Generation Task taxonomy. We organize video-grounded tasks into three broad categories: perception , rea-soning , and expressive generation . Unlike bench-marks that mainly evaluate task completion, VCIF-Bench evaluates whether models can satisfy ex-plicit constraints while performing the task. De-tailed task definitions and examples are provided in Appendix A.7. 
+
+Constraint taxonomy. We build on prior tax-onomies of practical instruction constraints (Jiang et al., 2024; Zou et al., 2025; Li et al., 2025) and adapt them to video instruction following. As shown in Figure 2, VCIFBench contains 40 con-straint types organized into four dimensions. For-mat constraints specify surface requirements such as serialization, length, and fixed patterns. Con-tent constraints require models to select, include, exclude, or emphasize video-supported informa-tion. Style constraints control communicative form, such as tone, target audience, persona, and rhetoric. Format 
+
+> Content
+> Style
+> Structure
+> JSON
+> CSV
+> List
+> Length
+> Plain Text
+> Opening
+> Ending
+> Linguistic
+> Item Count
+> Inclusion
+> Focus
+> Summarize
+> Exclusion
+> Tracking
+> Lexical diveristy
+> Tone
+> Language
+> Persona
+> Rhetoric
+> Audience
+> Chronological
+> Causal
+> Hierarchical
+> Spatial Group.
+> Counterfact.
+> Bullet
+> Numbered
+> Sentence
+> Paragraph
+> Fixed
+> Pattern
+> Fixed
+> Pattern
+> Prefix Label
+> Letter Case
+> Emphasis
+> Tense
+> No Contr.
+> Content
+> Word
+> Sequence Marker
+> Content
+> Word
+> Personal Info
+
+Figure 2: Hierarchical taxonomy of constraints in VCIF-Bench. 
+
+Structure constraints specify organization require-ments, such as chronological, causal, or hierarchi-cal ordering. Importantly, although content-related constraints depend on video understanding, faith-fulness to the video content is itself a core aspect of instruction following, as a helpful response must remain grounded in the video rather than rely on unsupported assumptions. 
+
+Compositional instruction types. Following prior work (Wen et al., 2024), we construct instruc-tions with several composition patterns: And for jointly satisfying multiple constraints, Chain for combining subtasks, Selection for conditioning the response on explicit alternatives, and Nested for hi-erarchical combinations. We do not report separate performance for these patterns because they are not mutually exclusive; for example, And commonly appears inside Chain and Selection instructions. 
+
+Instruction construction. We construct instruc-tions from two complementary sources, using GPT-5.2 (Singh et al., 2026) as the primary generator. 
+
+Benchmark-derived prompts. For source datasets with QA-style task descriptions, we rewrite suitable prompts into open-ended video tasks and combine them with compatible con-straints. We discard cases that cannot be mean-ingfully transformed, such as questions asking about content absent from the video. TempCom-pass also provides original–reverse video pairs, which naturally support binary Selection instruc-tions and allow us to test whether models follow 3video-grounded alternatives rather than passing a single branch by chance. 
+
+Direct video-grounded prompts. For videos without suitable annotations, we select tasks com-patible with observable video evidence and then compose them with candidate constraints. GPT-5.2 generates and revises the instruction to improve fluency. We further use Gemini-2.5 Pro (Comanici et al., 2025) to check whether content-related con-straints are supported by the visible video, followed by manual revision to correct residual inconsisten-cies. Appendix A.2 reports the full constraints map. 
+
+3.3 Evaluation 
+
+VCIFBench uses a hybrid evaluation pipeline be-cause constraints differ in how directly they can be verified. 
+
+Rule-based verification. For constraints with de-terministic criteria, such as JSON validity or re-quired surface forms, we directly implement check-ing functions and compute binary outcomes. 
+
+Hybrid verification. Some constraints are rule-checkable only after their parameters are identified from the instruction. For example, a word-count constraint requires extracting the target range be-fore applying a checker. Following prior work on constrained and tool-use evaluation (Zhong et al., 2025; Wen et al., 2024), we ask the judge model to extract the required parameters from the instruction and then execute the corresponding checker. 
+
+LLM-based judging. For constraints that de-pend on semantic interpretation, discourse organi-zation, or video-grounded reasoning, we use GPT-5 (Singh et al., 2026) to produce binary constraint-level judgments, following prior work on LLM-as-a-judge, multimodal LLM-based evaluation, and complex instruction evaluation (Zheng et al., 2023; Yu et al., 2024; Zou et al., 2025; Wen et al., 2024). To make video-grounded evaluation more reliable, we further decompose content-related constraints, such as summarization, focus, tracking, and con-tent inclusion, into explicit evidence-grounded sub-constraints. We report judge–human alignment in Appendix A.5. 
+
+Metrics. VCIFBench is constraint-centric. We report both constraint-level and instruction-level metrics. Let S be the set of samples. For each sam-ple i ∈ S , let Ci denote its annotated constraints, and let pi,c ∈ { 0, 1} indicate whether constraint c
+
+is satisfied. 
+
+CPR (Constraint Pass Rate). For a set of anno-tated constraints A, we define 
+
+CPR( A) = 1
+
+|A| 
+
+X
+
+> (i,c )∈A
+
+pi,c .
+
+A can correspond to all constraints of a given type or dimension. 
+
+IPR (Instruction Pass Rate). IPR measures whether all constraints in an instruction are satisfied jointly: 
+
+IPR = 1
+
+|S| 
+
+X
+
+> i∈S
+
+1[∀c ∈ C i, p i,c = 1] .
+
+This all-constraints criterion reflects practical set-tings where violating one critical requirement can invalidate the output. 
+
+Conflict diagnostic evaluation. The 30 con-flict diagnostic items are excluded from standard IPR/CPR aggregation because they are intention-ally unsatisfiable. For this subset, the desired be-havior is to recognize that the constraint set is in-consistent, identify the conflicting requirements, and avoid inventing a normal answer. 
+
+3.4 DPO Dataset Construction 
+
+We construct a 540-pair DPO preference split from the same instruction construction pipeline. Chosen responses are generated by GPT-5.2 and then pro-cessed through the same evaluation pipeline and manual revision to ensure constraint satisfaction and video grounding. The rejected responses are constructed in two ways. Inspired by MM-IFEval (Ding et al., 2025), we first remove the explicit constraints from each instruction and ask MiniCPM-o-4.5 to answer the underlying video task, producing plausible but constraint-insensitive responses. Because this strat-egy may introduce superficial length or style dif-ferences, we also generate targeted negatives by prompting MiniCPM-o-4.5 to corrupt one specific constraint in the chosen response while preserv-ing the rest of the answer as much as possible. We manually revise samples from the second strat-egy where MiniCPM-o-4.5 only introduces super-ficial changes without creating a clear instruction-following violation. 4Table 1: Base-306 main results with failure severity. Near denotes failed instructions with exactly one vio-lated constraint; Viol. is the average number of violated constraints per failed instruction.                                                                                         
+
+> Model IPR CPR Fmt. Cont. Sty. Str. Near Viol.
+> Gemini-3-Pro 52.94 86.59 91.39 71.00 95.10 92.86 75.69 1.438 GPT-5.4 51.96 87.18 92.49 70.77 94.77 95.24 74.83 1.347 Gemini-3-Flash 51.63 85.69 89.36 70.07 95.75 93.45 66.89 1.493 MiniCPM-o-4.5 29.41 74.03 79.81 55.92 85.95 76.79 48.15 1.856 Qwen3-VL-30B-A3B 28.43 73.38 81.53 54.99 83.01 72.02 50.23 1.877 Qwen3-VL-8B 27.12 74.94 81.38 57.31 85.29 76.79 53.81 1.735 GLM-4.1V-9B-Thinking 26.80 75.06 81.38 56.84 86.27 77.38 52.68 1.719 InternVL3.5-14B 24.84 68.91 78.72 51.04 73.20 69.64 43.04 2.087 MiMo-VL-7B-RL 24.51 71.57 82.00 52.44 78.76 67.86 45.02 1.900 InternVL3.5-8B 5.56 46.37 47.10 40.60 51.31 49.40 22.49 2.865
+
+4 Experiments 
+
+4.1 Experimental Setup 
+
+Our final satisfiable test set contains 306 samples. We evaluate 10 multimodal large language models (MLLMs): Gemini-3-Pro (Gemini Team, Google DeepMind, 2025b), Gemini-3-Flash (Gemini Team, Google DeepMind, 2025a), GPT-5.4 (OpenAI, 2026), Qwen3-VL-30B-A3B (Bai et al., 2025), Qwen3-VL-8B (Bai et al., 2025), InternVL3.5-14B (Wang et al., 2025), InternVL3.5-8B (Wang et al., 2025), MiMo-VL-7B-RL (Team et al., 2025), MiniCPM-o-4.5 (Cui et al., 2026), and GLM-4.1V-9B-Thinking (Team et al., 2026). Table 1 reports in-struction pass rate (IPR), constraint pass rate (CPR), and failure severity on Base-306. We evaluate 10 MLLMs under the same input setting for the main results. All videos are uni-formly sampled at 0.5fps and capped to 1080p, with temperature set to 0.1 for generation. 
+
+4.2 Main Results 
+
+Table 1 reports the Base-306 results. The lead-ing proprietary models form a close group, with IPR around 52% but CPR around 85–86%. This gap shows that satisfying individual constraints does not reliably translate into satisfying the full instruction: errors accumulate when all constraints must be satisfied jointly. Across dimensions, Style and Structure are relatively strong for proprietary models, while Content remains lower at around 70– 71%. Format is also not saturated, indicating that even explicit surface requirements, such as word-count limits, JSON or CSV formatting can still fail under multi-constraint settings. Open-source models show substantially lower instruction-level success. Most achieve CPR around 69–74%, but their IPR remains only around 24–29%, suggesting that they can satisfy many individual constraints but are less stable when constraints are composed. InternVL3.5-8B is the clearest outlier, with low scores across all dimensions. Since IPR only indicates whether an instruction fails, we further report near-miss rate and the av-erage number of violated constraints per failed in-struction. The severity metrics show that failures are not homogeneous. For Gemini-3-Pro and GPT-5.4, more than 73% of failed instructions are near misses, and each failed instruction violates only 1.44 and 1.35 constraints on average. By contrast, mid-tier open-source models have lower near-miss rates and higher violation counts. Thus, stronger models often remain close to satisfying all require-ments, whereas weaker models more often exhibit cascading failures across multiple constraints. Manual inspection supports this distinction. Gemini and GPT failures are usually narrow bound-ary errors: the semantic answer is often coherent and video-grounded, but one explicit constraint boundary is violated, such as a word budget, a CSV/JSON rule, a missing visual detail, or an ex-cluded extra detail. Some semantic judgments are inherently more interpretation-sensitive, so strong models may be closer to the practical ceiling on these cases. However, many remaining failures are still concrete compliance errors, suggesting that multi-constraint instructions place additional pres-sure even on otherwise simple constraints. In con-trast, InternVL3.5-8B failures more often indicate global breakdowns, including mixed languages, an-swering both branches of a selection instruction, or uncontrolled long continuations. 
+
+Option-order robustness. We also test selection robustness by swapping the display order of Op-tion A and Option B. This diagnostic asks whether models follow the video-grounded branch condi-tion, rather than relying on the surface position or label of an option. As shown in Table 2, Gemini-3-Pro and GPT-5.4 are much more stable under option-order swaps. By contrast, Qwen3-VL-8B and MiniCPM-o-4.5 show much lower robustness: they sometimes select the correct path under one option order, but fail to preserve the same decision after the options are swapped. This indicates that 
+
+selection_accuracy is not merely about choos-ing the correct branch once; it also requires resist-ing superficial option-order effects and maintaining a stable video-grounded decision. 5Table 2: Option-order robustness on 26 selection pairs.                 
+
+> Model Both Corr. Either Corr.
+> Gemini-3-Pro 21/26 23/26 GPT-5.4 17/26 21/26 Qwen3-VL-8B 4/26 11/26 MiniCPM-o-4.5 2/26 7/26 2345678
+> Number of constraints
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 80
+> IPR (%)
+> Gemini Pro
+> GPT-5.4
+> Gemini Flash
+> MiniCPM
+> Qwen3-30B
+> Qwen3-8B
+> GLM-9B
+> Intern14B
+> MiMo-7B
+> Intern8B
+
+Figure 3: Instruction pass rate by number of constraints on Base-306 across ten selected models. The aggregate trend decreases as the number of constraints increases. 
+
+4.3 Effect of Constraint Count 
+
+We group Base-306 samples by the number of an-notated constraints in each instruction, denoted as 
+
+k = |C i|, and compute IPR over sample–run pairs across the ten selected models. As shown in Fig-ure 3, the aggregate trend decreases as k increases: IPR drops from 57.08% at k = 2 to 7.50% at 
+
+k = 8 . The high-k buckets should be interpreted cautiously, since k = 8 contains only 12 unique samples. This trend supports the view that instruction-level failures accumulate under multi-constraint settings. However, constraint count alone does not determine difficulty. Some model-level curves show local rebounds because different k buckets contain different types of constraints. For ex-ample, Gemini-3-Pro improves from k = 4 to 
+
+k = 5 , as the k = 4 bucket contains more difficult video-grounded content and selection constraints, with failures concentrated in content_inclusion ,
+
+summarize and selection_accuracy . By con-trast, the k = 5 bucket includes more format-, style-, and list-oriented constraints, such as plain_text ,
+
+bullet_list , and tone , which this model satis-fies more reliably. Similar rebounds appear for MiniCPM-o-4.5 and InternVL3.5-14B. Overall, the results suggest that both constraint count and constraint composition matter: instruc-tions with more constraints are generally harder to satisfy, but local variations depend on which constraint types appear together. 
+
+Table 3: Representative intrinsic and interaction-sensitive constraints. Low-mix denotes instructions with at most three constraints, and high-mix denotes instruc-tions with at least six constraints. 
+
+Constraint Low-mix High-mix Drop 
+
+Intrinsically difficult 
+
+summarize 21.67 30.00 -8.33 
+
+content_exclusion 35.00 53.33 -18.33 
+
+content_inclusion 57.24 46.73 10.51 
+
+lexical_diversity 44.00 60.00 -16.00 
+
+Interaction-sensitive 
+
+pattern_closing 87.50 60.00 27.50 
+
+csv 80.00 61.43 18.57 
+
+sentence_count 90.00 70.00 20.00 
+
+output_language 87.50 73.67 13.83 
+
+4.4 Constraint Failure Mechanisms 
+
+We further analyze why models fail on Base-306. Rather than treating all failed instructions as the same type of error, we distinguish between con-straints that are difficult in themselves and con-straints that become fragile mainly when composed with other requirements. This distinction helps explain why relatively high constraint-level per-formance does not necessarily translate into high instruction-level success. 
+
+From hard constraints to failure mechanisms. 
+
+The hardest constraints in Base-306 come from several sources. Some require video-grounded ev-idence selection and semantic compression, such as summarize , content_inclusion , and focus .Others involve negative or boundary control, such as content_exclusion and lexical_diversity ,where the model must avoid prohibited or repeated information while still producing a useful response. We also find that seemingly simple surface require-ments, such as word_count and csv , can remain fragile, especially for weaker models. 
+
+Interaction patterns. We further examine whether some co-occurring constraints fail more often than expected from their individual failure rates. This analysis is diagnostic, since constraint types are not randomly assigned and some pairs have limited unique samples. Still, manual inspection suggests several recurring patterns. • Length/count budget × required content or structure. Length and count constraints become fragile when paired with content or structure re-quirements. Models often exceed the budget to include visual evidence, causal links, or re-6quired markers; conversely, they may satisfy the budget by omitting required visual anchors. This pattern suggests a trade-off between being complete and staying within strict output limits. • Selection branch. selection_accuracy can act as a gatekeeper constraint. Once a model chooses the wrong branch, preserves both branches, or leaves option labels in the answer, subsequent constraints often fail as a cascading consequence. • Style or rhetoric × rigid surface format. Per-sona, tone, and rhetorical constraints can en-courage greetings, labels, explanatory framing, or narrative openings. These additions may improve naturalness, but they can violate ex-act openings, fixed closings, plain-text require-ments, or label placement. In creative writing or role-play tasks, models may produce more readable responses while breaking exact surface constraints. • Output language/rhetoric × lexical exclusion or diversity. A model may avoid the exact pro-hibited word while reintroducing the excluded content through paraphrase, adjacent concepts, or plausible elaboration, especially when in-structed to produce the response in another lan-guage. Overall, Base-306 failures should not be inter-preted as isolated constraint errors. Some con-straints are intrinsically difficult because they re-quire video-grounded evidence selection or seman-tic compression. Others become difficult mainly under composition, where content, format, style, and task-specific response tendencies compete with one another. 
+
+4.5 Effect of Visual Budget 
+
+We further examine whether larger visual input budgets improve complex video instruction follow-ing. Here, the spatial labels 224p, 480p, 720p, and 1080p denote maximum-side caps after resizing. Table 4 reports a detailed Qwen3-VL-8B ablation, while Figure 4 compares the trends for Qwen3-VL-8B and MiniCPM-o-4.5. The results show that larger visual budgets are not monotonically beneficial. For Qwen3-VL-8B, the 720p max-side setting at 0.5fps gives the best IPR and Content CPR, while increasing the spa-tial cap to 1080p or using higher frame rates adds 
+
+Table 4: Qwen3-VL-8B visual-budget ablation on Base-306. Tokens denotes the average number of input tokens, and Words denotes the average number of output words.                                                  
+
+> Setting IPR CPR Content Tokens Words
+> 224p, 0.5fps 29.74 73.69 55.01 1841 234.5 480p, 0.5fps 29.08 72.91 56.18 3268 218.6 720p, 0.5fps 30.07 74.21 57.58 6463 217.4 1080p, 0.25fps 29.41 74.85 55.48 5845 164.0 1080p, 0.5fps 27.12 74.08 56.18 11402 207.4 1080p, 1fps 24.84 72.72 54.55 22519 224.8 1080p, 2fps 26.14 72.85 53.38 37519 268.8 54
+> 56
+> 58
+> Score (%)
+> 224p 480p 720p 1080p
+> Resolution at 0.5 fps
+> 25.0
+> 27.5
+> 30.0
+> Score (%)
+> 0.25 0.5 12
+> Frame rate at 1080p
+> Qwen IPR Qwen Content CPR Mini IPR Mini Content CPR
+
+Figure 4: Visual-budget trends for Qwen3-VL-8B and MiniCPM-o-4.5. The left panel varies the maximum-side spatial cap at 0.5fps, and the right panel varies frame rate under the 1080p max-side setting. 
+
+many more input tokens without improving full-instruction success. MiniCPM-o-4.5 shows a dif-ferent optimum: its best IPR appears under the 1080p max-side setting at 0.5fps, but its perfor-mance also drops at 1fps and 2fps. Thus, the best visual budget is model-dependent, and simply in-creasing the spatial cap or the number of frames does not guarantee better constraint following. This pattern suggests that complex video in-struction following is not limited by visual access alone. For Qwen3-VL-8B, larger visual budgets recover some video-grounded failures, especially in content_inclusion , chronological , focus ,and selection_accuracy . At the same time, they introduce new failures in word_count , focus ,and csv , often because the model becomes more verbose, shifts focus, or breaks strict formatting. MiniCPM-o-4.5 shows the same non-monotonic tendency: 1080p at 0.5fps is best, but higher fps lowers IPR while increasing output length. Thus, more visual evidence can help grounding, but full success still requires length, focus, and format con-trol. 
+
+4.6 Conflict-Aware Instruction Following 
+
+Conflict-30 tests whether models can recognize conflicting user requirements instead of forcing a 70 20 40 60 80 100    
+
+> Rate (%)
+> Gemini-3-Pro
+> GPT-5.4
+> Gemini-3-Flash
+> GLM-4.1V-9B-Thinking
+> Qwen3-VL-8B-Instruct
+> Qwen3-VL-30B-A3B-Instruct
+> MiniCPM-o-4.5
+> InternVL3.5-14B
+> MiMo-VL-7B-RL
+> InternVL3.5-8B
+> Detected Localized Strict Blind
+
+Figure 5: Conflict-30 diagnostic results. Detected de-notes basic conflict detection; Localized denotes identi-fying the conflicts; Strict additionally requires not giv-ing a normal answer; Blind denotes blind compliance. 
+
+normal video answer. The conflicts are deliber-ately explicit, such as requiring and forbidding the same phrase, requiring all-lowercase output while requiring an uppercase token such as NASA . Such conflicts may arise from erroneous or inconsistent user instructions; a reliable model should identify the problem and ask for clarification rather than blindly proceed. Figure 5 shows a clear gap between detecting a conflict and handling it strictly. Top proprietary models perform well: they usually identify the in-struction as unsatisfiable, point to the conflicting requirements, and avoid producing a normal video answer. Our strict criterion intentionally requires localization of the conflict, because merely saying that the instruction is “impossible” gives the user little guidance on how to revise it. By contrast, sev-eral weaker open-source models show high blind-compliance rates, meaning that they often treat an impossible instruction as an ordinary video task and generate an answer anyway. Other models reveal a more nuanced pattern. Qwen3-VL-30B and MiniCPM-o-4.5 detect con-flicts in many cases, but their strict handling is lower because they sometimes fail to point out the exact contradictory requirements or continue an-swering after acknowledging a problem. Qwen3-VL-8B is a notable intermediate case: despite much lower Base-306 IPR, it achieves strong Conflict-30 handling, suggesting that conflict awareness is re-lated to but distinct from ordinary multi-constraint compliance. The visible_absent_content cases further show why conflict awareness matters in video-grounded settings. These instructions deliberately 
+
+Table 5: DPO results for Qwen3-VL-8B on Base-306. CPR-micro aggregates over all constraint instances, while CPR-macro averages over constraint types.                        
+
+> Run IPR CPR-micro CPR-macro Fmt. Cont. Sty. Str.
+> Qwen3-VL-8B Base 27.12 74.94 75.76 81.38 57.31 85.29 76.79 Qwen3-VL-8B DPO 33.01 (+5.88) 78.63 (+3.69) 80.40 84.82 60.56 90.85 79.17
+
+ask the model to mention an object that is not visi-ble in the video, such as a blue elephant, while also requiring the answer to use only visible evidence. A correct response should reject this contradic-tion. However, Gemini-3-Flash and InternVL3.5-8B sometimes describe the absent object as if it were visible. This failure is more consequential than a formatting error, because blind compliance directly turns an inconsistent instruction into hallu-cinated visual evidence. 
+
+4.7 Preference Optimization Results 
+
+We train Qwen3-VL-8B on the 540-pair DPO split to test whether preference optimization can im-prove complex video instruction following. Train-ing uses LoRA with rank r = 16 , batch size 1, gra-dient accumulation 8, and learning rate 1 × 10 −5.Table 5 compares the DPO-tuned model with the original Qwen3-VL-8B on Base-306. DPO improves instruction-level success from 27.12% to 33.01%, a gain of 5.88 points. The constraint-level gains are also consistent: CPR-micro increases from 74.94% to 78.63%, and CPR-macro increases from 75.76% to 80.40%. The im-provement is observed across all four constraint dimensions. 
+
+5 Conclusion 
+
+We present VCIFBench , a benchmark for evaluat-ing complex instruction following in video under-standing, together with a construction pipeline and a hybrid evaluation pipeline. Experiments on 10 MLLMs show that even capable models still strug-gle to satisfy multiple explicit constraints jointly: substantial weaknesses remain in fine-grained for-mat control, adherence to video-grounded content, and robustness under instructions that combine multiple explicit constraints. We further show that DPO training on data derived from our pipeline can improve overall instruction-following performance. We hope VCIFBench will serve as a useful step toward more reliable, controllable, and practically deployable multimodal systems. 86 Limitations 
+
+First, our current benchmark primarily centers on English instructions and outputs. Broader mul-tilingual coverage would be a useful extension for studying complex video instruction following across languages and linguistic conventions. Second, VCIFBench intentionally covers a fo-cused subset of video instruction following. Con-sequently, VCIFBench should be viewed as a con-trolled stress test for constraint-rich video instruc-tion following. Its results are informative about whether models can jointly satisfy explicit require-ments, but should not be used as a standalone mea-sure of overall video understanding, factual ground-ing, or deployment safety. Finally, our evaluation pipeline combines rule-based verification, hybrid verification, and LLM-based judging to balance coverage and reliability. Although this design improves practical coverage, variations in judge behavior and interpretation can-not be fully ruled out, especially for more semantic or subjective constraints. 
+
+Potential Risks. VCIFBench is a controlled eval-uation resource and does not introduce direct de-ployment risks. A possible indirect risk is that optimizing models primarily for explicit constraint satisfaction could encourage formal compliance at the expense of broader reliability, such as factual grounding, safety, or appropriate refusal behavior. We therefore recommend using VCIFBench along-side broader evaluations of video understanding, factuality, and safety. 
+
+References 
+
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, Wenbin Ge, Zhi-fang Guo, Qidong Huang, Jie Huang, Fei Huang, Binyuan Hui, Shutong Jiang, Zhaohai Li, Mingsheng Li, and 45 others. 2025. Qwen3-vl technical report. 
+
+Preprint , arXiv:2511.21631. Yonatan Bitton, Hritik Bansal, Jack Hessel, Rulin Shao, Wanrong Zhu, Anas Awadalla, Josh Gardner, Ro-han Taori, and Ludwig Schmidt. 2023. Visit-bench: A dynamic benchmark for evaluating instruction-following vision-and-language models. In Advances in Neural Information Processing Systems , vol-ume 36, pages 26898–26922. Curran Associates, Inc. Yupeng Chang, Xu Wang, Jindong Wang, Yuan Wu, Linyi Yang, Kaijie Zhu, Hao Chen, Xiaoyuan Yi, Cunxiang Wang, Yidong Wang, Wei Ye, Yue Zhang, Yi Chang, Philip S. Yu, Qiang Yang, and Xing Xie. 2024. A survey on evaluation of large language mod-els. ACM Trans. Intell. Syst. Technol. , 15(3). Gheorghe Comanici, Eric Bieber, Mike Schaekermann, Ice Pasupat, Noveen Sachdeva, Inderjit Dhillon, Mar-cel Blistein, Ori Ram, Dan Zhang, Evan Rosen, Luke Marris, Sam Petulla, Colin Gaffney, Asaf Aharoni, Nathan Lintz, Tiago Cardal Pais, Henrik Jacobs-son, Idan Szpektor, Nan-Jiang Jiang, and 3416 oth-ers. 2025. Gemini 2.5: Pushing the frontier with advanced reasoning, multimodality, long context, and next generation agentic capabilities. Preprint ,arXiv:2507.06261. Junbo Cui, Bokai Xu, Chongyi Wang, Tianyu Yu, Weiyue Sun, Yingjing Xu, Tianran Wang, Zhihui He, Wenshuo Ma, Tianchi Cai, Jiancheng Gui, Lu-oyuan Zhang, Xian Sun, Fuwei Huang, Moye Chen, Zhuo Lin, Hanyu Liu, Qingxin Gui, Qingzhe Han, and 17 others. 2026. Minicpm-o 4.5: Towards real-time full-duplex omni-modal interaction. Preprint ,arXiv:2604.27393. Wenliang Dai, Junnan Li, DONGXU LI, Anthony Tiong, Junqi Zhao, Weisheng Wang, Boyang Li, Pascale N Fung, and Steven Hoi. 2023. Instructblip: Towards general-purpose vision-language models with instruc-tion tuning. In Advances in Neural Information Pro-cessing Systems , volume 36, pages 49250–49267. Curran Associates, Inc. Shengyuan Ding, Shenxi Wu, Xiangyu Zhao, Yuhang Zang, Haodong Duan, Xiaoyi Dong, Pan Zhang, Yuhang Cao, Dahua Lin, and Jiaqi Wang. 2025. Mm-ifengine: Towards multimodal instruction following. In Proceedings of the IEEE/CVF International Con-ference on Computer Vision (ICCV) , pages 1099– 1109. Chaoyou Fu, Yi-Fan Zhang, Shukang Yin, Bo Li, Xinyu Fang, Sirui Zhao, Haodong Duan, Xing Sun, Ziwei Liu, Liang Wang, Caifeng Shan, and Ran He. 2024a. Mme-survey: A comprehensive survey on evaluation of multimodal llms. Preprint , arXiv:2411.15296. Jinlan Fu, See-Kiong Ng, Zhengbao Jiang, and Pengfei Liu. 2024b. GPTScore: Evaluate as you desire. In 
+
+Proceedings of the 2024 Conference of the North American Chapter of the Association for Computa-tional Linguistics: Human Language Technologies (Volume 1: Long Papers) , pages 6556–6576, Mexico City, Mexico. Association for Computational Lin-guistics. Gemini Team, Google DeepMind. 2025a. Gemini 3 flash model card. Gemini Team, Google DeepMind. 2025b. Gemini 3 pro model card. Xianda Guo, Ruijun Zhang, Yiqun Duan, Yuhang He, Dujun Nie, Wenke Huang, Chenming Zhang, Shuai Liu, Hao Zhao, and Long Chen. 2025. Surds: Bench-marking spatial understanding and reasoning in driv-ing scenarios with vision language models. Preprint ,arXiv:2411.13112. 
+
+9Qianyu He, Jie Zeng, Wenhao Huang, Lina Chen, Jin Xiao, Qianxi He, Xunzhe Zhou, Jiaqing Liang, and Yanghua Xiao. 2024. Can large language models understand real-world complex instructions? In Pro-ceedings of the AAAI Conference on Artificial Intelli-gence , volume 38, pages 18188–18196. Xuehai He, Weixi Feng, Kaizhi Zheng, Yujie Lu, Wan-rong Zhu, Jiachen Li, Yue Fan, Jianfeng Wang, Linjie Li, Zhengyuan Yang, Kevin Lin, William Wang, Li-juan Wang, and Xin Wang. 2025. Mmworld: To-wards multi-discipline multi-faceted world model evaluation in videos. In International Conference on Learning Representations , volume 2025, pages 26931–26964. Yuxin Jiang, Yufei Wang, Xingshan Zeng, Wanjun Zhong, Liangyou Li, Fei Mi, Lifeng Shang, Xin Jiang, Qun Liu, and Wei Wang. 2024. Follow-Bench: A multi-level fine-grained constraints fol-lowing benchmark for large language models. In 
+
+Proceedings of the 62nd Annual Meeting of the As-sociation for Computational Linguistics (Volume 1: Long Papers) , pages 4667–4688, Bangkok, Thailand. Association for Computational Linguistics. Woojun Jung and Junyeong Kim. 2025. QEVA: A reference-free evaluation metric for narrative video summarization with multimodal question answering. In Findings of the Association for Computational Lin-guistics: EMNLP 2025 , pages 24632–24642, Suzhou, China. Association for Computational Linguistics. Shihao Li, Yuanxing Zhang, Jiangtao Wu, Zhide Lei, Yiwen He, Runzhe Wen, Chenxi Liao, Chengkang Jiang, An Ping, Shuo Gao, Suhan Wang, Zhaozhou Bian, Zijun Zhou, Jingyi Xie, Jiayi Zhou, Jing Wang, Yifan Yao, Weihao Xie, Yingshui Tan, and 4 others. 2025. If-vidcap: Can video caption models follow instructions? Preprint , arXiv:2510.18726. Nelson F. Liu, Kevin Lin, John Hewitt, Ashwin Paran-jape, Michele Bevilacqua, Fabio Petroni, and Percy Liang. 2024a. Lost in the middle: How language models use long contexts. Transactions of the Asso-ciation for Computational Linguistics , 12:157–173. Yuan Liu, Haodong Duan, Yuanhan Zhang, Bo Li, Songyang Zhang, Wangbo Zhao, Yike Yuan, Jiaqi Wang, Conghui He, Ziwei Liu, Kai Chen, and Dahua Lin. 2024b. Mmbench: Is your multi-modal model an all-around player? Preprint , arXiv:2307.06281. Yuanxin Liu, Shicheng Li, Yi Liu, Yuxiang Wang, Shuhuai Ren, Lei Li, Sishuo Chen, Xu Sun, and Lu Hou. 2024c. TempCompass: Do video LLMs really understand videos? In Findings of the Asso-ciation for Computational Linguistics: ACL 2024 ,pages 8731–8772, Bangkok, Thailand. Association for Computational Linguistics. OpenAI. 2026. GPT-5.4 Thinking Sys-tem Card. https://openai.com/index/ gpt-5-4-thinking-system-card/ .Aaditya Singh, Adam Fry, Adam Perelman, Adam Tart, Adi Ganesh, Ahmed El-Kishky, Aidan McLaughlin, Aiden Low, AJ Ostrow, Akhila Ananthram, Akshay Nathan, Alan Luo, Alec Helyar, Aleksander Madry, Aleksandr Efremov, Aleksandra Spyra, Alex Baker-Whitcomb, Alex Beutel, Alex Karpenko, and 467 others. 2026. Openai gpt-5 system card. Preprint ,arXiv:2601.03267. Core Team, Zihao Yue, Zhenru Lin, Yifan Song, Weikun Wang, Shuhuai Ren, Shuhao Gu, Shicheng Li, Pei-dian Li, Liang Zhao, Lei Li, Kainan Bao, Hao Tian, Hailin Zhang, Gang Wang, Dawei Zhu, Cici, Chen-hong He, Bowen Ye, and 55 others. 2025. Mimo-vl technical report. Preprint , arXiv:2506.03569. V Team, Wenyi Hong, Wenmeng Yu, Xiaotao Gu, Guo Wang, Guobing Gan, Haomiao Tang, Jiale Cheng, Ji Qi, Junhui Ji, Lihang Pan, Shuaiqi Duan, Wei-han Wang, Yan Wang, Yean Cheng, Zehai He, Zhe Su, Zhen Yang, Ziyang Pan, and 74 others. 2026. Glm-4.5v and glm-4.1v-thinking: Towards versatile multimodal reasoning with scalable reinforcement learning. Preprint , arXiv:2507.01006. Weiyun Wang, Zhangwei Gao, Lixin Gu, Hengjun Pu, Long Cui, Xingguang Wei, Zhaoyang Liu, Linglin Jing, Shenglong Ye, Jie Shao, Zhaokai Wang, Zhe Chen, Hongjie Zhang, Ganlin Yang, Haomin Wang, Qi Wei, Jinhui Yin, Wenhao Li, Erfei Cui, and 56 others. 2025. Internvl3. 5: Advancing open-source multimodal models in versatility, reasoning, and effi-ciency. Preprint , arXiv:2508.18265. Bosi Wen, Pei Ke, Xiaotao Gu, Lindong Wu, Hao Huang, Jinfeng Zhou, Wenchuang Li, Binxin Hu, Wendy Gao, Jiaxin Xu, Yiming Liu, Jie Tang, Hongn-ing Wang, and Minlie Huang. 2024. Benchmark-ing complex instruction-following with multiple con-straints composition. In Advances in Neural Informa-tion Processing Systems , volume 37, pages 137610– 137645. Curran Associates, Inc. Junbin Xiao, Xindi Shang, Angela Yao, and Tat-Seng Chua. 2021. Next-qa:next phase of question-answering to explaining temporal actions. Preprint ,arXiv:2105.08276. Weihao Yu, Zhengyuan Yang, Linjie Li, Jianfeng Wang, Kevin Lin, Zicheng Liu, Xinchao Wang, and Lijuan Wang. 2024. MM-vet: Evaluating large multimodal models for integrated capabilities. In Proceedings of the 41st International Conference on Machine Learn-ing , volume 235 of Proceedings of Machine Learning Research , pages 57730–57754. PMLR. Xiang Yue, Yuansheng Ni, Tianyu Zheng, Kai Zhang, Ruoqi Liu, Ge Zhang, Samuel Stevens, Dongfu Jiang, Weiming Ren, Yuxuan Sun, Cong Wei, Botao Yu, Ruibin Yuan, Renliang Sun, Ming Yin, Boyuan Zheng, Zhenzhu Yang, Yibo Liu, Wenhao Huang, and 3 others. 2024. Mmmu: A massive multi-discipline multimodal understanding and reasoning benchmark for expert agi. In 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) ,pages 9556–9567. 
+
+10 Chi Zhang, Zhao Yang, Jiaxuan Liu, Yanda Li, Yucheng Han, Xin Chen, Zebiao Huang, Bin Fu, and Gang Yu. 2025a. Appagent: Multimodal agents as smartphone users. In Proceedings of the 2025 CHI Conference on Human Factors in Computing Systems , CHI ’25, New York, NY, USA. Association for Computing Machinery. Tao Zhang, ChengLIn Zhu, Yanjun Shen, Wenjing Luo, Yan Zhang, Hao Liang, Tao Zhang, Fan Yang, Min-gan Lin, Yujing Qiao, Weipeng Chen, Bin Cui, Wen-tao Zhang, and Zenan Zhou. 2025b. CFBench: A comprehensive constraints-following benchmark for LLMs. In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Vol-ume 1: Long Papers) , pages 32926–32944, Vienna, Austria. Association for Computational Linguistics. Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric Xing, Hao Zhang, Joseph Gonzalez, and Ion Stoica. 2023. Judging llm-as-a-judge with mt-bench and chatbot arena. In 
+
+Advances in Neural Information Processing Systems ,volume 36, pages 46595–46623. Curran Associates, Inc. Lucen Zhong, Zhengxiao Du, Xiaohan Zhang, Haiyi Hu, and Jie Tang. 2025. Complexfuncbench: Explor-ing multi-step and constrained function calling under long-context scenario. Preprint , arXiv:2501.10132. Jeffrey Zhou, Tianjian Lu, Swaroop Mishra, Siddhartha Brahma, Sujoy Basu, Yi Luan, Denny Zhou, and Le Hou. 2023a. Instruction-following evaluation for large language models. Preprint , arXiv:2311.07911. Junjie Zhou, Yan Shu, Bo Zhao, Boya Wu, Zhengyang Liang, Shitao Xiao, Minghao Qin, Xi Yang, Yong-ping Xiong, Bo Zhang, Tiejun Huang, and Zheng Liu. 2025. Mlvu: Benchmarking multi-task long video understanding. In 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) ,pages 13691–13701. Luowei Zhou, Chenliang Xu, and Jason J. Corso. 2017. Towards automatic learning of procedures from web instructional videos. Preprint , arXiv:1703.09788. Wangchunshu Zhou, Yuchen Eleanor Jiang, Ethan Wilcox, Ryan Cotterell, and Mrinmaya Sachan. 2023b. Controlled text generation with natural lan-guage instructions. In Proceedings of the 40th Inter-national Conference on Machine Learning , volume 202 of Proceedings of Machine Learning Research ,pages 42602–42613. PMLR. Tao Zou, Xinghua Zhang, Haiyang Yu, Minzheng Wang, Fei Huang, and Yongbin Li. 2025. EIFBENCH: Ex-tremely complex instruction following benchmark for large language models. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing , pages 20930–20953, Suzhou, China. Association for Computational Linguistics. 2 3 4 5 6 7 8
+
+> Number of annotated constraints
+> 0
+> 20
+> 40
+> 60
+> 80
+> Number of instructions
+> 24
+> 38
+> 49
+> 57
+> 77
+> 49
+> 12
+
+Figure 6: Number of annotated constraints per instruc-tion in Base-306. 
+
+A Additional Details 
+
+A.1 Additional Implementation and Dataset Details 
+
+All local experiments were conducted on NVIDIA RTX PRO 6000 GPUs with 96GB memory. DPO training of Qwen3-VL-8B on the 540-pair prefer-ence split took approximately 2 hours. For infer-ence, InternVL3.5-14B and Qwen3-VL-30B-A3B used two GPUs, while the remaining local model runs used a single GPU. The total local inference and evaluation time across all experiments was ap-proximately 32 hours. All source datasets used in this work are pub-licly released benchmark resources, and we use them in accordance with their stated licenses and access conditions. TempCompass is released for academic research use under CC BY-NC 4.0. MM-World provides an MIT-licensed repository. NExT-QA provides QA annotations and benchmark re-sources through an MIT-licensed repository. The YouCook2 annotations are released under the Cre-ative Commons BY-NC-SA 3.0 license. For all sources, we retain the original source identifiers and use the materials only for non-commercial re-search benchmark construction, while all video copyrights remain with their original copyright holders. 
+
+A.2 Base-306 Constraint Composition 
+
+Figure 6 shows the distribution of the number of constraints per satisfiable instruction in Base-306. Most items contain four to seven constraints, which makes instruction-level success substantially stricter than satisfying any single constraint in iso-lation. Figure 7 reports the full constraint-type heatmap. Rows are constraint types, grouped by dimension 11 and sorted by average CPR within each group. Cell text gives the number of passed model at-tempts over the annotated total for that constraint type. Empty outputs and API-blocked outputs are counted as failures: in our runs, two Gemini test items were blocked by the API safety filter, and five InternVL3.5-8B items produced empty outputs. 
+
+A.3 Conflict Diagnostic Subset 
+
+In addition to the 306 satisfiable test items, we con-struct a separate 30-item conflict diagnostic subset. Each item is derived from an existing instruction: we preserve the video-grounded core task, keep 2–4 otherwise normal constraints, and inject ex-actly one explicit incompatibility between two con-straints. The subset is balanced across ten conflict templates, with three items per template. For evaluation, Basic pass requires explicit un-satisfiability detection and conflict mention. Strict 
+
+pass additionally requires localizing the conflicting requirements and not proceeding with an ordinary video answer. The full judge prompt is shown in Figure 16. 
+
+A.4 Residual Failure Modes in Instruction Construction 
+
+After automated verification, we manually inspect residual inconsistencies in the satisfiable split. De-spite multi-stage filtering, several recurring failure modes remain. First, some instructions contain mismatches be-tween content-related constraints and visual evi-dence, e.g., requiring details or events that do not appear in the video. We also observe occasional accidental cross-constraint conflicts, such as exact-word requirements that are incompatible with the required output language. These accidental cases are removed or repaired in the satisfiable split; by contrast, the separate conflict diagnostic subset in Appendix A.3 deliberately contains hard conflicts for diagnostic evaluation. Second, some Selection -type instructions re-main underspecified. In these cases, the unse-lected branch is not described clearly enough, or the branching condition is framed too subjectively (e.g., whether the response should be written “as a news report” or “as a tutorial”), rather than being tied to an objectively identifiable alternative in the video. This weakens the intended design of Selec-tion , where the correct branch should be uniquely determined by visual evidence. 
+
+A.5 Human Validation and Judge Alignment 
+
+To assess the reliability of our semantic evaluation pipeline, we conducted an additional human valida-tion study with three undergraduate annotators who had no prior experience with VCIFBench. The an-notators were compensated at a rate of USD 9 per hour and labeled 630 constraint-level validation instances. The annotators reached 96.19% com-plete agreement, with Fleiss’ κ = 0 .9342 . We use their majority vote as the human reference label for judge-alignment analysis. Because our main judge uses a closed-source model, we further examine whether an alternative judge model can serve as a more reproducible op-tion for deployment or independent replication. Ta-ble 8 compares GPT-5 and GLM-4.5V against the human majority vote. GPT-5 shows stronger align-ment with the human reference, reaching 88.89% agreement and κ = 0.7300. GLM-4.5V obtains lower but still moderate alignment, with 84.92% agreement.                
+
+> Table 8: Judge alignment with the human majority ref-erence.
+> Comparison nAgreement Kappa AC1 PABAK
+> GPT-5 vs. human 630 88.89 0.7300 0.8114 0.7778 GLM-4.5V vs. human 630 84.92 0.5555 0.7742 0.6984
+
+A.6 Task–Constraint Interaction Diagnostics 
+
+The main text summarizes recurring constraint– constraint interactions. Here we provide addi-tional task–constraint diagnostics, focusing on cases where a constraint becomes harder because the task itself encourages a competing response style. • state_change_detection × tone . Although 
+
+tone is generally not a hard constraint, it be-comes more fragile when the task asks for state changes. In one sample, models are asked to describe a visible facial change in a neutral and objective tone instead of interpreting the emo-tion, but outputs such as “he appears to be happy” or “broad, happy smile” turn visual change into affective interpretation. This suggests that task semantics can pull models away from neutral description and make style control harder. • practical_writing × rhetoric . Practical writing favors direct, actionable steps, while rhetorical constraints require comparison, con-trast, or simile. In YouCook2 examples, some 12 Gemini Pro 
+
+> GPT-5.4
+> Gemini Flash
+> MiniCPM
+> Qwen3-30B
+> Qwen3-8B
+> GLM-9B
+> Intern14B
+> MiMo-7B
+> Intern8B
+
+word_count (N=61) 
+
+paragraph_count (N=18) 
+
+csv (N=24) 
+
+tense (N=27) 
+
+pattern_opening (N=15) 
+
+emphasis (N=11) 
+
+pattern_closing (N=12) 
+
+letter_case (N=45) 
+
+item_count (N=77) 
+
+sentence_count (N=26) 
+
+fixed_closing (N=26) 
+
+json (N=26) 
+
+fixed_opening (N=29) 
+
+numbered_list (N=34) 
+
+bullet_list (N=67) 
+
+markdown (N=34) 
+
+prefix_label (N=15) 
+
+plain_text (N=58) 
+
+no_contractions (N=34) 
+
+summarize (N=41) 
+
+selection_accuracy (N=54) 
+
+content_exclusion (N=22) 
+
+content_inclusion (N=120) 
+
+lexical_diversity (N=27) 
+
+focus (N=49) 
+
+tracking (N=25) 
+
+harmful_content_exclusion (N=5) 
+
+sequence_marker_inclusion (N=28) 
+
+exact_word_inclusion (N=31) 
+
+exact_word_exclusion (N=18) 
+
+personal_information_exclusion (N=11) 
+
+output_language (N=47) 
+
+persona (N=43) 
+
+rhetoric (N=40) 
+
+tone (N=109) 
+
+target_audience (N=67) 
+
+spatial_grouping (N=25) 
+
+chronological (N=50) 
+
+causal (N=45) 
+
+hierarchical (N=32) 
+
+counterfactual (N=16) 
+
+59/61 45/61 57/61 24/61 33/61 27/61 32/61 33/61 32/61 10/61 
+
+16/18 17/18 14/18 10/18 14/18 10/18 9/18 12/18 13/18 2/18 
+
+18/24 19/24 15/24 16/24 12/24 16/24 14/24 17/24 16/24 16/24 
+
+25/27 24/27 22/27 18/27 18/27 19/27 16/27 13/27 16/27 11/27 
+
+10/15 12/15 9/15 13/15 12/15 11/15 14/15 11/15 10/15 0/15 
+
+11/11 10/11 10/11 10/11 7/11 6/11 8/11 6/11 7/11 2/11 
+
+10/12 10/12 9/12 10/12 9/12 11/12 7/12 9/12 10/12 2/12 
+
+40/45 42/45 40/45 34/45 31/45 34/45 37/45 36/45 37/45 13/45 
+
+67/77 76/77 68/77 57/77 62/77 66/77 68/77 57/77 60/77 22/77 
+
+24/26 24/26 24/26 19/26 24/26 22/26 21/26 19/26 23/26 4/26 
+
+23/26 24/26 23/26 20/26 21/26 22/26 22/26 18/26 21/26 11/26 
+
+24/26 23/26 22/26 21/26 24/26 23/26 24/26 23/26 21/26 2/26 
+
+28/29 28/29 26/29 26/29 26/29 27/29 24/29 20/29 26/29 8/29 
+
+32/34 33/34 34/34 32/34 28/34 27/34 27/34 29/34 31/34 19/34 
+
+61/67 63/67 61/67 60/67 61/67 64/67 61/67 64/67 61/67 52/67 
+
+29/34 34/34 30/34 33/34 33/34 31/34 30/34 34/34 34/34 24/34 
+
+15/15 15/15 15/15 15/15 14/15 13/15 14/15 15/15 14/15 14/15 
+
+58/58 58/58 58/58 58/58 58/58 57/58 58/58 53/58 58/58 55/58 
+
+34/34 34/34 34/34 34/34 34/34 34/34 34/34 34/34 34/34 34/34 
+
+19/41 21/41 17/41 12/41 12/41 14/41 14/41 11/41 11/41 6/41 
+
+41/54 43/54 40/54 16/54 17/54 25/54 26/54 16/54 22/54 1/54 
+
+8/22 5/22 11/22 11/22 11/22 8/22 13/22 11/22 11/22 12/22 
+
+75/120 77/120 76/120 59/120 60/120 55/120 57/120 51/120 46/120 44/120 
+
+25/27 18/27 22/27 15/27 10/27 15/27 8/27 14/27 13/27 5/27 
+
+32/49 34/49 31/49 26/49 28/49 27/49 24/49 24/49 27/49 17/49 
+
+16/25 18/25 16/25 15/25 16/25 15/25 17/25 13/25 13/25 13/25 
+
+3/5 5/5 4/5 3/5 3/5 3/5 3/5 3/5 3/5 4/5 
+
+27/28 26/28 27/28 26/28 25/28 26/28 25/28 25/28 25/28 19/28 
+
+31/31 30/31 29/31 29/31 27/31 30/31 30/31 26/31 29/31 27/31 
+
+18/18 17/18 18/18 18/18 17/18 18/18 17/18 16/18 15/18 17/18 
+
+11/11 11/11 11/11 11/11 11/11 11/11 11/11 10/11 11/11 10/11 
+
+44/47 38/47 42/47 38/47 35/47 35/47 34/47 27/47 30/47 13/47 
+
+40/43 43/43 41/43 35/43 31/43 31/43 34/43 30/43 29/43 16/43 
+
+37/40 39/40 39/40 33/40 31/40 34/40 36/40 30/40 26/40 24/40 
+
+103/109 103/109 104/109 94/109 95/109 96/109 95/109 82/109 94/109 62/109 
+
+67/67 67/67 67/67 63/67 62/67 65/67 65/67 55/67 62/67 42/67 
+
+23/25 22/25 24/25 16/25 16/25 17/25 14/25 12/25 15/25 11/25 
+
+44/50 47/50 47/50 41/50 36/50 39/50 35/50 38/50 36/50 21/50 
+
+43/45 44/45 44/45 31/45 30/45 34/45 41/45 28/45 32/45 22/45 
+
+31/32 32/32 29/32 26/32 25/32 25/32 26/32 26/32 20/32 16/32 
+
+15/16 15/16 13/16 15/16 14/16 14/16 14/16 13/16 11/16 13/16 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 
+
+100 
+
+> CPR (%)
+
+Figure 7: Full Base-306 constraint-type heatmap. The y-axis lists constraint types with the number of annotated instances in parentheses. Cell annotations report passed/annotated-total model attempts, and color indicates CPR. 
+
+13 Table 6: Construction templates for Conflict-30. Each template contributes three items. 
+
+Template Type Conflicting requirement pattern #
+
+exact_include_exclude Lexical contradiction Require an exact phrase while forbidding the same phrase. 3
+
+content_include_exclude Semantic contradiction Require mention of a visible entity or category while forbidding that entity or semantic category. 3
+
+case_exact_word Casing contradiction Require all-lowercase output while requiring an exact uppercase token such as “NASA”. 3
+
+json_plain_text Format contradiction Require valid JSON while forbidding JSON-like structure such as braces, quotes, colons, commas, and key–value fields. 3
+
+csv_json Format contradiction Require the same no-extra-text output to be both a valid JSON object and a valid CSV table. 3
+
+sentence_fixed_closing Length/structure contradic-tion Require exactly one sentence while also requiring a distinct first summary sentence and an exact final closing sentence. 3
+
+lexical_prefix_repetition Repetition contradiction Require multiple list items to share the same prefix while forbidding word repetition. 3
+
+markdown_plain_emphasis Format/emphasis contra-diction Require Markdown bold with double asterisks while forbidding Markdown symbols under plain-text output. 3
+
+visible_absent_content Video-grounding contra-diction Require mention of an absent object as visible evidence while also requiring only visible evidence to be reported. 3
+
+word_budget_long_phrase Length/exact-phrase con-tradiction Require an exact word budget shorter than a mandatory exact phrase. 3
+
+Table 7: Template-level Conflict-30 results. Values are percentages. 
+
+Template Strict Blind Main failure 
+
+case_exact 36.67 23.33 wrong/generic loc. 
+
+content_conflict 66.67 20.00 wrong loc. 
+
+csv_json 63.33 30.00 format choice 
+
+exact_conflict 66.67 30.00 normal answer 
+
+json_plain 73.33 23.33 normal answer 
+
+prefix_repeat 63.33 26.67 blind compliance 
+
+markdown_plain 56.67 43.33 blind compliance 
+
+sent_closing 43.33 43.33 blind compliance 
+
+absent_visible 63.33 23.33 hallucination 
+
+word_budget 70.00 0.00 under-localized 
+
+models produce clear cooking instructions but omit the required rhetorical device, while oth-ers add figurative language that is not clearly grounded in the visible action. This reflects a tension between practical clarity and rhetorical elaboration. 
+
+A.7 Detailed Task Taxonomy 
+
+Table 9 summarizes the task taxonomy used in VCIFBench. The definitions are taken from the task descriptions used in prompts during instruction construction. 
+
+A.8 Detailed Constraint Taxonomy 
+
+Table 10 summarizes the constraint taxonomy used in VCIFBench. We construct the taxonomy through a bottom-up and then top-down procedure. We first collect candidate constraints from prior instruction-following benchmarks, video-grounded tasks, and the requirements that naturally arise when adapting video questions into open-ended instructions. We then group these candidates ac-cording to the aspect of the response they primarily control. This leads to a distinction between what is said 
+
+and how it is expressed . Constraints about required, 0 10 20 30 40 50 
+
+Base-306 IPR (%) 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 
+
+100 
+
+> Conflict-30 strict pass (%)  Gemini Pro
+> GPT-5.4
+> Gemini Flash
+> MiniCPM
+> Qwen3-30B
+> Qwen3-8B
+> GLM-9B
+> Intern14B
+> MiMo-7B
+> Intern8B
+
+Figure 8: Relation between Base-306 IPR and Conflict-30 strict pass. Conflict awareness is related to ordinary compliance but is not identical to it. 
+
+excluded, or emphasized video-supported informa-tion are grouped under Content . The “how” side is divided into Format , covering mechanical sur-face requirements such as serialization, casing, and length; Style , covering communicative expression such as tone, persona, target audience, and out-put language; and Structure , covering information organization such as chronological, causal, hierar-chical, and spatial grouping. 
+
+A.9 External Evaluation of DPO-Tuned Model 
+
+Table 11: External evaluation on MM-IFEval. 
+
+Model P-level C-level Overall 
+
+Qwen3-VL-8B Base 47.00 75.20 68.15 Qwen3-VL-8B DPO 48.00 (+1.00) 77.02 (+1.81) 69.76 (+1.61) 
+
+To further examine whether the preference-optimized model transfers beyond VCIFBench, 14 Table 9: Detailed glossary of task types in VCIFBench, including concise definitions. 
+
+Task Type Definition Perception 
+
+emotion_recognition Infer emotions only when they are clearly visible from facial expression or body language. harmful_content_detection Detect harmful or unsafe content only when supported by explicit visual evidence. text_recognition Extract readable on-screen text only when it is clearly visible. 
+
+Reasoning 
+
+event_sequencing Determine the temporal order of events in the video. state_change_detection Describe what changes from earlier to later stages based on visual evidence. temporal_query Answer before, during, or after questions with justification grounded in the frames. spatial_arrangement_description Describe the layout of objects or entities using relative spatial positions such as left, right, inside, or behind. object_relationship Describe physical or functional relationships among objects, such as support, attachment, containment, or blocking. cause_effect_identification Identify cause–effect relations only when they are visually supported, avoiding unsup-ported speculation. counterfactual_reasoning Reason about what would likely change under an alternative visual condition. predictive_reasoning Predict likely outcomes only when the prediction is strongly grounded in the observed visual context. 
+
+Expressive Generation 
+
+summarization Produce a faithful high-level summary of the video rather than a transcript. tutorial_generation Convert what is shown in the video into step-by-step instructions. professional_writing Present the content in a formal style, such as a report, briefing, or meeting minutes. practical_writing Express the content in an actionable form, such as a checklist, plan, or troubleshooting guide. platform_copywriting Produce platform-oriented copy grounded in the facts shown in the video. role_play_response Respond consistently from a specified persona while remaining grounded in the video content. creative_writing Generate creative text that does not contradict the visible facts. style_transfer_rewriting Rewrite the content in a specified style while preserving factual consistency. point_of_view_reframing Reframe the same content from a different viewpoint without changing the underlying facts. 
+
+we conduct an auxiliary evaluation on MM-IFEval (Ding et al., 2025). MM-IFEval reports two levels of performance: C-level, which evaluates compliance with output-composition constraints, and P-level, which evaluates perception-oriented capabilities tied more directly to the visual input. As shown in Table 11, the DPO-tuned Qwen3-VL-8B obtains small but consistent gains over the base model on all reported metrics. The overall score improves from 0.6815 to 0.6976. These re-sults suggest that the VCIFBench-derived DPO data provides a weak positive transfer signal on an external multimodal instruction-following bench-mark. 
+
+B Examples 
+
+In this section, we provide representative exam-ples generated and evaluated by our pipeline, in-cluding instructions constructed by our generation pipeline, corresponding model outputs, evaluation results produced by our evaluation pipeline, and the prompts used in our implementation. 15 Table 10: Detailed glossary of constraint types in VCIFBench, including their definitions and evaluation types. 
+
+Constraint Type Evaluation Definition Format 
+
+json Rule-based Output must be valid JSON (object or array). csv Rule-based Output must be valid CSV. bullet_list Rule-based Use an unordered bullet list. numbered_list Rule-based Use an ordered list. markdown Rule-based Use markdown formatting. plain_text Rule-based Plain text only. word_count Hybrid Enforce word count bounds. sentence_count Hybrid Enforce sentence count bounds. paragraph_count Hybrid Enforce paragraph count bounds. item_count Hybrid Enforce item or list entry count bounds. fixed_opening Hybrid Start with the exact specified string. fixed_closing Hybrid End with the exact specified string. pattern_opening LLM-based The opening should follow a described pattern rather than an exact fixed string. pattern_closing LLM-based The closing should follow a described pattern rather than an exact fixed string. prefix_label Hybrid Each item should begin with the specified prefix or label format. letter_case Hybrid Apply the required casing rule to the specified scope. emphasis LLM-based Emphasize specified spans with the given markers. tense LLM-based Use the specified tense consistently. no_contractions Rule-based Avoid contractions (e.g., use “do not” instead of “don’t”). 
+
+Content 
+
+summarize LLM-based Require abstraction or a high-level summary rather than literal tran-scription. focus LLM-based Emphasize the specified aspects and allocate most of the content to them. content_inclusion LLM-based The response must mention specified visible items, which should re-main small in scope and checkable. exact_word_inclusion Hybrid The response must include the specified exact word or phrase verbatim. sequence_marker_inclusion LLM-based The response must use specified ordering or connective markers. tracking LLM-based Re-identify recurring entities across scenes while maintaining cross-scene identity consistency. lexical_diversity Hybrid Avoid repeating key terms; this may specify banned terms or a maxi-mum repetition count. content_exclusion LLM-based The response must not mention specified items. exact_word_exclusion Hybrid The response must not include the specified exact word or phrase. personal_information_exclusion LLM-based Do not reveal personal information, only when people or identity-bearing details are visible. harmful_content_exclusion LLM-based Do not include harmful or unsafe content. 
+
+Style 
+
+tone LLM-based Use the specified tone. target_audience LLM-based Adapt the response for the specified audience. persona LLM-based Write from the specified role or persona. output_language LLM-based Produce the entire response in the specified language or script. rhetoric LLM-based Use the specified rhetorical devices. 
+
+Structure 
+
+chronological LLM-based Organize the response in real-time chronological order. causal LLM-based Present cause before effect with explicit linking. spatial_grouping LLM-based Organize the response according to spatial layout. hierarchical LLM-based Organize the response by abstraction level. counterfactual LLM-based Organize the response into three parts: observed facts, intervention, and predicted outcome. 
+
+16 Example 1. 
+
+Instruction 
+
+Describe the transformation of the plant from earlier to later frames based on the video, choosing between two options: Option A (the plant is reviving) and Option B (the plant is wilting). If the plant is reviving, describe the observed transformation of the plant from earlier frames to later frames, focusing on the overall improvement trend across frames and using the present continuous tense consistently when describing the frames. If the plant is wilting, describe how the plant changes from earlier to later frames, focusing on the overall decline trend across frames, ensure that no descriptive word about the flower’s condition is repeated more than twice, and emphasize visible signs of deterioration by marking them with double asterisks (**). 
+
+Model Output 
+
+Option A: The plant is reviving. The leaves, which earlier appeared drooping and limp, are now gradually lifting and standing more upright. The overall posture of the plant is improving, with each frame showing a subtle but consistent upward movement of the foliage. The greenery appears to be gaining vigor, with the edges of the leaves becoming less curled and more taut. The plant’s stems are visibly straightening, and the canopy is expanding slightly, indicating renewed energy. The transformation continues with the leaves regaining their natural shape, and the plant’s presence becomes more vibrant and lively across the frames. 
+
+LLM-BASED CHECKS 
+
+focus Pass 
+
+Question 1: Does the output describe an overall improvement trend, specifically noting that the leaves are gradually lifting, consistent with the plant reviving? 
+
+Result: Pass 
+
+tense Pass 
+
+Constraint: Use present continuous tense consistently when describing the frames. 
+
+Result: Pass 
+
+selection_accuracy Pass 
+
+Question 1: Does the model select the correct branch consistent with: The plant is reviving ?
+
+Result: Pass 
+
+17 Example 2. 
+
+Instruction 
+
+Describe the transformation of the plant from earlier to later frames based on the video, choosing between two options: Option A (the plant is reviving) and Option B (the plant is wilting). If the plant is reviving, describe the observed transformation of the plant from earlier frames to later frames, focusing on the overall improvement trend across frames and using the present continuous tense consistently when describing the frames. If the plant is wilting, describe how the plant changes from earlier to later frames, focusing on the overall decline trend across frames, ensure that no descriptive word about the flower’s condition is repeated more than twice, and emphasize visible signs of deterioration by marking them with double asterisks (**). 
+
+Model Output 
+
+Option B: The plant is wilting. Across the frames, its leaves are visibly drooping and sagging, with some edges curling inward. The overall posture of the plant is increasingly limp, and the leaves appear less vibrant, with a noticeable loss of turgidity. The stems are bending downward , and the foliage is losing its upright stance . The transformation indicates a steady decline in vitality, with no signs of recovery or improvement. 
+
+HYBRID CHECKS 
+
+lexical_diversity Pass 
+
+Function: 
+
+check_lexical_diversity(model_output, words, max_repeats) 
+
+Extracted parameters: 
+
+• words = [wilting, drooping, sagging, limp, vibrant, decline, deterioration] 
+
+• max_repeats = 2 
+
+Result: Pass 
+
+LLM-BASED CHECKS 
+
+emphasis Pass 
+
+Constraint: Emphasize visible signs of deterioration by marking them with double asterisks. 
+
+Result: Pass 
+
+Figure 9: A representative example of selection. 
+
+18 selection_accuracy Pass 
+
+Question 1: Does the output select the correct branch consistent with: The plant is wilting ?
+
+Result: Pass 
+
+# Example 3. 
+
+Instruction 
+
+From the perspective of a person riding a bicycle on a rural gravel path, identify and describe the key events involving the animals encountered along the route. Summarize these events into a concise narrative, focusing on the encounter and interactions. Write the entire narrative in lowercase and end with a closing sentence that follows the pattern: “thus ends the ride with [encounter description].” 
+
+Model Output 
+
+the journey begins with a solitary skunk appearing on the gravel path, its black and white fur contrasting against the grey surface. as the rider approaches, the skunk moves closer, its bushy tail held high. the encounter intensifies as the skunk’s scent glands become visible, indicating a defensive posture. the rider slows down, and the skunk’s movements become more erratic, suggesting a sense of alarm. the skunk’s tail flares out, and it begins to move away, its body low to the ground. the rider stops, and the skunk pauses, its head turned towards the rider, creating a moment of tension. the skunk then scurries off the path, disappearing into the grassy verge. the rider remains stationary, watching the skunk retreat. the encounter concludes with the skunk’s disappearance, leaving the rider alone on the path. thus ends the ride with a skunk’s defensive display and subsequent retreat into the grass. 
+
+HYBRID CHECKS 
+
+letter_case Pass 
+
+Function: 
+
+check_letter_case(model_output, case) 
+
+Extracted parameters: 
+
+• case = lowercase 
+
+Result: Pass 
+
+19 LLM-BASED CHECKS 
+
+summarize Fail 
+
+Question 1: Does the output mention the rider stop on a rural gravel path bordered by greenery and trees? 
+
+Result: Pass 
+
+Question 2: Does the output summarize the approach and interaction with the skunks, including their movement toward the rider and bicycle? 
+
+Result: Fail Reason: 
+
+• The output describes only a solitary skunk, while the intended event structure involves multiple skunks. • It does not clearly summarize their approach and interaction with the rider and bicycle, and instead mainly emphasizes a defensive posture. 
+
+Question 3: Does the output mention the skunks eventually dispersing toward the edge of the path and into the vegetation? 
+
+Result: Pass 
+
+pattern_closing Pass 
+
+Constraint: End with a closing sentence that follows the pattern: “thus ends the ride with [encounter description].” 
+
+Result: Pass 
+
+20 Example 4. 
+
+Instruction 
+
+Present your prediction of the key factor that will enable a business to expand sustainably and positively impact society in the future as an unordered bullet list. Emphasize the forward-looking factor that ensures both growth and societal contribution, clearly linking the visible business patterns in the video to the predicted factor. Include at least one notable detail from the success story examples shown. Use an informative and professional tone, and avoid using contractions entirely. 
+
+Model Output 
+
+* Deeply integrated, ethically governed artificial intelligence and adaptive learning systems will be the pivotal factor enabling businesses to expand sustainably and positively impact society. This forward-looking factor signifies a fundamental shift from merely deploying technology for efficiency to embedding intelligence, continuous learning, and a robust ethical framework into the very core of business operations and strategic decision-making. For sustainable expansion, businesses will leverage AI to predict market shifts with unprecedented accuracy, optimize resource allocation to minimize waste across complex global supply chains, and personalize customer experiences while rigorously respecting privacy and data sovereignty. Simultaneously, ethical AI frameworks will ensure that these advancements contribute positively to society by promoting fairness, transparency, and accountability in algorithms, actively addressing complex global challenges such as climate change and healthcare disparities, and fostering inclusive economic growth. The ability to learn, adapt, and self-optimize with an inherent ethical compass will be paramount. Visible business patterns, such as the escalating investment in big data analytics, the proliferation of personalized marketing, the increasing demand for supply chain transparency, and the nascent but growing focus on explainable AI, are all precursors to this future state. Businesses are already collecting vast quantities of data and experimenting with AI, but the future demands a more holistic, ethical, and adaptive integration where AI systems continuously learn from their environment and societal feedback, driving both profitability and profound positive impact. A notable visual detail from successful future enterprises will be the vibrant, real-time digital dashboards prominently displayed in corporate lobbies, illustrating not only financial metrics but also environmental footprint reductions, community engagement scores, and ethical algorithm performance, serving as a transparent testament to their dual commitment to prosperity and planetary well-being. 
+
+21 RULE-BASED CHECKS 
+
+bullet_list Pass 
+
+Function: 
+
+check_bullet_list(model_output) 
+
+Result: Pass 
+
+no_contractions Pass 
+
+Function: 
+
+check_no_contractions(model_output) 
+
+Constraint: Avoid using contractions entirely. 
+
+Result: Pass 
+
+LLM-BASED CHECKS 
+
+focus Pass 
+
+Question 1: Does the output primarily emphasize the predictive factor of a sustainable growth strategy as the enabler of future business expansion and societal contribution? 
+
+Result: Pass 
+
+content_inclusion Fail 
+
+Question 1: Does the output explicitly mention at least one of the following notable visual details from the success story examples: (1) Bakmi GM’s daily high customer volume and many employees, (2) Joger’s transition from IDR500K to a top souvenir brand, or (3) Johnny Andrean’s hundreds of outlets regionally? 
+
+Result: Fail Reason: 
+
+• The output introduces an invented futuristic detail about digital dashboards in corporate lobbies but fails to mention any of the required success-story details shown in the video. 
+
+tone Pass 
+
+Constraint: Use an informative and professional tone. 
+
+Result: Pass 
+
+causal Pass 
+
+Constraint: Clearly link the visible business patterns to the predicted factor. 
+
+Result: Pass 
+
+22 Example 5. 
+
+Instruction 
+
+First, observe the video and identify the visible cause-and-effect relationship between the chemical mixture and the resulting color transitions. Then, write an engaging promotional post for a science education platform. Ensure the whole output is valid JSON, does not include or imply any harmful or unsafe experimentation practices, uses at least one explicit sequence marker such as first , then , or finally to emphasize the progression, and clearly describes the causal relationship between the experiment setup and the color transformations. 
+
+Model Output 
+
+The promotional post should be informative, engaging, and suitable for social media platforms. Here’s the example of how the promotional post could look like in JSON format: 
+
+json 
+
+{ "post": { "title": "Unlock the Magic of Color Chemistry!", "content": "Ever wondered what happens when you mix potassium permanganate with sugar and caustic soda? In our latest experiment, we observed a fascinating transformation from purple to green, then yellow! This isn’t just about colors; it’s about understanding chemical reactions and their effects on our environment. Join us on a journey to explore the wonders of science firsthand. #ScienceForAll", "hashtags": ["#ChemistryMagic", "#ScienceExperiment"] } } 
+
+json 
+
+{ "post": { "title": "Discover the Wonders of Chemical Reactions!", "content": "Have you ever seen a chemical reaction change colors before your eyes? In this exciting experiment, we mixed potassium permanganate with sugar and caustic soda, first creating a vibrant purple solution. Then, as the reaction progressed, the solution transformed into a stunning green hue, finally settling into a bright yellow. This visual spectacle highlights the dynamic nature of chemistry and its ability to captivate our senses. Whether you’re a seasoned scientist or a curious learner, there’s always more to discover in the world of science. Dive in and let your imagination run wild! #ExploreScience", "hashtags": ["#ColorfulChemistry", "#ScienceAdventure"] } } 
+
+RULE-BASED CHECKS 
+
+json Fail 
+
+Function: 
+
+check_json(model_output) 
+
+Constraint: Ensure the output is valid JSON. 
+
+Result: Fail Reason: 
+
+• The output is not a single valid JSON object. It includes two separate JSON blocks while our evaluation extracts the substring from the first { to the last } and attempts to parse it as one complete JSON object. 
+
+23 LLM-BASED CHECKS 
+
+harmful_content_exclusion Pass 
+
+Constraint: Do not include or imply any harmful or unsafe experimentation practices. 
+
+Result: Pass 
+
+sequence_marker_inclusion Pass 
+
+Constraint: Use at least one explicit sequence marker such as first , then , or finally to emphasize the progression. 
+
+Result: Pass 
+
+causal Pass 
+
+Constraint: Clearly describe the causal relationship between the experiment setup and the color transforma-tions. 
+
+Result: Pass 
+
+24 You are an evaluation assistant. We will validate ONE constraint using a LOCAL Python function. You must decide which parameters to pass into the function based on: - constraint_content (natural language constraint) - function_signature (what arguments exist) - param_docs (meaning of each parameter) - the model_output (the candidate answer) CONSTRAINT: - constraint_id: {constraint_id} - constraint_content: {constraint_content} LOCAL FUNCTION: - function_id: {function_id} - function_signature: {function_signature} - usage: {usage} - param_docs: {json.dumps(param_docs, ensure_ascii=False)} MODEL OUTPUT (for reference only; do NOT repeat it back): <<<MODEL_OUTPUT_START {model_output} MODEL_OUTPUT_END>>> Your task: 1) Determine which parameters (excluding model_output) are needed to evaluate this constraint. 2) Produce parameter values ONLY, separated by the exact delimiter: ||| 3) The first argument is ALWAYS model_output and is implicit; you MUST NOT output it. 4) Prefer key=value format for safety, especially for optional parameters. 5) For List values, output JSON arrays; for numbers output plain numbers. 6) Output must be a SINGLE LINE with no extra text. Now output the parameters line: 
+
+Figure 10: Prompt used for hybrid verification . Given a natural-language constraint, a local checking function, and its parameter documentation, the model extracts the required function arguments so that the final checker can be executed programmatically. 
+
+You are a strict multimodal judge. You can see the video frames attached after this text. TASK: For EACH constraint_id in the list, decide whether the CANDIDATE ANSWER satisfies the constraint, given: - VIDEO FRAMES (visual evidence) - ORIGINAL INSTRUCTION - constraint_content OUTPUT RULES (EXTREMELY IMPORTANT): 1) Output MUST be a single valid JSON object ONLY. No markdown, no extra text. 2) You MUST include EVERY constraint_id key listed below. 3) Each value MUST be exactly 0 or 1 (integer). NOT true/false. 4) If unsure, output 0 for that constraint_id. 5) Keys must match the given constraint_id strings exactly. CONSTRAINT_ID LIST (MUST respond to ALL of them): {json.dumps(cids, ensure_ascii=False)} ORIGINAL INSTRUCTION: <<<INSTRUCTION_START {instruction} INSTRUCTION_END>>> CANDIDATE ANSWER (MODEL OUTPUT): <<<MODEL_OUTPUT_START {model_output} MODEL_OUTPUT_END>>> CONSTRAINTS (id + content): {json.dumps(constraints_pack, ensure_ascii=False, indent=2)} Now output ONLY the JSON object: 
+
+Figure 11: Prompt used for LLM-based judging of structure-related constraints. Given the video frames, original instruction, candidate answer, and constraint descriptions, the judge model outputs a JSON object containing binary decisions for each constraint. 
+
+25 You are a strict judge. Decide whether the MODEL OUTPUT satisfies the SUB-CONSTRAINT question. CONSTRAINT: - constraint_id: {constraint_id} - constraint_content: {constraint_content} SUB-CONSTRAINT QUESTION: {sub_q} {inst_block} MODEL OUTPUT: <<<MODEL_OUTPUT_START {model_output} MODEL_OUTPUT_END>>> Answer with exactly one token: YES or NO. If unsure, answer NO. 
+
+Figure 12: Prompt used for LLM-based judging of style-related, format-related, and selected content-related constraints. For some content-related constraints, including content_inclusion , tracking , summarize , focus ,and selection_accuracy , we decompose each high-level constraint into manually written sub-constraint questions (sub_q ) to support more explicit and fine-grained judgment. 
+
+26 You are an expert dataset item writer for a VIDEO-ONLY instruction-following benchmark. MODE-SPECIFIC RULES You are given an MCQ item (question, options, and answer for verification only). You MUST: - Rewrite it as an OPEN-ENDED instruction. - Remove all multiple-choice artifacts, including option labels, explicit answer choices, and answer hints. - Preserve the original semantic target while making the instruction natural and answerable from video frames. - If the item is counterfactual or predictive, ensure that the instruction depends on video-specific observable cues and cannot be answered by generic reasoning alone. INTRINSIC REQUIREMENTS - The instruction must not be solvable by generic commonsense alone. ATOMICITY AND VERIFIABILITY - Default: generate ONE atomic core task only. - Do NOT merge multiple unrelated semantic goals. - Every requirement in the instruction and every bullet under "Additional constraints:" must be decidable from video frames. - Do NOT ask for anything that cannot be inferred from the frames. - The instruction may contain up to THREE steps, but all steps must remain within the same semantic task. COMPOSITION GUIDANCE - Use "And" for the default single-output task. - Use "Chain" only when the task cleanly decomposes into multiple frame-grounded steps. - Use "Selection" only when the branch condition is decidable from video frames and the selected branch should be explicitly recorded in the field "Selection". SELECTION RULES - A Selection instruction must include: - "Condition: <question decidable from frames>" - "Options:" with at least two stable labels - "Branches:" with "If <OptionLabel>: <requirements>" for every option - The output field "Selection" must exactly match one option label. - The "Additional constraints:" bullets must describe only the selected branch. CONSTRAINT RULES - Each constraint bullet must be relevant, checkable, and aligned one-to-one with constraint_dimensions. - Do NOT add trivial bullets such as "do not speculate beyond what is visible" or "do not mention any on-screen text". {min_constraints_rule_block} OUTPUT REQUIREMENTS - Choose exactly ONE task_type from the predefined task taxonomy. - Do NOT invent new task types or new constraint IDs outside the given taxonomy. GLOSSARY {task_type_glossary} {constraint_id_glossary} OUTPUT FORMAT (STRICT JSON; no markdown fences) Return exactly ONE JSON object in the following unified format: {"task_type": "<one id from TASK TAXONOMY>", "composition_type": "And" | "Chain" | "Selection" | ["And" | "Chain" | "Selection", ...], "instruction": "<instruction text>", "constraint_dimensions": ["<constraint_id 1>", "<constraint_id 2>", ...], "reference_answer": "<evaluation-only reference>", "Selection": "<selected option label decided from frames; include this field ONLY when composition_type contains Selection>" }CONSTRAINT TAXONOMY IDS {json.dumps(CONSTRAINT_IDS, ensure_ascii=False, indent=2)} INPUT (JSON) --- The answering model will NOT see this: {payload_str} 
+
+Figure 13: Prompt used for MCQ-based instruction generation . Starting from an existing multiple-choice item, the generator rewrites it into an open-ended, video-grounded instruction while enforcing atomicity, frame-grounded verifiability, composition validity, and constraint quality. 
+
+27 You are an expert dataset item writer for a VIDEO-ONLY instruction-following benchmark. MODE-SPECIFIC RULES You are given a forced task_type, composition_type, and constraint_dimensions. You should follow them as closely as possible. However, you may: - ADD extra constraint_id(s), or - REPLACE a constraint_id only when this is truly necessary to make the item coherent, answerable from video frames, and verifiable. If you add or replace anything, you MUST briefly state it in the AUXILIARY section: - what was changed (added/replaced), and - why the change was necessary. INTRINSIC REQUIREMENTS - The instruction must not be solvable by generic commonsense alone. - If the task is counterfactual or predictive, it must be grounded in video-specific observable cues. ATOMICITY AND VERIFIABILITY - Default: generate ONE atomic core task only. - Do NOT merge multiple unrelated semantic goals. - Every requirement in the instruction and every bullet under "Additional constraints:" must be decidable from video frames. - Do NOT ask for anything that cannot be inferred from the frames. - The instruction may contain up to THREE steps, but all steps must remain within the same semantic task. COMPOSITION GUIDANCE - Use "And" for the default single-output task. - Use "Chain" only when the task cleanly decomposes into multiple frame-grounded steps. - Use "Selection" only when the branch condition is decidable from video frames and the selected branch should be explicitly recorded in the field "Selection". SELECTION RULES - A Selection instruction must include: - "Condition: <question decidable from frames>" - "Options:" with at least two stable labels - "Branches:" with "If <OptionLabel>: <requirements>" for every option - The output field "Selection" must exactly match one option label. - The "Additional constraints:" bullets must describe only the selected branch. CONSTRAINT RULES - Each constraint bullet must be relevant, checkable, and aligned one-to-one with constraint_dimensions. - Do NOT add trivial bullets such as "do not speculate beyond what is visible" or "do not mention any on-screen text". {min_constraints_rule_block} OUTPUT REQUIREMENTS - Choose exactly ONE task_type from the predefined task taxonomy. - Do NOT invent new task types or new constraint IDs outside the given taxonomy. GLOSSARY {task_type_glossary} {constraint_id_glossary} OUTPUT FORMAT (STRICT JSON; no markdown fences) Return exactly ONE JSON object in the following unified format: {"task_type": "<one id from TASK TAXONOMY>", "composition_type": "And" | "Chain" | "Selection" | ["And" | "Chain" | "Selection", ...], "instruction": "<instruction text>", "constraint_dimensions": ["<constraint_id 1>", "<constraint_id 2>", ...], "reference_answer": "<evaluation-only reference>", "Selection": "<selected option label decided from frames; include this field ONLY when composition_type contains Selection>" }CONSTRAINT TAXONOMY IDS {json.dumps(CONSTRAINT_IDS, ensure_ascii=False, indent=2)} INPUT (JSON) --- The answering model will NOT see this: {payload_str} 
+
+Figure 14: Prompt used for video-grounded instruction generation . Given forced task, composition, and constraint settings together with video-derived input, the generator constructs a benchmark item under rules enforcing atomicity, frame-grounded verifiability, composition validity, and constraint quality. 
+
+28 You are rewriting ONE instruction-following annotation into a clean, executable form for evaluation. You are given ONE record containing: - captions: auxiliary text for the item writer/evaluator - instruction: the instruction shown to the answering model - constraint_dimensions: a list of constraint_id tokens (which may contain errors) - CONSTRAINT_ID_DEFINITION: the ONLY valid constraint_id keys and their meanings Composition types: - And: satisfy multiple constraints at the same time. - Chain: complete multiple tasks in sequence, where later tasks may depend on earlier outputs. - Selection: evaluate a condition and follow the corresponding branch. Your job: 1) Extract constraints from any constraint-list section (e.g., "Additional constraints:"), regardless of bullet style. Treat each bullet line as one constraint candidate, even if it contains ":" or ";" internally. 2) Rewrite everything into ONE natural instruction string called "normalized_instruction": - remove headings such as "Additional constraints:" - remove bullet markers or numbering - merge all requirements into one coherent instruction 3) If composition_type is "Selection", rewrite normalized_instruction in fluent ENGLISH using this structure: - first, write 1--2 sentences introducing the task, condition, and options - then, write one paragraph in the following form: "If Option A: <task requirement + Option A constraints>. If Option B: <task requirement + Option B constraints>." 4) Align and clean up constraint IDs: - map each extracted constraint to one or more IDs from CONSTRAINT_ID_DEFINITION - if multiple IDs apply, output "constraint_id" as a list - correct misspelled IDs in constraint_dimensions by mapping them to the closest valid key - add missing IDs only when they are directly supported by the extracted constraint text - delete extra or invalid original IDs 5) Perform a final consistency check: - detect conflicts or non-executable constraints - revise them minimally to make them executable and non-conflicting - record each change in "revisions" with a short reason Output STRICT JSON ONLY: {"normalized_instruction": "<ONE merged natural instruction>", "composition_type": "And" | "Chain" | "Selection", "constraints": [ {"constraint_id": "<a key OR a list of keys from CONSTRAINT_ID_DEFINITION>", "constraint_content": "<constraint clause>" }], "fixed_constraint_dimensions": ["<ids after correction>"], "revisions": [{"type":"...", "before":"...", "after":"...", "reason":"..."}], "warnings": ["<optional>"] }Rules: - constraint_id must use ONLY keys from CONSTRAINT_ID_DEFINITION - output STRICT JSON only CONSTRAINT_ID_DEFINITION: {constraint_def_str} INPUT (JSON): {payload_str} 
+
+Figure 15: Prompt used for annotation normalization and constraint repair . Given an instruction-following annotation record, the model rewrites it into an executable normalized instruction, aligns extracted constraints with valid taxonomy IDs, and performs minimal revisions to resolve conflicts or non-executable requirements. 
+
+29 You are a strict evaluator for an unsatisfiable-instruction diagnostic subset. The user instruction intentionally contains conflicting constraints. The correct behavior is NOT to answer the normal video task. The correct behavior is to explicitly state that the instruction cannot be fully satisfied as written , identify the conflicting requirements, and ideally ask for clarification or a priority rule. Judge only the CANDIDATE ANSWER text. You do not need the video. Return a single JSON object with exactly these keys: {"explicit_unsatisfiable": 0 or 1, "mentions_conflict": 0 or 1, "conflict_localized": 0 or 1, "refuses_normal_answer": 0 or 1, "asks_clarification_or_priority": 0 or 1, "pass": 0 or 1, "strict_pass": 0 or 1, "reason": "short explanation", "evidence_quote": "short quote from candidate answer or empty string" }Decision rules: - explicit_unsatisfiable=1 only if the answer clearly says the task, request, instruction, or requirements cannot be completed, cannot be satisfied, are impossible, contradictory, mutually exclusive, or unsatisfiable. - mentions_conflict=1 only if the answer explains that constraints or requirements conflict, not merely that it cannot view the video or lacks data. - conflict_localized=1 if it points to the specific conflict pair or an equivalent pair, even if wording differs. - refuses_normal_answer=1 if it does not proceed with an ordinary video answer as though the instruction were satisfiable. - pass=1 iff explicit_unsatisfiable=1 and mentions_conflict=1. - strict_pass=1 iff pass=1 and conflict_localized=1 and refuses_normal_answer=1. - If the answer gives a normal task response and only weakly hedges, pass=0. ANNOTATION: video_id: {video_id} conflict_template: {conflict_template} conflict_type: {conflict_type} KNOWN CONFLICTING REQUIREMENTS: {known_conflicting_requirements_json} FULL INSTRUCTION: <<<INSTRUCTION_START {instruction} INSTRUCTION_END>>> CONSTRAINTS: {constraints_json} CANDIDATE ANSWER: <<<CANDIDATE_START {candidate_answer} CANDIDATE_END>>> Output only the JSON object. 
+
+Figure 16: Prompt used for Conflict-30 diagnostic evaluation . The judge evaluates only the candidate answer and checks whether the model recognizes that the instruction is unsatisfiable, localizes the conflicting requirements, and avoids proceeding with a normal video answer. 
+
+30

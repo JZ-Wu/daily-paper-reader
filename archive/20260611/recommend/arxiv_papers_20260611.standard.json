@@ -1,0 +1,555 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-11T22:16:38.585423+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2606.12195v1",
+      "source": "arxiv",
+      "title": "InternVideo3: Agentify Foundation Models with Multimodal Contextual Reasoning",
+      "abstract": "Recent progress in foundation models has shifted toward agentic behavior involving multi-step reasoning and tool use. However, open-source efforts largely focus on text-dominant settings, leaving long-horizon multimodal tasks underexplored. This gap is evident in video tasks requiring sustained temporal understanding and iterative interaction. We present InternVideo3, a framework enhancing these capabilities via Multimodal Contextual Reasoning (MCR). MCR treats understanding as a closed-loop process over a shared, evolving context containing observations, instructions, reasoning, tool actions, and memory. This frames long-video understanding as evidence accumulation and verification. To ensure efficiency, we introduce Multimodal Multi-head Latent Attention (M^2LA), a token-preserving reparameterization compressing KV-cache states while retaining the full token stream. Our staged training includes continued pretraining, short-to-long supervised fine-tuning, rule-based reinforcement learning, and on-policy distillation. Experiments show InternVideo3 achieves strong performance on benchmarks like Video-MME, MLVU, and EgoSchema. We further instantiate the model as a video agent with retrieval tools, demonstrating robust evidence-grounded behavior. Our results suggest that efficient context handling and closed-loop reasoning are vital for adapting open multimodal models toward long-horizon visually grounded agency.",
+      "authors": [
+        "Ziang Yan",
+        "Sheng Xia",
+        "Jiashuo Yu",
+        "Yue Wu",
+        "Tianxiang Jiang",
+        "Songze Li",
+        "Kanghui Tian",
+        "Yicheng Xu",
+        "Yinan He",
+        "Kai Chen",
+        "Limin Wang",
+        "Yu Qiao",
+        "Yi Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-10T15:17:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.12195v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "framework enhancing video understanding with agentic behavior, multimodal contextual reasoning, closed-loop process for long-video tasks",
+      "llm_evidence_cn": "增强视频理解的代理行为框架，采用多模态上下文推理和闭环过程处理长视频任务",
+      "llm_evidence": "增强视频理解的代理行为框架，采用多模态上下文推理和闭环过程处理长视频任务",
+      "canonical_evidence": "增强视频理解的代理行为框架，采用多模态上下文推理和闭环过程处理长视频任务",
+      "llm_tldr_en": "InternVideo3 introduces Multimodal Contextual Reasoning to enable agentic video understanding as evidence accumulation and verification, with efficiency through Multi-head Latent Attention, achieving strong performance on long-video tasks.",
+      "llm_tldr_cn": "InternVideo3提出多模态上下文推理框架，将视频理解视为闭环证据累积与验证过程。通过多模态多头潜在注意力确保效率，在长视频理解任务中实现代理式推理，推动了开源多模态代理的发展。",
+      "llm_tldr": "InternVideo3提出多模态上下文推理框架，将视频理解视为闭环证据累积与验证过程。通过多模态多头潜在注意力确保效率，在长视频理解任务中实现代理式推理，推动了开源多模态代理的发展。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "multimodal agent for video reasoning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.12300v1",
+      "source": "arxiv",
+      "title": "Natural-Language Temporal Grounding in Hour-Long Videos is a Search Problem: A Benchmark and Empirical Decomposition",
+      "abstract": "Temporal grounding--returning the interval $[t_s, t_e]$ for a natural-language query over a video--is the language interface to long-form video, yet has been studied on short videos; the dynamics of hour-scale natural-language grounding remain underexplored. We take the position that at hour-scale, the binding constraint is search, not recognition: Video-LLMs are bottlenecked not by localizing a nearby event, but--given a natural-language query--by searching for the relevant region of a long video. To test this, we release ExtremeWhenBench, the first open hour-scale grounding benchmark (2,273 queries over 194 videos, mean 75.7 min, max 9 hr) with an open-form query distribution. Every open Video-LLM collapses while a frame-level retrieval baseline outperforms them; a failure taxonomy attributes 85% of failures to search; and a retrieve-then-ground hybrid recovers 6.7x over the monolithic Video-LLM--mirroring retrieve-then-read in open-domain QA.",
+      "authors": [
+        "Sukmin Seo",
+        "Geewook Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-10T16:35:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.12300v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "hour-scale temporal grounding benchmark and analysis, treating grounding as a search problem for Video-LLMs",
+      "llm_evidence_cn": "小时级时序定位基准和分析，将定位视为Video-LLM的搜索问题",
+      "llm_evidence": "小时级时序定位基准和分析，将定位视为Video-LLM的搜索问题",
+      "canonical_evidence": "小时级时序定位基准和分析，将定位视为Video-LLM的搜索问题",
+      "llm_tldr_en": "The paper releases ExtremeWhenBench, the first open hour-scale temporal grounding benchmark, and shows that existing Video-LLMs collapse on hour-long videos, suggesting search is the key challenge rather than recognition.",
+      "llm_tldr_cn": "该工作发布首个开放小时级时序定位基准ExtremeWhenBench，包含194个视频和2273个查询。分析表明现有Video-LLM在长视频上失效，主要瓶颈是搜索而非识别，为时序定位研究提供了新的方向。",
+      "llm_tldr": "该工作发布首个开放小时级时序定位基准ExtremeWhenBench，包含194个视频和2273个查询。分析表明现有Video-LLM在长视频上失效，主要瓶颈是搜索而非识别，为时序定位研究提供了新的方向。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "video grounding task",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.10651v1",
+      "source": "arxiv",
+      "title": "Kwai Keye-VL-2.0 Technical Report",
+      "abstract": "We introduce Kwai Keye-VL-2.0-30B-A3B, an open-source Mixture-of-Experts (MoE) multimodal foundation model designed to advance long-video understanding and agentic intelligence. To address the challenges of ultra-long contexts, information redundancy, and prohibitive computational costs inherent in hour-level videos, Keye-VL-2.0 is the first to adapt DeepSeek Sparse Attention (DSA) to GQA-based multimodal architectures, enabling lossless 256K context processing while capturing critical frames and long-range temporal dependencies. This architecture is underpinned by a highly optimized training and inference infrastructure, including scalable video I/O, heterogeneous ViT-LM parallelism, and custom DSA kernels that significantly maximize throughput and minimize computational overhead. Furthermore, to overcome the algorithmic dilemma of catastrophic forgetting during multi-task alignment, we introduce Cross-Modal Multi-Teacher On-Policy Distillation (MOPD) paired with Context-RL and Video-RL. By distilling dense token-level teacher feedback from on-policy rollouts back into the MoE backbone, which activates only 3B parameters, Keye-VL-2.0 natively empowers advanced agent collaboration across Code, Tool, and Search scenarios with multimodal self-correction. Extensive evaluations across video understanding, temporal grounding, reasoning, STEM, and agent benchmarks demonstrate that Keye-VL-2.0-30B-A3B achieves state-of-the-art performance among models of similar scale, particularly excelling in fine-grained temporal localization on TimeLens and long-video comprehension on Video-MME-v2 and LongVideoBench. We release our model checkpoints to accelerate community progress toward scalable and robust multimodal agentic applications.",
+      "authors": [
+        "Kwai Keye Team",
+        "Bin Wen",
+        "Changyi Liu",
+        "Chengru Song",
+        "Chongling Rao",
+        "Guowang Zhang",
+        "Han Li",
+        "Haonan Fan",
+        "Hengrui Ju",
+        "Jiankang Chen",
+        "Jiapeng Chen",
+        "Jiawei Yuan",
+        "Kaixuan Yang",
+        "Kaiyu Jiang",
+        "Kun Gai",
+        "Lingzhi Zhou",
+        "Na Nie",
+        "Sen Na",
+        "Tianke Zhang",
+        "Tingting Gao",
+        "Xuanyu Zheng",
+        "Yulong Chen",
+        "Fan Yang",
+        "Haixuan Gao",
+        "Lele Yang",
+        "Mingqiao Liu",
+        "Muxi Diao",
+        "Qi Zhang",
+        "Qile Su",
+        "Wei Chen",
+        "Wentao Hong",
+        "Xingyu Lu",
+        "Yancheng Long",
+        "Yankai Yang",
+        "Yingxin Li",
+        "Yiyang Fan",
+        "Yu Xia",
+        "Yuzhe Chen",
+        "Ziliang Lai",
+        "Chuan Yi",
+        "Haonan Jia",
+        "Tianming Liang",
+        "Weixin Xu",
+        "Xiaoxiao Ma",
+        "Yang Tian",
+        "Yufei Han",
+        "Feng Han",
+        "Hang Li",
+        "Jing Wang",
+        "Jinghui Jia",
+        "Junmin Chen",
+        "Junyu Shi",
+        "Ruilin Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-09T09:58:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.10651v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Open-source MoE multimodal model for long-video understanding and agentic intelligence with efficient sparse attention",
+      "llm_evidence_cn": "面向长视频理解与代理智能的开源MoE多模态模型，采用高效稀疏注意力",
+      "llm_evidence": "面向长视频理解与代理智能的开源MoE多模态模型，采用高效稀疏注意力",
+      "canonical_evidence": "面向长视频理解与代理智能的开源MoE多模态模型，采用高效稀疏注意力",
+      "llm_tldr_en": "Kwai Keye-VL-2.0-30B-A3B is an open-source MoE VLM that adapts DeepSeek Sparse Attention for hour-long video understanding, achieving high efficiency and agentic capabilities.",
+      "llm_tldr_cn": "针对小时级视频中信息冗余和注意力计算平方级增长的难题，本文提出 Kwai Keye-VL-2.0，一个基于混合专家架构的开源多模态基础模型。它首次将 DeepSeek 稀疏注意力引入分组查询注意力多模态模型，并结合可扩展视频 I/O、异构并行和定制内核，在保持关键帧捕捉的同时将计算开销降到最低。最终模型能处理长达 256K 令牌的上下文，在多个长视频理解基准上领先，展现了面向代理智能的高效视频理解新高度。",
+      "llm_tldr": "针对小时级视频中信息冗余和注意力计算平方级增长的难题，本文提出 Kwai Keye-VL-2.0，一个基于混合专家架构的开源多模态基础模型。它首次将 DeepSeek 稀疏注意力引入分组查询注意力多模态模型，并结合可扩展视频 I/O、异构并行和定制内核，在保持关键帧捕捉的同时将计算开销降到最低。最终模型能处理长达 256K 令牌的上下文，在多个长视频理解基准上领先，展现了面向代理智能的高效视频理解新高度。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.11913v1",
+      "source": "arxiv",
+      "title": "From Content to Knowledge: Lightning Fast Long-Video Understanding with Neural Knowledge Representations",
+      "abstract": "We propose a new paradigm for long video understanding by treating a long video as a Neural Knowledge Representation (NKR). NKR represents video contents neither as a stream of tokens nor pre-organized databases, but as an individual small portion of network weights attached to the VLM backbone. The NKR weights are optimized to encapsulate the video's semantic content via a novel Agentic Knowledge Distillation (AKD) process, where an agent automatically synthesizes dense descriptions and question-answer pairs to distill the video's knowledge into the NKR. While AKD serves as a comprehensive, one-time encoding phase, the resulting NKR transforms the video into a portable, reusable asset. At inference, the lightweight NKR is mounted onto a frozen Vision-Language Model (VLM), enabling direct, query-based understanding without reloading or re-encoding the original video. This approach decouples video length from inference cost, offering high amortized efficiency for multi-turn video understanding. Experiments on the LVBench benchmark show our method achieves performance comparable to state-of-the-art approaches while reducing end-to-end latency by over two orders of magnitude, opening new possibilities for interactive long-video understanding.",
+      "authors": [
+        "Yuchen Guan",
+        "Xiao Li",
+        "Zongyu Guo",
+        "Xiaoyi Zhang",
+        "Xiulian Peng",
+        "Chun Yuan",
+        "Yan Lu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-10T10:43:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.11913v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Agentic knowledge distillation compresses long video into lightweight neural weights, enabling efficient video understanding",
+      "llm_evidence_cn": "智能体知识蒸馏将长视频压缩为轻量级神经网络权重，实现高效视频理解",
+      "llm_evidence": "智能体知识蒸馏将长视频压缩为轻量级神经网络权重，实现高效视频理解",
+      "canonical_evidence": "智能体知识蒸馏将长视频压缩为轻量级神经网络权重，实现高效视频理解",
+      "llm_tldr_en": "Proposes Neural Knowledge Representation for long videos, distilled by an agent for instant inference, achieving portable, reusable, and low-cost video understanding.",
+      "llm_tldr_cn": "长视频理解因需要处理海量帧而导致推理缓慢和内存爆炸。本文另辟蹊径，将视频转化为一小部分网络权重——神经知识表示（NKR），并设计智能体知识蒸馏（AKD）过程让智能体自动生成稠密描述和问答对来提炼视频知识。编码完成后，NKR 成为轻量级的可复用资产，推理时仅需加载这一小部分权重，突破了传统逐帧处理的瓶颈，在保持准确性的同时实现了闪电般的速度，为大规模视频分析奠定了效率基础。",
+      "llm_tldr": "长视频理解因需要处理海量帧而导致推理缓慢和内存爆炸。本文另辟蹊径，将视频转化为一小部分网络权重——神经知识表示（NKR），并设计智能体知识蒸馏（AKD）过程让智能体自动生成稠密描述和问答对来提炼视频知识。编码完成后，NKR 成为轻量级的可复用资产，推理时仅需加载这一小部分权重，突破了传统逐帧处理的瓶颈，在保持准确性的同时实现了闪电般的速度，为大规模视频分析奠定了效率基础。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.04351v2",
+      "source": "arxiv",
+      "title": "Frames2LoRA: Parametric Video Internalization for Vision-Language Models",
+      "abstract": "Processing video in vision-language models is expensive: each frame occupies hundreds of tokens, and inference cost scales with every frame and every repeated query. We introduce Frames2LoRA, a method for parametric video internalization. A perceiver hypernetwork reads the intermediate representations produced layer-by-layer as a frozen VLM encodes a video, and generates a Low-Rank Adaptation (LoRA) adapter in a single forward pass. Unlike standard LoRA fine-tuning, which requires iterative gradient updates, Frames2LoRA predicts these weights directly from the video. Trained for SmolVLM2 500M and 2.2B on video summarization and captioning, Frames2LoRA enables the same frozen VLM to answer queries from the adapter alone, with zero visual tokens in its context at query time. Frames2LoRA is statistically non-inferior and equivalent to direct video-in-context inference across all five captioning benchmarks at both model scales, and across seven of eight video question answering benchmark-scale pairings. Although trained only on 12 frames at 384px, it remains stable up to 1,024 frames and 1024px, where direct video-in-context inference often degenerates. Across this sweep, it reduces answer-time visual-token load by up to 1,500x and query TTFT by 6-80x, while preserving video-faithful outputs. We also find that independently generated adapters for non-overlapping video segments can compose in rank space, suggesting a path toward chunked long-video internalization.",
+      "authors": [
+        "Manan Suri",
+        "Sarvesh Baskar",
+        "Dinesh Manocha"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CL"
+      ],
+      "published": "2026-06-03T02:07:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.04351v2",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Frames2LoRA enables efficient video understanding by internalizing video into a LoRA adapter, eliminating per-query visual token cost in VLMs.",
+      "llm_evidence_cn": "Frames2LoRA通过将视频参数化为LoRA适配器，消除VLM中每次查询的视觉token成本，实现高效视频理解。",
+      "llm_evidence": "Frames2LoRA通过将视频参数化为LoRA适配器，消除VLM中每次查询的视觉token成本，实现高效视频理解。",
+      "canonical_evidence": "Frames2LoRA通过将视频参数化为LoRA适配器，消除VLM中每次查询的视觉token成本，实现高效视频理解。",
+      "llm_tldr_en": "Frames2LoRA makes video understanding in VLMs cheaper by predicting a LoRA adapter from the video's intermediate representations, allowing frozen VLMs to answer queries from the adapter alone with zero visual tokens.",
+      "llm_tldr_cn": "处理视频时在VLM中每个帧占用数百token，推理成本随帧和查询次数线性增长。Frames2LoRA提出参数化视频内化方法，通过感知器超网络从冻结VLM编码视频的中间表示直接预测LoRA适配器权重，训练后仅需适配器即可回答查询，无需再次输入视觉token。实验在SmolVLM2上验证了视频摘要和字幕任务的高效性，显著降低了推理开销，为低成本的视频理解提供了新颖方法。",
+      "llm_tldr": "处理视频时在VLM中每个帧占用数百token，推理成本随帧和查询次数线性增长。Frames2LoRA提出参数化视频内化方法，通过感知器超网络从冻结VLM编码视频的中间表示直接预测LoRA适配器权重，训练后仅需适配器即可回答查询，无需再次输入视觉token。实验在SmolVLM2上验证了视频摘要和字幕任务的高效性，显著降低了推理开销，为低成本的视频理解提供了新颖方法。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.04588v1",
+      "source": "arxiv",
+      "title": "VCIFBench: Evaluating Complex Instruction Following for Video Understanding",
+      "abstract": "Multimodal large language models have made rapid progress in video understanding, yet existing benchmarks largely rely on simple prompts and provide limited evidence about whether models can satisfy explicit output constraints. We introduce VCIFBench, a benchmark for evaluating complex instruction following in video understanding. VCIFBench constructs constraint-rich instructions from both benchmark-adapted and directly video-grounded prompts, covering content, format, style, and structure requirements, and evaluates model outputs with a hybrid verification pipeline. The benchmark contains 306 satisfiable test instructions, a 540-pair DPO preference dataset, and a 30-item conflict diagnostic subset. Experiments on 10 MLLMs show that joint constraint satisfaction remains challenging. We further show that DPO training on VCIFBench data can improve instruction-following performance.",
+      "authors": [
+        "Huangchen Xu",
+        "Yuan Wu",
+        "Yi Chang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-06-03T08:27:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.04588v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Benchmark for evaluating complex instruction following in video understanding with multimodal LLMs",
+      "llm_evidence_cn": "用于评估多模态大语言模型在视频理解中复杂指令遵循的基准",
+      "llm_evidence": "用于评估多模态大语言模型在视频理解中复杂指令遵循的基准",
+      "canonical_evidence": "用于评估多模态大语言模型在视频理解中复杂指令遵循的基准",
+      "llm_tldr_en": "VCIFBench constructs 306 constraint-rich video instructions with hybrid verification, revealing that joint constraints significantly challenge current MLLMs in instruction-following.",
+      "llm_tldr_cn": "近年来多模态大语言模型在视频理解上进展迅速，但现有基准大多依赖简单提示，难以评估模型在面对内容、格式、风格等多维约束时的遵循能力。为此，VCIFBench 从基准改编和视频直接接地两个途径构建了 306 条复杂指令，并配备混合验证流水线和 540 对偏好数据。在 10 个主流多模态模型上的实验显示，联合约束场景下性能急剧下降，冲突诊断子集更暴露出模型在平衡相互冲突要求时的薄弱点。该基准为提升视频理解的指令遵循鲁棒性提供了重要参考。",
+      "llm_tldr": "近年来多模态大语言模型在视频理解上进展迅速，但现有基准大多依赖简单提示，难以评估模型在面对内容、格式、风格等多维约束时的遵循能力。为此，VCIFBench 从基准改编和视频直接接地两个途径构建了 306 条复杂指令，并配备混合验证流水线和 540 对偏好数据。在 10 个主流多模态模型上的实验显示，联合约束场景下性能急剧下降，冲突诊断子集更暴露出模型在平衡相互冲突要求时的薄弱点。该基准为提升视频理解的指令遵循鲁棒性提供了重要参考。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.05736v1",
+      "source": "arxiv",
+      "title": "VTI-CoT: Visual-Textual Interleaved Chain of Thought for Video Reasoning",
+      "abstract": "Video reasoning aims to understand complex temporal events and causal relationships within videos. Recently, Chain-of-Thought (CoT) has been introduced to this field to enhance reasoning accuracy. However, existing CoT-based video reasoning methods primarily rely on text-only information for logical deduction, overlooking critical visual information during the inference process. Inspired by the human cognitive mechanism of reviewing visual segments during inference, we propose VTI-CoT, a Visual-Textual Interleaved CoT framework. VTI-CoT integrates textual reasoning steps with corresponding visual frames. Given the scarcity of visual-textual interleaved CoT in existing datasets, we develop an automated annotation pipeline to construct high-quality multimodal CoT data. Further, reasoning over long-form videos entails increasingly long CoT token sequences, which severely hinders training convergence and efficiency. To address this, we employ Optical Character Recognition (OCR)-based compression techniques to compress CoT supervision signals into a single canvas. Experimental results demonstrate that VTI-CoT achieves state-of-the-art performance among models of the same parameter scale while significantly improving training efficiency.",
+      "authors": [
+        "Shufan Zhang",
+        "Ziyue Lin",
+        "Bairun Wang",
+        "Lei Jin",
+        "Xuanding Ding",
+        "Xinzhu Ma",
+        "Kunlin Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T05:55:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.05736v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Visual-textual interleaved Chain of Thought improves video reasoning by integrating visual frames with reasoning steps.",
+      "llm_evidence_cn": "视觉-文本交织的思维链通过将视觉帧与推理步骤结合提升视频推理能力。",
+      "llm_evidence": "视觉-文本交织的思维链通过将视觉帧与推理步骤结合提升视频推理能力。",
+      "canonical_evidence": "视觉-文本交织的思维链通过将视觉帧与推理步骤结合提升视频推理能力。",
+      "llm_tldr_en": "VTI-CoT addresses limitation of text-only CoT in video reasoning by interleaving visual frames with reasoning steps, using automated annotation to create training data.",
+      "llm_tldr_cn": "现有基于思维链的视频推理主要依赖文本信息，忽略了推理过程中的关键视觉信息。VTI-CoT提出视觉-文本交织的CoT框架，在推理步骤中嵌入对应的视频帧。由于此类数据稀缺，开发了自动标注流水线构建高质量多模态数据集。实验表明该方法能更准确地理解视频中的时序事件和因果关系，提升了视觉语言模型的视频推理性能。",
+      "llm_tldr": "现有基于思维链的视频推理主要依赖文本信息，忽略了推理过程中的关键视觉信息。VTI-CoT提出视觉-文本交织的CoT框架，在推理步骤中嵌入对应的视频帧。由于此类数据稀缺，开发了自动标注流水线构建高质量多模态数据集。实验表明该方法能更准确地理解视频中的时序事件和因果关系，提升了视觉语言模型的视频推理性能。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.11576v1",
+      "source": "arxiv",
+      "title": "AVIS: Adaptive Test-Time Scaling for Vision-Language Models",
+      "abstract": "Modern Vision-Language Models (VLMs) benefit from chain-of-thought prompting and test-time scaling, but these gains often come with prohibitive inference cost due to large visual contexts and long decoding chains. We view this cost through two coupled axes: Visual Context Scaling (VCS), which controls how much visual evidence is passed to the language model, and Visual Reasoning Scaling (VRS), which controls how much inference-time reasoning search is performed. Existing methods typically optimize one axis at a time, leaving the joint allocation of compute across these axes underexplored. We introduce Adaptive Visual Inference Scaling (AVIS), a lightweight policy that adapts both VCS and VRS per query. AVIS realizes VCS through Key Diversity Visual (KDV) pruning, a training-free $O(N)$ key-based rule for removing redundant visual tokens before prefilling, and realizes VRS through adaptive self-consistency, using a learned difficulty predictor to select the number of reasoning rollouts. AVIS is deployment-friendly and compatible with shared-prefill inference, where all rollouts reuse a single prefilling pass and KV cache. Across diverse image and video reasoning benchmarks, AVIS improves the accuracy--compute trade-off relative to VCS-only and VRS-only baselines, and remains effective on top of RL post-trained VLMs while keeping compute and latency low.",
+      "authors": [
+        "Ahmadreza Jeddi",
+        "Minh Ngoc Le",
+        "Amirhossein Kazerouni",
+        "Hakki Can Karaimer",
+        "Hue Nguyen",
+        "Iqbal Mohomed",
+        "Michael Brudno",
+        "Alex Levinshtein",
+        "Konstantinos G. Derpanis",
+        "Babak Taati",
+        "Radek Grzeszczuk"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-10T02:06:47+00:00",
+      "link": "https://arxiv.org/pdf/2606.11576v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Adaptive test-time scaling for VLMs to balance efficiency and performance",
+      "llm_evidence_cn": "自适应测试时扩展平衡视觉语言模型效率与性能",
+      "llm_evidence": "自适应测试时扩展平衡视觉语言模型效率与性能",
+      "canonical_evidence": "自适应测试时扩展平衡视觉语言模型效率与性能",
+      "llm_tldr_en": "Proposes AVIS, a lightweight policy that adaptively allocates compute across visual context scaling and visual reasoning scaling, achieving efficient inference without sacrificing accuracy.",
+      "llm_tldr_cn": "现代VLM的链式思考推理带来高昂计算成本。AVIS提出自适应视觉推理扩展策略，通过键多样性剪枝和自适应推断搜索，动态分配视觉上下文和推理计算，实现高效推理。实验证明该方法在保持性能的同时显著降低计算开销。",
+      "llm_tldr": "现代VLM的链式思考推理带来高昂计算成本。AVIS提出自适应视觉推理扩展策略，通过键多样性剪枝和自适应推断搜索，动态分配视觉上下文和推理计算，实现高效推理。实验证明该方法在保持性能的同时显著降低计算开销。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.05748v1",
+      "source": "arxiv",
+      "title": "UNIVID: Unified Vision-Language Model for Video Moderation",
+      "abstract": "Global-scale video moderation faces a dual challenge: the need for fine-grained multi-modal reasoning and the demand for interpretable outputs to support downstream enforcement. Traditional moderation systems often rely on fragmented black-box classifiers that are difficult to maintain and lack transparency. In this paper, we present UNIVID, a UNIfied VIsion-language model for video moDeration. Unlike standard classification models, UNIVID generates policy-aware captions that serve as an interpretable intermediate representation, enabling human-verifiable decisions and multi-task reusability. While existing open-source and commercial VLMs often suffer from safety-guardrail refusals and lack fine-grained policy alignment, we develop a specialized training data recipe that combines expert human-refined labels with synthetic data to align the model with our safety guidelines. By integrating UNIVID as the core captioner, we design a novel end-to-end video moderation system that reduces violation leakage by 42.7% and overkill rate by 37.0% relatively. Meanwhile, by replacing over 1,000 policy-specific models with a single UNIVID backbone, we recycled extensive computation resources while reducing engineering maintenance overhead. To our knowledge, this is one of the first reports of a high-efficiency captioning VLM successfully supporting industrial-scale moderation and cross-functional business.",
+      "authors": [
+        "Kejuan Yang",
+        "Yizhuo Zhang",
+        "Mingyuan Du",
+        "Yue Zhang",
+        "Dixin Zheng",
+        "Kaili Zhao",
+        "Yang Xiao",
+        "Hanzhong Liang",
+        "Kenan Xiao"
+      ],
+      "primary_category": "cs.MM",
+      "categories": [
+        "cs.MM",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-06-04T06:20:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.05748v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Unified VLM for video moderation with policy-aware caption generation, enabling interpretable video understanding",
+      "llm_evidence_cn": "统一视觉语言模型用于视频审核，生成策略感知字幕，实现可解释视频理解",
+      "llm_evidence": "统一视觉语言模型用于视频审核，生成策略感知字幕，实现可解释视频理解",
+      "canonical_evidence": "统一视觉语言模型用于视频审核，生成策略感知字幕，实现可解释视频理解",
+      "llm_tldr_en": "UNIVID is a VLM tailored for video moderation, generating interpretable, policy-aligned captions with specialized training data, offering transparency and multi-task reusability.",
+      "llm_tldr_cn": "全球级视频审核需要细粒度多模态推理和可解释输出，但传统黑盒分类器难以维护且缺乏透明性。UNIVID 利用统一视觉语言模型生成政策感知字幕，作为可审计的中间表示，并通过专项训练数据克服了商业模型中安全护栏拒答和策略不对齐的局限，实现了多任务可复用的可解释视频审核。",
+      "llm_tldr": "全球级视频审核需要细粒度多模态推理和可解释输出，但传统黑盒分类器难以维护且缺乏透明性。UNIVID 利用统一视觉语言模型生成政策感知字幕，作为可审计的中间表示，并通过专项训练数据克服了商业模型中安全护栏拒答和策略不对齐的局限，实现了多任务可复用的可解释视频审核。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.05917v1",
+      "source": "arxiv",
+      "title": "MemoryCard: Topic-Aware Multi-Modal Clue Compression for Long-Video Question Answering",
+      "abstract": "Long-video question answering remains challenging for Vision-Language Models (VLMs), as answer-relevant evidence is often sparse, transient, and temporally dispersed across lengthy video contexts. Existing frame-centric approaches improve efficiency through uniform sampling, query-aware frame selection, visual-token compression, and adaptive resolution strategies. However, they still rely on isolated and fragmented frames as the fundamental evidence units, limiting VLMs' ability to effectively capture coherent event-level semantics. To address this limitation, we propose MemoryCard, a video-memory-based augmentation framework that organizes long videos into self-contained Memory Cards. Specifically, MemoryCard first performs a self-reading process over videos and aligned utterances to segment the video into semantically coherent units, each corresponding to a distinct topic or event. For each unit, it generates an event-level video gist and selects representative visual moments, which are then rendered into unified Memory Cards for retrieval and question answering. Experimental results demonstrate that MemoryCard consistently improves long-video QA performance under comparable visual-token budgets, achieving up to a 21.8% relative improvement in accuracy. All code is available at https://github.com/NEUIR/MemoryCard.",
+      "authors": [
+        "Qing Yang",
+        "Pengcheng Huang",
+        "Xinze Li",
+        "Zhenghao Liu",
+        "Yukun Yan",
+        "Yu Gu",
+        "Ge Yu",
+        "Gang Li",
+        "Maosong Sun"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CL"
+      ],
+      "published": "2026-06-04T09:23:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.05917v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "MemoryCard compresses long videos into topic-aware cards for efficient VLM-based QA",
+      "llm_evidence_cn": "MemoryCard通过主题感知记忆卡压缩长视频，实现高效问答",
+      "llm_evidence": "MemoryCard通过主题感知记忆卡压缩长视频，实现高效问答",
+      "canonical_evidence": "MemoryCard通过主题感知记忆卡压缩长视频，实现高效问答",
+      "llm_tldr_en": "Addresses long-video QA by organizing videos into self-contained Memory Cards via a self-read mechanism, capturing coherent event-level semantics and drastically reducing computational cost for VLMs.",
+      "llm_tldr_cn": "长视频问答中，证据稀疏且分散，现有帧中心方法难以捕获连贯事件语义。MemoryCard提出视频记忆卡框架，通过自读机制将长视频组织为主题感知的记忆卡，压缩冗余并保留事件级线索。实验表明该方法显著提升长视频问答效率，同时保持甚至提升准确率。",
+      "llm_tldr": "长视频问答中，证据稀疏且分散，现有帧中心方法难以捕获连贯事件语义。MemoryCard提出视频记忆卡框架，通过自读机制将长视频组织为主题感知的记忆卡，压缩冗余并保留事件级线索。实验表明该方法显著提升长视频问答效率，同时保持甚至提升准确率。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06991v1",
+      "source": "arxiv",
+      "title": "Don't Pause: Streaming Video-Language Synchrony for Online Video Understanding",
+      "abstract": "Online Video Large Language Models (Video-LLMs) have advanced toward seamless human-AI interaction through frame-by-frame processing and proactive responding. However, a critical challenge remains in streaming scenarios: existing models typically pause video perception while generating responses, breaking real-time video-language synchrony and causing stutters. To address this, we introduce a novel paradigm for online video understanding: Streaming Video-Language Synchrony (SVLS), and present LyraV, a live streaming assistant built upon a hierarchical control framework with two core innovations. First, the Frame-Driven Transition Controller (FDTC), a training-free verification-based finite-state machine, makes high-level semantic decisions on when to continue speaking, start a new response, or stay silent. Second, the Streaming Token Pacer (SToP), a plug-and-play lightweight predictive module, dynamically adapts the language generation rate to match the pace of the visual content. Concretely, LyraV performs \\emph{per-frame incremental, sub-budget decoding}: within each frame interval it emits only a small chunk of tokens that fits the real-time budget, so perception is never blocked for a full sentence. Together, these components enable LyraV to seamlessly interleave incoming video frames with generated word tokens, achieving a fine-grained synchrony. Extensive experiments conducted on five online and three offline benchmarks demonstrate that LyraV preserves the backbone's general understanding ability while substantially improving streaming synchrony and narrative fluency, delivering a 98.29\\% synchrony with video playback and a real-time processing speed of 3.89 FPS. Interestingly, we observe an empirical capability in LyraV: dynamic reasoning over streaming tokens, enabling continuous interpretation and \"thinking\" alongside visual input.",
+      "authors": [
+        "Zhenyu Yang",
+        "Kairui Zhang",
+        "Shengsheng Qian",
+        "Weiming Dong",
+        "Changsheng Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-05T07:29:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.06991v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "streaming video-language synchrony for online video understanding using a training-free finite-state machine controller",
+      "llm_evidence_cn": "采用训练无关有限状态机控制器的流式视频语言同步在线视频理解",
+      "llm_evidence": "采用训练无关有限状态机控制器的流式视频语言同步在线视频理解",
+      "canonical_evidence": "采用训练无关有限状态机控制器的流式视频语言同步在线视频理解",
+      "llm_tldr_en": "LyraV proposes Streaming Video-Language Synchrony paradigm with a training-free Frame-Driven Transition Controller to enable real-time video perception and response generation without pausing, achieving seamless online video understanding.",
+      "llm_tldr_cn": "LyraV针对在线视频理解中模型回答时暂停视觉感知的问题，提出流式视频语言同步范式。通过训练无关的帧驱动转移控制器，实现实时视频感知与响应生成的同步，消除了卡顿，推动了直播助理的发展。",
+      "llm_tldr": "LyraV针对在线视频理解中模型回答时暂停视觉感知的问题，提出流式视频语言同步范式。通过训练无关的帧驱动转移控制器，实现实时视频感知与响应生成的同步，消除了卡顿，推动了直播助理的发展。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.12125v1",
+      "source": "arxiv",
+      "title": "Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding",
+      "abstract": "Long-video understanding remains challenging for multimodal large language models, because temporally extended videos often contain thousands of frames and are therefore expensive to process exhaustively. Existing methods usually construct compact visual inputs from long videos under a limited visual budget. However, most of them still follow a frame-centric paradigm and apply similar representations to retained content regardless of its importance. This makes it difficult to preserve both high-fidelity visual evidence and broad temporal coverage. To address this issue, we propose Q-Fold, a training-free input construction framework for long-video understanding. Instead of treating isolated frames as the basic modeling unit, Q-Fold operates on contiguous temporal segments and constructs a heterogeneous Focus--Context representation under query guidance. Query-relevant segments are preserved as high-fidelity Focus Frames, while less relevant segments are folded into chronology-preserving contextual layouts. In this way, Q-Fold preserves critical visual evidence and broad temporal coverage, while better maintaining local temporal continuity within short segments. Experiments on four long-video benchmarks with multiple Video-MLLMs show that Q-Fold consistently improves performance without increasing the input budget. Notably, it achieves gains of up to 9.1 percentage points on an ultra-long video benchmark. Code will be made publicly available.",
+      "authors": [
+        "Biao Tang",
+        "Xu Chen",
+        "Shuxiang Gou",
+        "Jingyi Yuan",
+        "Yuhan Zhang",
+        "Chenqiang Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-10T14:19:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.12125v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free input construction framework that compacts long videos for efficient LLM processing.",
+      "llm_evidence_cn": "免训练输入构建框架，压缩长视频以实现高效LLM处理。",
+      "llm_evidence": "免训练输入构建框架，压缩长视频以实现高效LLM处理。",
+      "canonical_evidence": "免训练输入构建框架，压缩长视频以实现高效LLM处理。",
+      "llm_tldr_en": "Q-Fold proposes a training-free method to construct compact visual inputs from long videos via spatio-temporal folding, achieving efficient long-video understanding under a limited visual budget.",
+      "llm_tldr_cn": "长视频理解因帧数多而处理昂贵，现有紧凑表示方法忽视内容重要性差异。本文提出免训练的Q-Fold框架，以时空折叠代替孤立帧建模，在有限预算下高效保留高保真证据和宽时间覆盖，提升长视频理解效率。",
+      "llm_tldr": "长视频理解因帧数多而处理昂贵，现有紧凑表示方法忽视内容重要性差异。本文提出免训练的Q-Fold框架，以时空折叠代替孤立帧建模，在有限预算下高效保留高保真证据和宽时间覆盖，提升长视频理解效率。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

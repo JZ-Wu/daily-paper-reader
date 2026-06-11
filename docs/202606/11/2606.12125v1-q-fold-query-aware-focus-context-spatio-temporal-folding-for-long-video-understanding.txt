@@ -1,0 +1,529 @@
+Title: Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding
+
+URL Source: https://arxiv.org/pdf/2606.12125v1
+
+Published Time: Thu, 11 Jun 2026 01:20:42 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding 
+
+# Biao Tang 1 Xu Chen 2 Shuxiang Gou 3 Jingyi Yuan 1 Yuhan Zhang 1 Chenqiang Gao 1∗
+
+1 Shenzhen Campus of Sun Yat-sen University, 2 Harbin Institute of Technology, Shenzhen 
+
+3 Shenzhen Institute for Advanced Study, University of Electronic Science and Technology of China  
+
+> ∗
+
+Corresponding author. What does a man wearing a black suit, black glasses, and a beard do? 
+
+(A) He is checking the vehicle chassis. (B) He is checking the vehicle interior. 
+
+(C) He is checking the vehicle windows. (D) He is checking the vehicle headlights. 
+
+Video & 
+
+Query: 
+
+Misses critical events 
+
+## Response: B( )
+
+··· 
+
+Video-MLLM 
+
+(a) Uniform Sampling 
+
+Redundant frames limit temporal coverage 
+
+··· 
+
+Video-MLLM 
+
+(b) Query-Aware Retrieval 
+
+## Response: B( )
+
+Compression reduces fine-grained detail 
+
+··· 
+
+Video-MLLM 
+
+(c) Uniform Panels 
+
+## Response: B( ) Video-MLLM Response: A( )
+
+(d) Q-Fold 
+
+Preserves visual fidelity and local temporal coherence 
+
+Focus-Context 
+
+··· 
+
+··· 
+
+Figure 1: Comparison of different visual input construction strategies for Video-MLLMs under a limited visual budget. Uniform sampling (a) may miss sparse critical events, query-aware retrieval (b) often produces redundant frames with limited temporal coverage, and uniform panels (c) sacrifice fine-grained visual detail due to homogeneous compression. In contrast, Q-Fold (d) preserves critical visual evidence and local temporal coherence through a Focus–Context representation, leading to the correct answer. 
+
+## Abstract 
+
+Long-video understanding remains challenging for multimodal large language models, because temporally extended videos often contain thousands of frames and are therefore expensive to process exhaustively. Existing methods usually construct compact visual inputs from long videos under a limited visual budget. However, most of them still follow a frame-centric paradigm and apply simi-lar representations to retained content regardless of its importance. This makes it difficult to preserve both high-fidelity visual evidence and broad temporal coverage. To address this issue, we propose Q-Fold, a training-free input construction framework for long-video understanding. Instead of treating isolated frames as the basic mod-eling unit, Q-Fold operates on contiguous temporal segments and constructs a heterogeneous Focus–Context representation under query guidance. Query-relevant segments are preserved as high-fidelity Focus Frames, while less relevant segments are folded into chronology-preserving contextual layouts. In this way, Q-Fold pre-serves critical visual evidence and broad temporal coverage, while better maintaining local temporal continuity within short segments. Experiments on four long-video benchmarks with multiple Video-MLLMs show that Q-Fold consistently improves performance with-out increasing the input budget. Notably, it achieves gains of up to 9.1 percentage points on an ultra-long video benchmark. Code will be made publicly available. 
+
+## 1 Introduction 
+
+Recent advances in multimodal large language models (MLLMs) have significantly improved video understanding by enabling stronger cross-modal perception and reasoning [ 11 , 13 , 26 , 37 ]. However, 
+
+> 1
+> arXiv:2606.12125v1 [cs.CV] 10 Jun 2026 Biao Tang et al.
+
+extending these capabilities to long videos remains highly chal-lenging. As video duration increases, the number of input frames grows rapidly, introducing substantial spatio-temporal redundancy and making exhaustive processing computationally expensive. At the same time, events that are truly relevant to the task are often sparsely distributed over long temporal horizons [ 31 , 41 ]. Con-sequently, constructing compact yet effective visual inputs has become one of the central challenges in long-video understanding. To address this challenge, prior work has explored various strate-gies for compact long-video input construction, including uniform sampling, query-aware retrieval, and composite-image-based rep-resentations. As illustrated in Fig. 1, uniform sampling is simple and efficient, but it implicitly assumes that useful information is distributed approximately evenly over time and therefore tends to miss brief yet critical events. Query-aware retrieval [ 12 ] improves relevance, but often yields redundant inputs concentrated within narrow temporal windows, resulting in limited temporal coverage. Methods that encourage more temporally dispersed selection [ 24 ]can partially mitigate this issue. However, they still operate on isolated frames and do not explicitly account for local temporal continuity. Another line of work adopts composite-image-based representations [ 4] to expand temporal coverage by packing more content into compact inputs. However, such compression often weakens the fine-grained visual cues needed to identify critical events. Despite their different designs, existing methods share a common limitation: they struggle to preserve fine-grained visual evidence while maintaining broad temporal coverage, and often do not explicitly account for local temporal continuity. Beyond temporal continuity, another fundamental limitation is that most existing methods still treat video content in a frame-centric manner. As a result, retained content is often represented in a largely uniform way, without sufficiently distinguishing task-critical evidence from less important contextual information. How-ever, information in long videos is inherently uneven in importance over time. Clues that are decisive for a task are often concentrated within a few contiguous segments, while most remaining content serves transitional or contextual roles. Long-video input construc-tion does not require all content to be represented in the same way. Instead, how different video content is represented should depend on its importance. This is consistent with the selective attention mechanism of the human visual system in dynamic scenes [ 9, 16 ]. Although recent approaches such as Q-Frame [ 40 ] have initiated explorations into adaptive fidelity adjustment, they still predomi-nantly rely on isolated frame-level observations and are typically constrained to specific vision encoder architectures. Therefore, the key to long-video input construction lies not only in what to select, but also in how to organize video content according to its importance. 
+
+Motivated by these insights, we propose Q-Fold (Query-Aware Focus–Context Spatio-Temporal Fold ing), a training-free and plug-and-play input construction framework for long-video understand-ing under a fixed visual budget. Instead of operating on isolated frames, Q-Fold constructs long-video inputs from contiguous tem-poral segments and organizes them into a heterogeneous Focus– Context representation under query guidance. Segments that are highly relevant to the query are preserved as uncompressed Fo-cus Frames , retaining the fine-grained visual details needed to recognize critical events. Less relevant segments are compactly represented as Context Panels through a chronology-preserving spatio-temporal folding scheme. This design retains transitional and contextual content more efficiently and provides broader tem-poral coverage. Since this process requires no additional training and is not tied to the downstream visual encoder, Q-Fold can be readily integrated into different Video-MLLMs. Our main contributions are summarized as follows: 
+
+• We propose Q-Fold, a training-free and plug-and-play segment-first input construction framework for long-video understanding. Unlike conventional frame-centric pipelines, it treats contiguous temporal segments, rather than isolated frames, as the basic units for input construction. 
+
+• We introduce a heterogeneous Focus–Context representation together with a chronology-preserving spatio-temporal folding mechanism. This design preserves critical visual evidence in high fidelity while compactly retaining contextual content for broader temporal coverage and better local temporal continuity. 
+
+• We conduct extensive experiments across multiple long-video understanding benchmarks and diverse Video-MLLMs. The results show that Q-Fold consistently brings clear performance gains over base Video-MLLMs without increasing the input budget, demon-strating its effectiveness across diverse benchmarks and multiple Video-MLLMs. 
+
+## 2 Related Work 
+
+Video-Based MLLMs . MLLMs have been progressively extended from image understanding to video tasks, leading to representa-tive Video-MLLMs such as Video-LLaMA [ 37 ], Video-LLaVA [ 13 ], VideoChat [ 11 ], and Video-ChatGPT [ 15 ]. Built upon pretrained visual encoders such as CLIP [ 18 ], these models typically convert dense video streams into compact visual representations that can be processed by LLMs. Compared with images, videos are sub-stantially denser in both spatial and temporal dimensions, making direct extraction of all visual tokens prohibitively expensive un-der a limited context budget. Early Video-MLLMs therefore com-monly rely on sparse sampling, spatio-temporal pooling, or com-pact feature aggregation. For example, Video-ChatGPT [ 15 ] uses spatial-temporal pooling to produce compact video features, while SlowFast-LLaVA [ 32 ] adopts a training-free two-stream design to jointly capture spatial details and long-range temporal context. These methods establish the basic paradigm of Video-MLLMs by transforming dense video streams into compact visual representa-tions for LLM-based reasoning. 
+
+MLLMs for Long-Video Understanding . Compared with short-video settings, long-video understanding poses more severe sequence-scaling challenges. With increasing video duration, visual input grows rapidly, redundant content accumulates continuously, and both memory and inference costs rise substantially [ 29 , 31 , 41 ]. To address these challenges, one line of research focuses on improv-ing the long-sequence processing capability of underlying mod-els. Typical directions include larger context windows, stronger temporal modeling, and memory mechanisms for long-video pro-cessing [ 2, 3, 7, 14 , 19 –21 , 30 , 34 , 39 ]. For example, LongVA [ 39 ]and LongVILA [ 3] extend context windows to support longer in-puts, while MA-LMM [ 7] and VideoLLaMB [ 30 ] introduce memory-augmented or recurrent bridging mechanisms. Other recent works 
+
+> 2Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding
+
+(b) Focus-Context 
+
+Representation and Routin g
+
+> Similarity & Aggregation
+> Text
+> Encoder
+> Vision
+> Encoder
+
+Query 
+
+> ···
+
+··· 
+
+> C1
+> C2
+> CM
+> ···
+
+(a) Query-Aware 
+
+Segment Evaluation    
+
+> T
+> Sm
+> Low Context Panel
+> (3
+> ×3Folding)
+> Focus Frame s
+> (No Folding)
+> Mid Context Panel
+> (2
+> ×2 Folding)
+
+(c) Chronology-Preserving 
+
+Reorganization 
+
+Video-
+
+MLLM 
+
+> Answer:
+> The team scores
+> again shortly after.
+> Local chronology & global interleaving
+
+Query 
+
+> ···
+> T
+> T
+> T
+> T
+
+Query: What happens next when the score is 2-1? 
+
+··· 
+
+Long Video 
+
+Figure 2: Overview of Q-Fold. Given a long video and a user query, Q-Fold constructs a chronologically organized heterogeneous visual input from contiguous video segments under a fixed visual budget. (a) The video is partitioned into ordered segments 
+
+{𝐶 1, . . . , 𝐶 𝑀 }, and a pretrained vision-language model estimates a query-conditioned relevance score 𝑆 𝑚 for each segment. (b) Based on {𝑆 𝑚 }, Q-Fold performs segment-level Focus–Context representation and routing: highly relevant segments are preserved as high-fidelity Focus Frames, while less relevant ones are compressed into Context Panels through 2 × 2 or 3 × 3
+
+folding. (c) Before being fed into the Video-MLLM, the resulting heterogeneous visual units are reorganized into a chronology-preserving sequence, better preserving local frame order within each Context Panel and the global temporal order. 
+
+further explore temporal localization, hour-scale modeling, and arbitrary-resolution inputs [2, 14, 19, 21]. 
+
+Input Construction for Long Videos . Beyond scaling the un-derlying architecture, another important research direction focuses on how to organize long videos into compact yet effective visual in-puts. Existing methods can be broadly grouped into two categories. The first category improves input construction through content selection, retrieval, or routing [ 12 , 22 –24 , 33 , 35 , 40 , 42 ]. For exam-ple, KeyVideoLLM [ 12 ] retrieves query-relevant keyframes through semantic matching, AKS [ 24 ] introduces temporal coverage con-straints, and GenS [ 33 ] uses a plug-and-play generative sampler for frame selection. Q-Frame [ 40 ] further explores non-uniform resolution allocation for compact long-video input construction. Although these methods improve input relevance and construction effectiveness from different perspectives, they still mainly operate on isolated frames and do not explicitly account for local temporal continuity. The second category expands temporal coverage through com-pact composite-image representations [ 4, 10 ]. Representative meth-ods such as IG-VLM [ 10 ] and VideoPanels [ 4] arrange multiple discrete frames into a single 2D spatial grid, thereby enlarging the temporal receptive field through compact image layouts. Although such methods can cover longer temporal spans in a more com-pact input form, most existing approaches still rely on fixed and uniform compression layouts, applying a similar degree of compres-sion across different temporal regions. When information impor-tance varies substantially over time, such uniform compression can weaken the fine-grained visual evidence required by critical events. These observations motivate a segment-level, heterogeneous input construction strategy, which is instantiated in Q-Fold. 
+
+## 3 Method 3.1 Overview 
+
+We propose Q-Fold, a training-free input construction framework for long-video understanding. Given an input video V = {𝑓 𝑡 }𝑇 𝑡 =1
+
+and a user query 𝑞 , Q-Fold takes contiguous video segments as the basic units for relevance estimation and representation routing. It then constructs a chronologically ordered heterogeneous visual sequence I that preserves high-fidelity details for query-critical evidence while compactly retaining long-range context. Through-out this process, the final visual input is constructed under a fixed visual budget B.Since content importance often varies substantially across long videos, it should not be represented uniformly. Accordingly, as illustrated in Fig. 2, Q-Fold decomposes input construction into three stages: (1) Query-Aware Segment Evaluation (QSE) , which partitions the video into contiguous segments and estimates their relevance to the query at the segment level; (2) Focus–Context Representation and Routing (FCR-R) ,which assigns segments to heterogeneous representation types and allocates visual input capacity according to segment relevance, preserving highly relevant segments as high-fidelity Focus Frames 
+
+and compressing less relevant ones into compact Context Panels ;(3) Chronology-Preserving Reorganization (CPR) , which better preserves local frame order within each folded panel and arranges all heterogeneous visual units into a unified temporal sequence. 
+
+> 3Biao Tang et al.
+
+Overall, Q-Fold reframes long-video input construction from frame-centric sparse selection into a heterogeneous organization process over contiguous video segments. 
+
+## 3.2 Query-Aware Segment Evaluation 
+
+Existing long-video sampling and retrieval methods typically rely on frame-query similarity for selection, yet isolated frame responses are often insufficient to characterize the overall relevance of a con-tiguous segment. Query-relevant evidence in long videos is rarely confined to a single frame, and is more often distributed over a short temporal span. In addition, frame-level similarity can be eas-ily affected by instantaneous noise. Therefore, Q-Fold adopts a 
+
+segment-first evaluation strategy. It treats contiguous video seg-ments, rather than individual frames, as the basic units for relevance estimation and subsequent routing. This provides a more stable scoring granularity for heterogeneous input construction. Formally, given a video V = {𝑓 𝑡 }𝑇 𝑡 =1, we partition it into 𝑀 
+
+contiguous and non-overlapping segments of length 𝐿 . If residual frames remain, they are merged into the final segment. The segment set is defined as: 
+
+C = {𝐶 1, 𝐶 2, . . . , 𝐶 𝑀 }. (1) We then use a pretrained vision-language model (e.g., LongCLIP ViT-L [ 36 ]) to extract visual and textual features. Let E𝑣 and E𝑞 
+
+denote the vision and text encoders, respectively. The semantic similarity between a frame 𝑓 and the query 𝑞 is defined as the cosine similarity between their embeddings: 
+
+𝑠 (𝑓 , 𝑞 ) = cos  E𝑣 (𝑓 ), E𝑞 (𝑞 ). (2) At the segment level, using only the maximum frame response makes the segment score overly dependent on a single instanta-neous peak. In contrast, averaging over all frames may bury sparse critical evidence among a large number of weakly relevant frames. To balance robustness against noise and sensitivity to key evidence, we aggregate only a subset of high-similarity frames within each segment. The segment relevance score is computed as: 
+
+𝑆 𝑚 = 1
+
+𝐾 ∑︁ 𝑓 ∈ T 𝐾 (𝐶 𝑚 ,𝑞 )
+
+𝑠 (𝑓 , 𝑞 ). (3) where T𝐾 (𝐶 𝑚 , 𝑞 ) denotes the set of top-𝐾 frames in segment 𝐶 𝑚 
+
+ranked by similarity to 𝑞 , with 𝐾 being a fixed constant. In this way, each segment score is jointly determined by multiple high-similarity frames rather than a single peak response. Finally, we obtain the segment relevance scores {𝑆 𝑚 }𝑀 𝑚 =1 together with the frame-query similarities within each segment, which are used in the subsequent Focus–Context representation and routing stage. 
+
+## 3.3 Focus–Context Representation and Routing 
+
+Long videos are highly uneven in content importance. Critical evi-dence is often brief and sparse, while most remaining content serves as background or transitional context. Therefore, segments should not be represented in the same way when constructing long-video inputs. Based on this observation, Q-Fold builds a heterogeneous Focus–Context representation at the segment level, so that critical segments can be preserved in high fidelity while contextual content is represented more compactly. To formalize this heterogeneous construction process, we fur-ther introduce a fixed visual input budget B. Here, capacity is measured in image-equivalent input units : an uncompressed Focus frame counts as one unit, and a folded Context panel also counts as one unit, since both are processed as a single image by the visual encoder. Given the segment relevance scores {𝑆 𝑚 }, the final visual input satisfies the following budget constraint: 
+
+|I focus | + |I mid | + |I low | = B, (4) where Ifocus denotes the set of uncompressed Focus Frames (with 
+
+| · | denoting the set cardinality), while Imid and Ilow denote the sets of Mid-Context and Low-Context Panels, respectively. 
+
+Heterogeneous Focus–Context Representation. As illus-trated in Fig. 2(b), Q-Fold defines three segment-level represen-tation types. Using only Focus and a single-scale Context repre-sentation would still enforce a coarse trade-off between fidelity and coverage. We therefore introduce an intermediate representa-tion for segments of moderate relevance. Each segment is assigned to one of three representation types: Focus Frames, Mid-Context Panels, or Low-Context Panels. Specifically: 1) Low-Context Pan-els. Segments assigned to Low-Context are represented by a 3 × 3
+
+panel constructed from the 9 most query-relevant frames within the segment. It trades stronger compression for broader temporal cover-age while better preserving local temporal order. 2) Mid-Context Panels. Segments assigned to Mid-Context are represented by a 
+
+2 × 2 panel constructed from the 4 most relevant frames within the segment. It provides better per-frame recognizability than Low-Context while still maintaining relatively broad temporal coverage. 
+
+3) Focus Frames. Segments assigned to Focus retain their most relevant original frames without compression, so as to preserve critical visual details. Each retained frame consumes one input unit. 
+
+Hierarchical Capacity Routing. Since the three representation types serve different roles, the visual input budget is allocated hierarchically rather than uniformly. Let the total visual budget be 
+
+𝐵 , and let (𝛼 focus , 𝛼 mid , 𝛼 low ) denote the predefined allocation ratios. The corresponding budget split is given by: 
+
+𝐵 low = ⌊𝛼 low 𝐵 ⌋,𝐵 mid = ⌊𝛼 mid 𝐵 ⌋,𝐵 focus = 𝐵 − 𝐵 mid − 𝐵 low .
+
+(5) where ⌊·⌋ denotes rounding down to the nearest integer. For Mid-Context and Low-Context, each panel occupies one input unit. Therefore, 𝐵 mid and 𝐵 low directly determine the numbers of Mid-Context and Low-Context panels. For Focus, in contrast, the allocation granularity is the number of original frames retained for each Focus segment. Long videos already require substantial segment-level pruning under a fixed input budget. If only one frame is retained from a selected Focus segment, the segment is reduced to an isolated instantaneous cue, leading to overly fragmented critical evidence. To mitigate this issue, we impose a minimum preservation constraint and require each Focus segment to retain at least 𝑁 min frames. The number of Focus segments is thus: 
+
+𝑁 𝑓 =
+
+ 𝐵 focus 
+
+𝑁 min 
+
+
+
+. (6) 
+
+> 4Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding
+
+All segments are ranked by relevance {𝑆 𝑚 } and partitioned into the Focus, Mid-Context, and Low-Context sets. For Focus, the capacity is further decomposed into a minimum preservation term and a residual allocation term. The former reserves 𝑁 min 
+
+frames for each Focus segment. The remaining capacity is given by 
+
+B𝑟𝑒𝑠 = 𝐵 𝑓 𝑜𝑐𝑢𝑠 − 𝑁 𝑓 · 𝑁 min and is allocated to the Focus segments with higher relevance. Accordingly, the final number of frames retained for the 𝑖 -th Focus segment is given by: 
+
+𝑐 𝑖 =
+
+(
+
+𝑁 min + 1, 𝑖 ≤ B res ,𝑁 min , 𝑖 > Bres , 𝑖 = 1, . . . , 𝑁 𝑓 . (7) This design guarantees a minimum amount of continuous ev-idence for each retained Focus segment, while allocating the re-maining high-fidelity capacity to the most relevant ones. The above hierarchical allocation mainly targets long-video scenarios, where the information bottleneck under a fixed input budget becomes most pronounced. For shorter videos, Q-Fold adopts lighter routing behavior to avoid unnecessary structured compression, whereas its full hierarchical design becomes most relevant in longer-video settings. 
+
+## 3.4 Chronology-Preserving Reorganization 
+
+After hierarchical capacity routing, the final visual input consists of uncompressed Focus Frames and folded Context Panels. The key challenge is to preserve local temporal continuity within each compressed Context Panel, rather than reducing it to an unordered spatial collage. To this end, Q-Fold better preserves local frame order during panel construction and further arranges all heterogeneous visual units in global chronological order, yielding the final input sequence I.
+
+Chronology-Preserving Spatial Folding. For a Context seg-ment, let {𝑡 𝑖 }𝑘 2 
+
+> 𝑖 =1
+
+denote the timestamps of the selected frames. We sort these frames in ascending temporal order and map them to the spatial layout of the panel. As illustrated in Fig. 5(a), we adopt stan-dard Raster-Order Folding (left-to-right, top-to-bottom) to place the downsampled frames sequentially into the panel 𝑃 ctx . When 𝑘 2
+
+frames are selected, with 𝑘 ∈ { 2, 3}, the panel is constructed as: 
+
+𝑃 ctx =
+
+> 𝑘 2
+
+Ê
+
+> 𝑖 =1
+
+𝜓 (𝑓 𝑡 𝑖 ), (8) where É denotes spatial concatenation in raster-scan order, and 
+
+𝜓 (·) denotes a downsampling operator. This explicitly anchors tem-poral order to the panel’s internal spatial topology. To maintain resolution consistency and encoder compatibility, the folded panel is finally resized to match the original image resolution while re-maining compatible with the patch size of the visual encoder. 
+
+Heterogeneous Sequence Interleaving. We arrange Focus Frames and Context Panels into a unified sequence according to their original temporal order. Focus Frames keep their original timestamps, while Context Panels inherit the temporal positions of their source segments. The final input sequence is defined as: 
+
+I = Sort 𝑡𝑒𝑚𝑝 (I focus ∪ I mid ∪ I low ) , (9) where 𝑡𝑒𝑚𝑝 denotes the temporal order induced by the original timestamps of Focus Frames and the source-segment order of Con-text Panels. In this way, the final heterogeneous input sequence restores a coherent global temporal order. 
+
+## 4 Experiments 4.1 Experimental Setup and Details 
+
+Datasets and Evaluation . We evaluate Q-Fold on four repre-sentative public long-video benchmarks under the widely used LMMs-Eval [ 38 ] framework. Specifically, we use the validation set of LongVideoBench [ 31 ], which contains 1,337 videos without sub-titles and focuses on long-range visual reasoning over videos with an average duration of 12 minutes. For MLVU [ 41 ], we follow the standard protocol and report results on the M-Avg subset of the Dev split, which contains videos of diverse durations and evaluates broad long-video understanding abilities across multiple dimen-sions. On Video-MME [ 6 ], we use the version without subtitles (w/o sub) to evaluate pure visual spatio-temporal reasoning, cover-ing 2,700 question-answer pairs with an average video duration of 17 minutes. Finally, we include LVBench [ 29 ], an extremely long-video benchmark with an average video duration of 4,101 seconds, to further evaluate long-range spatio-temporal reasoning under ultra-long temporal spans. 
+
+Implementation Details . We apply Q-Fold to three representa-tive Video-MLLMs, including Qwen2-VL-7B [ 28 ], MiMo-VL-7B [ 27 ], and LLaVA-OneVision-1.5-8B [ 1]. Since Q-Fold reorganizes videos into heterogeneous visual units, we implement it in the multi-image setting without modifying the Video-MLLM architecture. To reduce computational cost, we sample candidate frames from each raw video at 1 frame per second. We then use LongCLIP (ViT-L) [ 36 ]to compute cosine similarities between candidate frames and the input query for query-aware scoring. In QSE, the aggregation frame count is set to 𝐾 = 9, matching the maximum capacity of a 3 × 3
+
+Low-Context panel. Unless otherwise specified, the total visual input budget is fixed to 32 frame-equivalent inputs ( B = 32 ) for all models and benchmarks. During hierarchical capacity routing, the allocation ratio for Focus, Mid-Context, and Low-Context is set to 5:2:1. The minimum preservation constraint is set to 𝑁 min = 2. All experiments are conducted on 4 NVIDIA RTX A6000 GPUs, each with 48 GB of memory. 
+
+## 4.2 Main Results 
+
+Comparison with State-of-the-Art Methods . As shown in Ta-ble 1, under the same 32 frame-equivalent input setting, Q-Fold consistently improves strong Video-MLLMs, including Qwen2-VL, MiMo-VL, and LLaVA-OneVision-1.5, across multiple long-video benchmarks. The gains are particularly clear on the extremely long-video benchmark LVBench, where Q-Fold improves Qwen2-VL and MiMo-VL by 9.1 and 7.7 percentage points, respectively. Beyond these consistent gains over the corresponding base Video-MLLMs, Q-Fold also shows competitive performance relative to recent long-video input construction methods. In particular, it per-forms especially favorably on benchmarks with longer temporal spans, such as LVBench and Video-MME, while remaining compet-itive on LongVideoBench and MLVU, which is broadly consistent 
+
+> 5Biao Tang et al.
+
+Table 1: Main results on four widely used long-video understanding benchmarks. "Frames" denotes the number of visual inputs fed to the MLLM. For Q-Fold, one Focus Frame or one folded Context Panel is treated as one frame-equivalent input. Absolute performance gains over the corresponding base Video-MLLM are indicated by values marked in green in parentheses. 
+
+† denotes methods requiring additional training. “–” denotes results not reported in the original paper or not available under the corresponding setting. The best is in bold. Model Frames LLM Size LongVideoBench MLVU Video-MME LVBench 
+
+(900, 3600] Average Dev Long Average GPT-4o [8] - - - 66.7 64.6 65.3 71.9 30.8 GPT-4V [17] - - - 61.3 49.2 53.5 59.9 -Gemini-1.5-Flash [25] - - - 61.6 - 61.1 70.3 -Gemini-1.5-Pro [25] - - - 64.0 - 67.4 75.0 33.1 mPLUG-Owl3 [34] 128 7B - 59.7 70.0 50.1 59.3 43.5 LongVA [39] 128 7B - 47.8 56.3 46.2 52.6 -Video-XL [21] 128 7B - 50.7 64.9 49.2 55.5 -LongVU [20] 1 FPS 7B - - 65.4 - 60.6 -LongVILA [3] 128 7B - 57.1 - - 60.1 -Oryx-1.5 [14] 64 7B - 56.3 67.5 51.2 58.8 -TimeMarker [2] 128 8B - 56.3 - 46.4 57.3 41.3 Video-CCAM [5] 96 9B - - 58.5 39.6 50.3 -VAMBA [19] 1024 13B - 55.9 65.9 - 57.8 42.1 Qwen2-VL [28] 32 7B 47.9 55.5 59.6 47.3 57.3 38.7 w/ Q-Frame [40] 4 + 8 + 32 7B 52.8 58.4 65.4 48.3 58.3 -w/ AKS [24] 32 7B - 60.5 - - 59.9 -w/ FOCUS [42] 32 7B - 62.3 - - 59.7 -w/ GenS † [33] 54/50 7B - 58.7 66.9 - - -w/ TSPO † [23] 32 7B - 58.6 - - 59.6 -
+
+w/ Q-Fold 32 7B 55.1 (+ 7.2 ) 60.7 (+ 5.2 ) 66.7 (+ 7.1 ) 51.9 (+ 4.6 ) 61.7 (+ 4.4 ) 47.8 (+ 9.1 )
+
+Qwen2.5-VL [26] 32 7B 49.6 58.5 60.0 50.8 61.5 37.3 
+
+w/ Q-Fold 32 7B 56.7 (+ 7.1 ) 63.0 (+ 4.5 ) 65.2 (+ 5.2 ) 52.6 (+ 1.8 ) 62.1 (+ 0.6 ) 45.2 (+ 7.9 )
+
+MiMo-VL [27] 32 7B 50.2 59.1 61.2 52.6 62.5 39.6 
+
+w/ Q-Fold 32 7B 59.6 (+ 9.4 ) 64.1 (+ 5.0 ) 67.9 (+ 6.7 ) 54.3 (+ 1.7 ) 65.6 (+ 3.1 ) 47.3 (+ 7.7 )
+
+LLaVA-OneVision-1.5 [1] 32 8B 47.9 56.6 60.1 51.1 60.5 40.2 
+
+w/ Q-Fold 32 8B 55.5 (+ 7.6 ) 60.1 (+ 3.5 ) 64.6 (+ 4.5 ) 52.2 (+ 1.1 ) 61.5 (+ 1.0 ) 46.3 (+ 6.1 )
+
+Table 2: Fine-grained performance breakdown on Video-MME subtasks. Absolute gains (+) and drops (-) are shown in green and red, respectively. Model Temporal Action                                    
+
+> Perception Reasoning Recognition Reasoning Qwen2-VL 61.8 35.0 55.6 55.4 w/ Q-Fold 67.3 (+5.5) 47.5 (+12.5) 59.7 (+4.1) 53.0 (-2.4)
+> MiMo-VL 70.9 38.4 63.3 53.0
+> w/ Q-Fold 72.7 (+1.8) 51.4 (+13.0) 65.8 (+2.5) 57.9 (+4.9)
+> LLaVA-OneVision-1.5 67.3 41.8 58.1 57.9
+> w/ Q-Fold 67.3 45.2 (+3.4) 59.1 (+1.0) 58.6 (+0.7)
+
+with the design motivation of Q-Fold. Overall, these results sup-port Q-Fold as an effective training-free input construction strategy under a fixed input budget. 
+
+Qualitative Examples . Figure 3 presents qualitative examples from Video-MME and MLVU. Across different Video-MLLMs, Q-Fold helps the models identify question-relevant visual evidence and produce more accurate answers in diverse scenarios, including object interaction, counting, identity grounding, and event under-standing. These examples further show that Q-Fold can better pre-serve sparse but important evidence while maintaining sufficient contextual information for long-video understanding. 
+
+Fine-grained Capability Analysis . To better understand the capability gains brought by Q-Fold, we further analyze its perfor-mance on fine-grained dimensions from Video-MME and MLVU. As shown in Table 2, Q-Fold improves all three Video-MLLMs on most temporally oriented sub-tasks in Video-MME, with the clearest gains appearing on Temporal Reasoning. For example, Q-Fold im-proves Qwen2-VL and MiMo-VL by 12.5 and 13.0 percentage points on Temporal Reasoning, respectively, suggesting that it is partic-ularly helpful for questions requiring reasoning over long-range event evolution rather than isolated visual cues. Consistent with 
+
+> 6Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding
+
+Q: Why do the hosts talk about lemon? 
+
+LLaVA-OneVision-1.5 A: A host eats lemon 
+
+every night for training. 
+
+LLaVA-OneVision-1.5 w/ Q-Fold A: A person wants a 
+
+host to eat lemon. 
+
+Q: What does the panda that takes a blue bucket do in this video? 
+
+Qwen2-VL A: Putting the bucket 
+
+on other pandas. 
+
+Qwen2-VL w/ Q-Fold A: Putting itself in 
+
+the bucket. 
+
+Q: How many people are watching TV in the video? 
+
+MiMo-VL A: 1. 
+
+MiMo-VL w/ Q-Fold A: 2. 
+
+Q: What is the chef preparing in the dinner by the ocean shore 
+
+on an island? 
+
+Qwen2-VL A: Fish. 
+
+Qwen2-VL w/ Q-Fold A: Lobster. 
+
+Q: Who did I talk to near the counter? 
+
+MiMo-VL A: Black jacket girl. 
+
+MiMo-VL w/ Q-Fold A: Blue t-shirt man. 
+
+Q: What did the cartoon squirrel do after leaving the house? 
+
+LLaVA-OneVision-1.5 A: Driving 
+
+LLaVA-OneVision-1.5 w/ Q-Fold A: Writing a letter 
+
+Figure 3: Qualitative examples from Video-MME (left) and MLVU (right). Q-Fold helps different Video-MLLMs better capture question-relevant visual evidence and produce more accurate answers. Green stars denote key visual evidence selected by Q-Fold. 
+
+this observation, the MLVU radar plot in Fig. 4 shows clear gains on dimensions related to sequential understanding and long-context comprehension, including Ego, Order, and Needle. In particular, Q-Fold improves Ego by 17.4 points and Order by 8.9 points. We also observe smaller or mixed gains on tasks that depend more on short-horizon local cues, such as Action Reasoning for Qwen2-VL. Overall, these results suggest that Q-Fold is especially beneficial when long-range context and sparse critical events need to be pre-served jointly. 
+
+## 4.3 Ablation Studies 
+
+We conduct ablation studies on the core design choices of Q-Fold, covering segment construction, heterogeneous representation, ca-pacity allocation, and chronology-preserving context compression. Unless otherwise specified, all ablations in this section are con-ducted with Qwen2-VL and evaluated on LongVideoBench under a fixed visual budget of B = 32 . Since Q-Fold is primarily designed for severe information bottlenecks in long videos, we report overall per-formance while placing particular emphasis on the longest-video split (900 , 3600 ], where the advantages of the method are expected to be most evident. 
+
+Segment-level and Frame-level Construction . Table 3 com-pares segment-level and frame-level construction under identical packing structures. Segment-level construction performs better Topic reasoning  
+
+> 77.0
+> 64.0
+> 90.0
+> 38.0
+> 51.0
+> Qwen2-VL
+> Q-Fold
+> Anomaly
+> recognition
+> Needle
+> Order PlotQA
+> Count
+> Ego
+> 70.5
+> 87.5
+> 66.0
+> 83.1
+> 51.4
+> 75.3
+> 33.5 30.6
+> 53.1
+> 82.9
+> 66.0
+> 74.1
+> 42.5
+> 68.1
+
+Figure 4: Fine-grained capability analysis on MLVU for Qwen2-VL. Q-Fold yields improvements across all dimen-sions, with substantial gains in Ego (+17.4) and Order (+8.9). 
+
+overall and shows a more pronounced advantage on the longest-video split. This suggests that contiguous segments provide a more suitable basic unit for long-video input construction than isolated 
+
+> 7Biao Tang et al.
+
+## (c) Patch-Scan Interleaving 
+
+Patch-level scan order 
+
+## (a) Raster-Order Folding 
+
+Frame-level chronology preserved 
+
+Selected frames from a low-context segment (ordered by time) 
+
+## (b) Random Folding 
+
+Frame order randomly permuted 
+
+Figure 5: Comparison of temporal folding strategies. (a) Raster-order folding preserves frame-level chronology. (b) Random folding disrupts temporal order. (c) Patch-scan interleaving follows patch-level scan order instead of frame order. Preserving frame-level chronology leads to the best performance (see Table 4). Table 3: Comparison of segment-level and frame-level input construction. Construction Unit Acc (%) 
+
+Overall (900 , 3600 ]
+
+Frame 59.5 52.7 
+
+Segment 60.7 55.1 Table 4: Comparison of chronology-preserving context fold-ing strategies. Method Unit Acc (%) 
+
+Overall (900, 3600] Patch-Scan Interleaving Patch 59.5 52.7 Random Folding Image 59.9 53.9 
+
+Raster-Order Folding Image 60.7 55.1 
+
+frames, offering a more stable and effective granularity for subse-quent routing and context compression. 
+
+Chronology-Preserving Context Folding . Table 4 shows that Raster-Order Folding (ROP) outperforms both Random Folding (RP) and Patch-Scan Interleaving (PSI). ROP maps 1D temporal order into a standard 2D reading order, which helps preserve local event progression while maintaining intra-frame semantic integrity, unlike RP, which disrupts spatio-temporal correspondence, or PSI, which breaks patch-level spatial coherence. This interpretation is further supported by the task-selective gain pattern in Table 2 and Figure 4, where improvements concentrate on temporally sensitive dimensions (Temporal Reasoning +12.5/+13.0 points, Order +8.9 
+
+Table 5: Comparison of different Focus, Mid-Context, and Low-Context representation combinations. Focus—Context Representation Acc (%) 
+
+Focus Mid-Context Low-Context Overall (900, 3600] 
+
+✓ 60.0 53.4 
+
+✓ 59.1 52.1 
+
+✓ 57.1 49.5 
+
+✓ ✓ 60.1 53.4 
+
+✓ ✓ 59.5 53.4 
+
+✓ ✓ ✓ 60.7 55.1 
+
+points) rather than distributing uniformly. Together, these results suggest that chronology-preserving folding is more effective than order-disruptive alternatives for compressed context construction. 
+
+Heterogeneous Focus–Context Representation . Table 5 shows that the gains of Q-Fold do not come from simply introducing more representation types, but from the complementary roles played by different representations. Specifically, Focus preserves query-critical evidence in high fidelity, Mid-Context captures intermediate-grained dynamic cues and local temporal transitions, and Low-Context provides broader temporal coverage through stronger com-pression. Accordingly, the full Focus+Mid+Low configuration per-forms best, as it jointly preserves critical evidence, local evolu-tion, and long-range background context. By contrast, Focus+Low-Context still underperforms the full configuration, suggesting that broader coverage alone is insufficient. 
+
+Hierarchical Capacity Allocation . Table 6 further shows that the performance of Q-Fold also depends on how capacity is allo-cated across the three representation types. Pure Focus preserves 
+
+> 8
+
+Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding 
+
+high-fidelity critical evidence but lacks sufficient contextual sup-port, whereas more balanced allocations expand coverage at the cost of weakening the high-fidelity modeling of key events. In comparison, the proposed allocation keeps Focus dominant while introducing appropriate hierarchical context, achieving a better balance between key-evidence fidelity and long-range temporal coverage. 
+
+Table 6: Comparison of different capacity allocation strate-gies across Focus, Mid-Context, and Low-Context represen-tations. Allocation Strategy Ratio (F/M/L) Acc (%) 
+
+Overall (900, 3600] Focus Only 32 / 0 / 0 60.0 53.4 Uniform Allocation 11 / 11 / 10 60.4 54.1 Balanced Allocation 16 / 8 / 8 59.6 52.5 
+
+Proposed Allocation 20 / 8 / 4 60.7 55.1 Table 7: Comparison across 
+
+𝑁 min values. 
+
+𝑁 min 
+
+Acc (%) 
+
+Overall (900, 3600] 1 59.8 52.8 
+
+2 60.7 55.1 
+
+3 59.8 52.3 
+
+Table 8: Comparison across segment lengths 𝐿 .
+
+Length 𝐿 Acc (%) 
+
+Overall (900, 3600] 9 59.6 52.3 
+
+16 60.7 55.1 
+
+24 60.0 53.4 
+
+Segment Length and Minimum Preservation Constraint .We further study the segment length 𝐿 and the minimum preser-vation constraint 𝑁 min for Focus segments. As shown in Table 8, 
+
+𝐿 = 16 achieves the best performance. Shorter segments tend to fragment local context, whereas longer ones weaken routing preci-sion. Table 7 further shows that 𝑁 min = 2 gives the best trade-off: using only one frame provides insufficient local continuity, while increasing it to 3 reduces temporal coverage under a fixed input budget. Taken together, these ablations support the core design of Q-Fold. 
+
+## 5 Conclusion 
+
+In this paper, we proposed Q-Fold, a training-free segment-first input construction framework for long-video understanding under a fixed visual budget. By organizing long videos into a heteroge-neous Focus–Context representation under query guidance, Q-Fold preserves critical fine-grained evidence while compactly retaining broader temporal context. Extensive experiments show that Q-Fold consistently improves strong Video-MLLMs across multiple chal-lenging long-video benchmarks, with particularly clear gains in scenarios requiring long-range temporal reasoning. These gains are especially evident in longer-video regimes, where the infor-mation bottleneck becomes more pronounced. In future work, it would be valuable to develop encoding mechanisms better suited to heterogeneous spatio-temporal inputs and to explore tighter integration between input construction and visual modeling for further advances in long-video understanding. 
+
+## References 
+
+[1] Xiang An, Yin Xie, Kaicheng Yang, Wenkang Zhang, Xiuwei Zhao, Zheng Cheng, Yirui Wang, Songcen Xu, Changrui Chen, Didi Zhu, et al . 2025. LLaVA-OneVision-1.5: Fully Open Framework for Democratized Multimodal Training. arXiv:2509.23661 [2] Shimin Chen, Xiaohan Lan, Yitian Yuan, Zequn Jie, and Lin Ma. 2024. TimeMarker: A Versatile Video-LLM for Long and Short Video Understanding with Superior Temporal Localization Ability. arXiv:2411.18211 [3] Yukang Chen, Fuzhao Xue, Dacheng Li, Qinghao Hu, Ligeng Zhu, Xiuyu Li, Yun-hao Fang, et al . 2025. LongVILA: Scaling Long-Context Visual Language Models for Long Videos. In 13th International Conference on Learning Representations (ICLR) .[4] Lars Doorenbos, Federico Spurio, and Juergen Gall. 2025. Video Panels for Long Video Understanding. arXiv:2509.23724 [5] Jiajun Fei, Dian Li, Zhidong Deng, Zekun Wang, Gang Liu, and Hui Wang. 2024. Video-CCAM: Enhancing Video-Language Understanding with Causal Cross-Attention Masks for Short and Long Videos. arXiv:2408.14023 [6] Chaoyou Fu, Yuhan Dai, Yongdong Luo, Lei Li, Shuhuai Ren, Renrui Zhang, Zihan Wang, Chenyu Zhou, Yunhang Shen, Mengdan Zhang, et al . 2025. Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 24108–24118. [7] Bo He, Hengduo Li, Young Kyun Jang, Menglin Jia, Xuefei Cao, Ashish Shah, Abhinav Shrivastava, and Ser-Nam Lim. 2024. MA-LMM: Memory-Augmented Large Multimodal Model for Long-Term Video Understanding. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) .13504–13514. [8] Aaron Hurst, Adam Lerer, Adam P Goucher, Adam Perelman, Aditya Ramesh, Aidan Clark, AJ Ostrow, Akila Welihinda, Alan Hayes, Alec Radford, et al . 2024. GPT-4o System Card. arXiv:2410.21276 [9] Laurent Itti and Christof Koch. 2001. Computational modelling of visual attention. 
+
+Nature Reviews Neuroscience 2, 3 (2001), 194–203. [10] Wonkyun Kim, Changin Choi, Wonseok Lee, and Wonjong Rhee. 2024. An Image Grid Can Be Worth a Video: Zero-shot Video Question Answering Using a VLM. 
+
+IEEE Access 12 (2024), 193057–193075. [11] KunChang Li, Yinan He, Yi Wang, Yizhuo Li, Wenhai Wang, Ping Luo, Yali Wang, Limin Wang, and Yu Qiao. 2025. VideoChat: Chat-Centric Video Understanding. 
+
+Science China Information Sciences 68, 10 (2025), 200102. [12] Hao Liang, Jiapeng Li, Tianyi Bai, Xijie Huang, Linzhuang Sun, Zhengren Wang, Conghui He, Bin Cui, Chong Chen, and Wentao Zhang. 2024. KeyVideoLLM: Towards Large-scale Video Keyframe Selection. arXiv:2407.03104 [13] Bin Lin, Yang Ye, Bin Zhu, Jiaxi Cui, Munan Ning, Peng Jin, and Li Yuan. 2024. Video-LLaVA: Learning United Visual Representation by Alignment Before Pro-jection. In Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing (EMNLP) . 5971–5984. [14] Zuyan Liu, Yuhao Dong, Ziwei Liu, Winston Hu, Jiwen Lu, and Yongming Rao. 2025. Oryx MLLM: On-Demand Spatial-Temporal Understanding at Arbitrary Resolution. In 13th International Conference on Learning Representations (ICLR) .[15] Muhammad Maaz, Hanoona Rasheed, Salman Khan, and Fahad Khan. 2024. Video-ChatGPT: Towards Detailed Video Understanding via Large Vision and Language Models. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL) . 12585–12602. [16] Jeffrey Moran and Robert Desimone. 1985. Selective Attention Gates Visual Processing in the Extrastriate Cortex. Science (New York, N.Y.) 229 (09 1985), 782–784. doi:10.1126/science.4023713 [17] OpenAI. 2023. GPT-4V(ision) System Card. https://openai.com/index/gpt-4v-system-card/ [18] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sand-hini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al .2021. Learning Transferable Visual Models From Natural Language Supervi-sion. In Proceedings of the International Conference on Machine Learning (ICML) .8748–8763. [19] Weiming Ren, Wentao Ma, Huan Yang, Cong Wei, Ge Zhang, and Wenhu Chen. 2025. Vamba: Understanding Hour-Long Videos with Hybrid Mamba-Transformers. In Proceedings of the IEEE/CVF International Conference on Com-puter Vision (ICCV) . 21197–21208. [20] Xiaoqian Shen, Yunyang Xiong, Changsheng Zhao, Lemeng Wu, Jun Chen, Chenchen Zhu, Zechun Liu, Fanyi Xiao, Balakrishnan Varadarajan, Florian Bor-des, Zhuang Liu, Hu Xu, et al . 2025. LongVU: Spatiotemporal Adaptive Com-pression for Long Video-Language Understanding. In Proceedings of the 42nd International Conference on Machine Learning (ICML) .9Biao Tang et al. 
+
+[21] Yan Shu, Zheng Liu, Peitian Zhang, Minghao Qin, Junjie Zhou, Zhengyang Liang, Tiejun Huang, and Bo Zhao. 2025. Video-XL: Extra-Long Vision Language Model for Hour-Scale Video Understanding. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 26160–26169. [22] Wenhui Tan, Ruihua Song, Jiaze Li, Jianzhong Ju, and Zhenbo Luo. 2026. Think-Clip-Sample: Slow-Fast Frame Selection for Video Understanding. arXiv:2601.11359 [23] Canhui Tang, Zifan Han, Hongbo Sun, Sanping Zhou, Xuchong Zhang, Xin Wei, Ye Yuan, Huayu Zhang, Jinglin Xu, and Hao Sun. 2025. TSPO: Temporal Sampling Policy Optimization for Long-form Video Language Understanding. In 
+
+Proceedings of the AAAI Conference on Artificial Intelligence (AAAI) . 9368–9376. [24] Xi Tang, Jihao Qiu, Lingxi Xie, Yunjie Tian, Jianbin Jiao, and Qixiang Ye. 2025. Adaptive Keyframe Sampling for Long Video Understanding. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) .[25] Gemini Team, Rohan Anil, Sebastian Borgeaud, Jean-Baptiste Alayrac, Jiahui Yu, Radu Soricut, Johan Schalkwyk, Andrew M Dai, Anja Hauth, Katie Millican, et al .2023. Gemini: A Family of Highly Capable Multimodal Models. arXiv:2312.11805 [26] Qwen Team. 2025. Qwen2.5-VL. https://qwenlm.github.io/blog/qwen2.5-vl/ [27] XiaoMi Core Team, Zihao Yue, Zhenru Lin, et al . 2025. MiMo-VL Technical Report. arXiv:2506.03569 [28] Peng Wang, Shuai Bai, Sinan Tan, Shijie Wang, Zhihao Fan, Jinze Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin Ge, et al . 2024. Qwen2-VL: Enhancing Vision-Language Model’s Perception of the World at Any Resolution. arXiv:2409.12191 [29] Weihan Wang, Zehai He, Wenyi Hong, Yean Cheng, Xiaohan Zhang, Ji Qi, Ming Ding, Xiaotao Gu, Shiyu Huang, Bin Xu, et al . 2025. LVBench: An Extreme Long Video Understanding Benchmark. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) . 22958–22967. [30] Yuxuan Wang, Yiqi Song, Cihang Xie, Yang Liu, and Zilong Zheng. 2025. Vide-oLLaMB: Long Video Understanding with Recurrent Memory Bridges. In Pro-ceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) .24170–24181. [31] Haoning Wu, Dongxu Li, Bei Chen, and Junnan Li. 2024. LongVideoBench: A Benchmark for Long-context Interleaved Video-Language Understanding. In Proceedings of the 38th Annual Conference on Neural Information Processing Systems (NeurIPS) .[32] Mingze Xu, Mingfei Gao, Zhe Gan, Hong-You Chen, Zhengfeng Lai, Haiming Gang, Kai Kang, and Afshin Dehghan. 2024. SlowFast-LLaVA: A Strong Training-Free Baseline for Video Large Language Models. arXiv:2407.15841 [33] Linli Yao, Haoning Wu, Kun Ouyang, Yuanxing Zhang, Caiming Xiong, Bei Chen, Xu Sun, and Junnan Li. 2025. Generative Frame Sampler for Long Video Understanding. In Findings of the Association for Computational Linguistics: ACL 2025 .[34] Jiabo Ye, Haiyang Xu, Haowei Liu, Anwen Hu, Ming Yan, Qi Qian, Ji Zhang, Fei Huang, and Jingren Zhou. 2024. mPLUG-Owl3: Towards Long Image-Sequence Understanding in Multi-Modal Large Language Models. arXiv:2408.04840 [35] Sicheng Yu, Chengkai Jin, Huanyu Wang, Zhenghao Chen, Sheng Jin, Zhongrong Zuo, Xiaolei Xu, Zhenbang Sun, Bingni Zhang, Jiawei Wu, Hao Zhang, and Qianru Sun. 2025. Frame-Voyager: Learning to Query Frames for Video Large Language Models. In Proceedings of the 13th International Conference on Learning Representations (ICLR) .[36] Beichen Zhang, Pan Zhang, Xiaoyi Dong, Yuhang Zang, and Jiaqi Wang. 2024. Long-CLIP: Unlocking the Long-Text Capability of CLIP. In Proceedings of the 18th European Conference on Computer Vision (ECCV) .[37] Hang Zhang, Xin Li, and Lidong Bing. 2023. Video-LLaMA: An Instruction-Tuned Audio-Visual Language Model for Video Understanding. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing: System Demonstrations (EMNLP) . 543–553. [38] Kaichen Zhang, Bo Li, Peiyuan Zhang, Fanyi Pu, Joshua Adrian Cahyono, Kairui Hu, Shuai Liu, Yuanhan Zhang, Jingkang Yang, Chunyuan Li, et al . 2025. LMMs-Eval: Reality Check on the Evaluation of Large Multimodal Models. In Findings of the Association for Computational Linguistics: NAACL 2025 . 881–916. [39] Peiyuan Zhang, Kaichen Zhang, Bo Li, Guangtao Zeng, Jingkang Yang, Yuanhan Zhang, Ziyue Wang, Haoran Tan, Chunyuan Li, and Ziwei Liu. 2024. Long Context Transfer from Language to Vision. arXiv:2406.16852 [40] Shaojie Zhang, Jiahui Yang, Jianqin Yin, Zhenbo Luo, and Jian Luan. 2025. Q-Frame: Query-aware Frame Selection and Multi-Resolution Adaptation for Video-LLMs. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) . 22056–22065. [41] Junjie Zhou, Yan Shu, Bo Zhao, Boya Wu, Zhengyang Liang, Shitao Xiao, Minghao Qin, Xi Yang, Yongping Xiong, Bo Zhang, et al . 2025. MLVU: Benchmarking Multi-task Long Video Understanding. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 13691–13701. [42] Zirui Zhu, Hailun Xu, Yang Luo, Yong Liu, Kanchan Sarkar, Zhenheng Yang, and Yang You. 2026. FOCUS: Efficient Keyframe Selection for Long Video Understand-ing. In Proceedings of the 14th International Conference on Learning Representations (ICLR) .10
