@@ -1,0 +1,475 @@
+Title: Knowledge-Preserved Model Tuning in Null-Space for Robust Spatio-Temporal Video Grounding
+
+URL Source: https://arxiv.org/pdf/2606.03539v1
+
+Published Time: Wed, 03 Jun 2026 01:05:11 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# Knowledge-Preserved Model Tuning in Null-Space for Robust Spatio-Temporal Video Grounding 
+
+Haoxuan Chen 1, Xianqin Liu 2 and Jian-Fang Hu 1,3,4† 1School of Computer Science and Engineering, Sun Yat-sen University, China 
+
+> 2
+
+National Information Center of GACC (Guangdong), GuangZhou, China 
+
+> 3
+
+Guangdong Province Key Laboratory of Information Security Technology, China 
+
+> 4
+
+Key Laboratory of Machine Intelligence and Advanced Computing, Ministry of Education, China chenhx253@mail2.sysu.edu.cn, liuxianqin007@hotmail.com, hujf5@mail.sysu.edu.cn 
+
+Abstract —Spatio-Temporal Video Grounding aims to localize object tubes based on textual queries. While recent methods have achieved remarkable success, they mainly focus on high-quality(HQ) inputs, neglecting the widespread presence of low-quality(LQ) videos in real-world scenarios. Although tuning methods like LoRA can adapt to degraded inputs, they inevitably disrupt pre-trained knowledge. To address this, we propose Null-Space Tuning (NST). This framework exploits the geometric property that adding vectors within the null-space of frozen weights to the layer input does not affect the output. Leveraging this, NST injects learnable residuals into input features that can be selectively invisible to the pre-trained backbone. Specifically, NST combines the Quality-Adaptive Unit and Dual-Space Repa-rameterization to synthesize these residuals by confining compo-nents for HQ inputs to the null-space, while directing restoration components for LQ inputs to the non-null space. As the frozen weights eliminate null-space components, we effectively rectify degraded inputs while preserving pre-trained knowledge for HQ inputs. Extensive experiments show that NST outperforms state-of-the-art methods on our Mixed-Quality benchmark. 
+
+Index Terms —Spatio-Temporal Video Grounding, Knowledge-Preserved Fine-Tuning 
+
+I. I NTRODUCTION 
+
+Spatio-Temporal Video Grounding (STVG) aims to localize target object tubes in untrimmed videos based on natural language queries [1]. Driven by the advancements in DETR-style architectures [2], recent methods [3], [4] have achieved impressive performance by modeling fine-grained cross-modal interactions. However, these approaches mainly assume that input videos are of high-quality. In real-world scenarios, videos inevitably suffer from degradations such as motion blur, defocus blur, or compression artifacts. These degrada-tions lead to a severe feature distribution shift, where the local visual details essential for grounding, such as object boundaries, become inconsistent with the patterns learned by pre-trained models. Consequently, standard models struggle to align degraded visual features with textual queries, leading to significant localization failures on low-quality inputs. To bridge this gap, a straightforward solution is to ap-ply Parameter-Efficient Fine-Tuning (PEFT) methods like LoRA [5]. However, standard PEFT employs a static injec-tion strategy where learned parameters are fixed and applied 
+
+> † Corresponding Author
+
+uniformly to all inputs regardless of their quality. This causes a dilemma in real-world scenarios: since both LQ and HQ features share the same projection space, adjusting parameters to restore degraded inputs inevitably disrupts the well-learned representations of HQ data, resulting in catastrophic forgetting. To resolve this dilemma, we propose Null-Space Tuning. This framework leverages the geometric redundancy of pre-trained weights to find a latent subspace where adaptation signals within it remain invisible to the pre-trained backbone. Mathematically, this corresponds to the subspace orthogonal to the active weights, formally defined as the Null-Space . By restricting updates for HQ inputs to this null-space, we effec-tively prevent these updates from altering the layer outputs. These updates are injected into the input features as resid-uals, enabling knowledge-preserved tuning. Specifically, we design a Quality-Adaptive Unit (QAU) that leverages a multi-modal reference bank to assess the semantic gap in degraded frames and generate the corresponding restoration coefficients. Furthermore, we introduce Dual-Space Reparameterization to synthesize the final residual as a linear combination of orthog-onal bases derived from the SVD of the frozen weights. Driven by the coefficients from QAU, this mechanism constructs the residual using null-space bases for HQ inputs to preserve original outputs, while switching to non-null space bases for LQ inputs to enable restoration. The residual is then added into the input features. As the backbone eliminates residuals within null-space, this selective tuning method ensures effec-tive restoration for LQ inputs while preserving HQ knowledge during the forward pass. Experiments on our Mixed-Quality benchmark show that our method effectively restores degraded inputs without compromising pre-trained knowledge. Our contributions can be summarized as follows:  
+
+> •
+
+We propose Null-Space Tuning, a novel geometric tuning framework that resolves the conflict between adapting to low-quality inputs and preserving pre-trained knowledge on high-quality data.  
+
+> •
+
+We design a Quality-Adaptive Unit that utilizes a multi-modal reference bank to generate semantic-aware resid-uals, combined with a Dual-Space Reparameterization to selectively inject residuals based on input qualities.  
+
+> •
+
+We construct a Mixed-Quality STVG Benchmark sim-ulating real-world video degradations. Extensive exper-
+
+> arXiv:2606.03539v1 [cs.CV] 2 Jun 2026
+
+iments on it demonstrate that NST achieves superior robustness, outperforming state-of-the-art PEFT methods in restoration gain and knowledge preservation. II. R ELATED WORK 
+
+A. Spatio-Temporal Video Grounding 
+
+STVG aims to localize object tubes based on textual queries. Early methods [1], [6], [7] adopted a two-stage paradigm with proposal generation and ranking, which suffers from error propagation. The field has since evolved to one-stage Transformer architectures, where methods like STVGBert [8] and TubeDETR [9] leverage end-to-end tube generation to establish a direct localization paradigm. Recent SOTA mod-els [3], [4], [10] have further pushed performance boundaries by modeling fine-grained cross-modal interactions. However, these methods mainly work under the assumption of high-quality inputs, lacking mechanisms to handle real-world video degradations. Unlike prior methods, we propose a tuning framework that explicitly recovers these missing semantics to enable robust localization on mixed-quality inputs. 
+
+B. Parameter-Efficient Fine-Tuning 
+
+PEFT adapts models by optimizing minimal parameters while freezing the backbone. Existing methods generally fall into additive approaches (e.g., Adapters [11], Prompt Tun-ing [12]) or reparameterization strategies (e.g., LoRA [5]). While recent variants like AdaLoRA [13] and DoRA [14] further optimize rank allocation or weight decomposition, they fundamentally rely on a static injection mechanism, where learned parameters remain fixed for all samples during inference. This input-agnostic nature limits their capability when handling mixed-quality data in real world scenarios. In contrast, our method introduces an instance-aware strategy, leveraging the null-space to dynamically route features based on input quality without altering the frozen model. 
+
+C. Null-Space in Deep Learning 
+
+Null-space analysis is pivotal in linear algebra and has been adopted in continual learning [15]–[17] to prevent forgetting by constraining gradient updates orthogonal to previous tasks. Unlike previous works that use null space solely for gradient projection or static regularization, we exploit the null-space of frozen weights to dynamically tune model. By decomposing the feature space via SVD, we establish a dynamic tuning method where restoration updates for low-quality inputs are directed to the non-null space, whereas potential noise from high-quality inputs is mathematically constrained within the null-space to preserve pre-trained knowledge. III. M ETHOD 
+
+A. Overview 
+
+We propose Null-Space Tuning, a robust tuning framework that leverages the null-space structure of frozen weights to perform selective tuning. As illustrated in Fig. 1(a), NST integrates two core modules into the decoder layers with lower ranks: (1) A Quality-Adaptive Unit (Sec. III-C), which esti-mates restoration coefficients by detecting semantic gaps; and (2) A Dual-Space Reparameterization mechanism (Sec. III-D), which constructs residuals using orthogonal bases derived from the SVD of frozen weights. By routing restoration residuals for LQ inputs to the row-space while projecting noise into the null-space for HQ inputs, NST achieves selective adaptation while preserving pre-trained knowledge. 
+
+B. Problem Formulation 
+
+Let F ∈ RN ×D denote the input features consisting of N
+
+tokens to a pre-trained layer with frozen weights W ∈ RD×D.In standard settings, W is optimized for HQ inputs FHQ .However, real-world degradations cause a distribution shift, yielding LQ features FLQ . Directly updating W to fit FLQ 
+
+alters the projection of FHQ , causing catastrophic forgetting. To resolve this, we freeze W and inject a learnable residual 
+
+δ = G(F) into F to construct rectified features ˆF = F + δ.To ensure δ restores LQ features without disturbing HQ ones, we leverage the geometric redundancy of the frozen weight W. We perform SVD on W = UΣV ⊤ to obtain the orthogonal decomposition of the input domain RD . The right singular vectors V are partitioned into two orthogonal subspaces: (1) Row-Space (Vrow , also referred to as the non-null space), which corresponds to non-zero singular values and contains directions that modulate the layer output; and (2) Null-Space (Vnull ), which corresponds to zero singular values. By definition, any vector v within this null-space is nullified by the weights. Based on this, we construct δ to act as a geometric gate. For HQ inputs, we constrain δ within 
+
+Vnull . Since the frozen weights map null-space vectors to zero, the layer output remains unchanged: 
+
+W(F + δ) = WF + Wδ|{z} 
+
+> =0
+
+= WF , (1) thereby strictly preserving the pre-trained capabilities. Con-versely, for LQ inputs, we route restoration residuals into 
+
+Vrow , yielding W(F + δ) = WF + Wδ, where the non-zero term Wδ explicitly modifies the degraded features. 
+
+C. Quality-Adaptive Unit 
+
+To guide the construction of δ, we introduce the QAU to detect semantic gaps and generate candidate restoration signals. As shown in Fig. 1(b), QAU acts as a dual-path generator to prepare restorative residuals. Specifically, input features F derived from degraded frames often contain noise that corrupts local details. To rectify this, we construct a robust reference bank M as: 
+
+M = [ LN (Proj ( ¯F)); LN (Proj (Ftext ))] , (2) where ¯F is the global visual context obtained via temporal pooling to capture a stable visual representation, and Ftext is the textual features providing clean semantic guidance. Sub-sequently, we employ Multi-Head Cross-Attention(MHCA) to ⊕
+
+The man in 
+
+white clothes 
+
+grabs the ball 
+
+on the ground. 
+
+Text 
+
+Video 
+
+> 2D
+> Backbone
+> Multimodal Feature Fusion
+
+Spatial 
+
+Head 
+
+> 3D
+> Backbone
+> Text
+> Backbone
+
+Temporal 
+
+Head 
+
+Full-Rank Layer 
+
+Low-Rank Layer 
+
+QAU (Sec.III C) 
+
+> Dual-Space
+> Reparameterization
+> (Sec. III D)
+
+Pretrained Weight 
+
+F
+
+⊕
+
+> out
+
+F
+
+Spatio-Temporal Decoder   
+
+> )D(r
+> )D(r
+
+Low-Rank Layer  
+
+> )D(r
+
+Full-Rank Layer  
+
+> )D(r
+
+## N 
+
+> ts
+
+QQ ,
+
+> s
+> 0
+
+Q
+
+> t
+> 0
+
+Q
+
+F
+
+~
+
+Tube 
+
+> s
+
+Q
+
+> t
+
+Q
+
+Input Multimodal Encoder Spatio-Temporal Decoder with NST framework Output 
+
+Multi-Head 
+
+Cross-Attention 
+
+MLP 
+
+MLP 
+
+Proj.&LN 
+
+Proj.&LN 
+
+LayerNorm 
+
+## F
+
+> text
+
+F
+
+F
+
+Q
+
+K,V 
+
+# 
+
+# 
+
+# 
+
+# 
+
+H
+
+> Avg. Pooling
+> MLP
+
+H
+
+> r
+> row
+> 
+
+##  D
+
+## RV 
+
+> )D(D
+> null
+
+## RV r
+
+## 
+
+# ⊕
+
+# 
+
+# 
+
+
+
+
+
+Pretrained 
+
+Weights 
+
+# ⊗
+
+# ⊗
+
+## 
+
+s
+
+(1-s) 
+
+SVD 
+
+SVD 
+
+(a) Pipeline of Null-Space Tuning for Spatio-Temporal Video Grounding 
+
+(b) Quality Adaptive Unit Block (c) Dual-Space Reparameterization Block 
+
+F
+
+~
+
+
+
+
+
+> 
+> 
+
+F text F
+
+> Temporal
+> Avg. Pooling
+
+## F
+
+> text
+
+F
+
+# ⊕Concat           
+
+> FFig. 1. Overview of Null-Space Tuning. (a) Pipeline: We freeze the backbone and insert our modules into the decoder layers with low rank. (b) Quality-Adaptive Unit: Constructs a reference bank from global visual ˜Fand textual features Ftext , utilizing degraded local frames Fas queries to retrieve missing semantics via Cross-Attention. (c) Dual-Space Reparameterization: Constructs residuals via orthogonal bases. A router sdirects restoration signals to the row-space ( Vrow ) for LQ inputs, while constraining noise within the null-space ( Vnull ) for HQ inputs to minimize interference.
+
+query this bank, treating degraded input frames F as Queries to retrieve missing semantics: 
+
+H = MHCA (Q = LN (F), K = M, V = M), (3) thereby allowing the model to selectively retrieve missing semantics from the robust reference to compensate for local degradation. Finally, the retrieved features H are mapped into dual projection coefficients of null space and row space via two parallel MLPs: ⃗α = MLP null (H)⃗ β = MLP row (H), (4) where ⃗ β ∈ RN ×r carries the restoration information intended to be injected via row-space and ⃗α ∈ R N ×(D−r) collects the noise intended to be discarded via null-space. By separating the information into these two components, we enable the Reparameterization module (Sec. III-D) to selectively route energy to the appropriate subspace based on video quality. 
+
+D. Dual-Space Reparameterization 
+
+With the projection coefficients ⃗α and ⃗ β predicted by the QAU, we propose a geometric mechanism to generate the final residual δ. As depicted in Figure 1(c), this module leverages the pre-trained weight to handle HQ inputs via null-space and LQ inputs via row-space, which effectively decouples feature restoration from knowledge preservation. Specifically, we perform Singular Value Decomposi-tion(SVD) on the frozen weights W = UΣV ⊤ to separate the feature space into two orthogonal bases V = [ Vrow | Vnull ].Here, Vrow spans the Row-Space, while Vnull spans the Null-Space. This decomposition is pre-computed and cached, incurring negligible overhead. To dynamically select the ap-propriate subspace, we introduce a lightweight router that estimates the noise level from the semantic gap H, predicting a gate s = σ(MLP gate (AvgPool (H))) ∈ [0 , 1] . Based on this gate, we construct the residual δ ∈ RN ×D via orthogonal projection: 
+
+δ = s · (⃗βV⊤
+
+> row
+
+)
+
+| {z }
+
+> Restoration
+
++ (1 − s) · (⃗αV ⊤
+
+> null
+
+)
+
+| {z }
+
+> Preservation
+
+. (5) For HQ inputs, the router suppresses the row-space term. The residual becomes dominated by the null-space term 
+
+δ ≈⃗αV ⊤
+
+> null
+
+. Since WV null = 0, this residual is effectively nullified in the layer output, preserving pre-trained features. For LQ inputs, the router activates the row-space term. The residual becomes δ ≈⃗ βV⊤
+
+> row
+
+. Since WV row ̸ = 0, this component effectively passes through the weights to rectify the TABLE I 
+
+QUANTITATIVE RESULTS ON THE MIXED -Q UALITY VID STG TEST SET (S EC . IV-A) . W E BENCHMARK OUR NST AGAINST FULL FINE -TUNE AND ADVANCED PEFT METHODS BASED ON THE SAME SOTA BACKBONE [3]. OURS ACHIEVES THE BEST TRADE -OFF BETWEEN RESTORATION AND PRESERVATION , CONSISTENTLY SURPASSING OTHER TUNING STRATEGIES .
+
+Declarative Sentences Interrogative Sentences Method m tIoU m vIoU vIoU @0.3 vIoU @0.5 m tIoU m vIoU vIoU @0.3 vIoU @0.5 Baseline [CVPR24] [3] 49.93 28.95 41.46 26.06 48.69 24.26 34.04 20.76 Full-Finetune 49.42 29.13 41.74 26.31 48.38 24.38 34.42 21.03 LoRA [ICLR22] [5] 49.61 29.47 42.03 26.74 48.54 25.03 34.97 21.51 AdaLoRA [ICLR23] [13] 49.73 29.93 42.31 27.08 48.67 25.29 35.26 21.84 DoRA [ICML24] [14] 50.02 29.72 42.74 27.51 48.81 25.54 35.63 22.28 FlyLoRA [NeurIPS25] [18] 49.91 29.84 42.97 27.36 49.03 25.67 35.94 22.19 
+
+Ours (NST) 50.81 (+0.88) 31.06 (+2.11) 44.11 (+2.65) 28.68 (+2.62) 49.47 (+0.78) 26.49 (+2.23) 36.90 (+2.86) 23.29 (+2.53) 
+
+TABLE II 
+
+QUANTITATIVE RESULTS OF WEIGHTED ADAPTATION SCORE BASED ON VID STG HQ AND LQ TEST SET (S EC . IV-A). HIGHER WAS SCORES 
+
+(∆LQ − | ∆HQ |) INDICATE BETTER CAPABILITY TO RESTORE LOW -QUALITY INPUTS WHILE PRESERVING HIGH -QUALITY PERFORMANCE . OURS  
+
+> CONSISTENTLY ACHIEVES THE HIGHEST
+
+WAS ACROSS ALL SENTENCE TYPES AND METRICS .
+
+Declarative Sentences Interrogative Sentences Method ∆m tIoU ∆m vIoU ∆vIoU @0.3 ∆vIoU @0.5 ∆m tIoU ∆m vIoU ∆vIoU @0.3 ∆vIoU @0.5 Full-Finetune 0.12 0.56 1.24 0.83 -0.05 0.42 1.11 0.97 LoRA [ICLR22] [5] 0.16 2.12 2.67 2.50 -0.02 1.61 3.13 2.10 AdaLoRA [ICLR23] [13] 0.18 2.19 3.10 2.38 -0.04 2.34 3.06 1.95 DoRA [ICML24] [14] 0.34 2.48 3.44 2.76 0.08 2.66 3.45 2.48 FlyLoRA [NeurIPS25] [18] 0.42 2.63 3.55 3.07 0.16 2.75 3.54 2.65 
+
+Ours (NST) 1.17 3.98 4.60 4.50 0.71 3.87 5.19 4.42 
+
+TABLE III 
+
+ABLATION STUDY ON CORE MECHANISMS . WE REPORT THE 
+
+WEIGHTED ADAPTATION SCORE ON HCSTVG-V1. Optimization-based :GEOMETRIC LOSS CONSTRAINTS . Structural : O UR DUAL -SPACE REPARAMETERIZATION .
+
+QAU Constraint ∆m tIoU ∆m vIoU ∆vIoU @0.3 ∆vIoU @0.5 
+
+✗ Structural -0.08 +0.17 +0.23 +0.09 
+
+✓ − +0.15 +0.36 +0.42 +0.31 
+
+✓ Optimization-based +0.85 +2.66 +3.15 +2.88 
+
+✓ Structural +1.25 +4.18 +4.71 +4.53 
+
+TABLE IV 
+
+ANALYSIS ON LAYER SELECTION STRATEGY . WE REPORT THE 
+
+WEIGHTED ADAPTATION SCORE ON HCSTVG-V1. Low/High-Nullity :APPLYING OUR NST TUNING FRAMEWORK TO LAYERS WITH MINIMAL /MAXIMAL NULL -SPACE CAPACITY (FULL /LOW RANK ). 
+
+Strategy ∆m tIoU ∆m vIoU ∆vIoU @0.3 ∆vIoU @0.5 
+
+Low-Nullity +0.12 +0.35 +0.41 +0.28 Random Selection +0.65 +1.95 +2.17 +2.13 
+
+High-Nullity +1.25 +4.18 +4.71 +4.53 
+
+degraded features. The features are then updated as ˆF = F+δ.During the forward propagation, the frozen backbone W
+
+mathematically eliminates the null-space component ( Wδ =
+
+0) to preserve original outputs, while allowing the row-space component to pass through for restoration. 
+
+E. Optimization 
+
+The training objective combines the standard grounding loss LST V G with a router supervision term and a subspace regularization term: 
+
+Ltotal = LST V G + λgate Lgate + λreg Lreg . (6) 6 4 2 0 2 4 6 
+
+> Performance Change ( m_vIoU, %)
+> Full-FT
+> AdaLoRA
+> DoRA
+> FlyLoRA
+> LoRA
+> Ours
+> +5.2
+> +4.9
+> +4.7
+> +4.4
+> +4.2
+> +4.3
+> -4.6
+> -2.8
+> -2.2
+> -1.8
+> -2.1
+> -0.3
+> LQ Gain (Recovery)
+> HQ Drop (Forgetting)
+
+Fig. 2. Restoration vs. Preservation Trade-off on VidSTG. We visualize the performance change on ∆m vIoU relative to the Zero-shot Baseline. Green bars indicate gains on LQ data , while Red bars indicate drops on HQ data. 
+
+Specifically, Lgate = ∥s − yq ∥2 utilizes quality labels yq (0
+
+for HQ, 1 for LQ) to supervise the router. Lreg regulates the projection coefficients based on the input quality label yq :
+
+Lreg = (1 − yq ) · ∥ ⃗ β∥22 + yq · ∥ ⃗α∥ 22. (7) For HQ inputs, we minimize ∥⃗ β∥22 to suppress the row-space component, mitigating the risk of feature distortion. For LQ inputs, minimizing ∥⃗α∥ 22 is numerically essential: since the router s applies soft gating, this constraint prevents magnitude explosion that would cause noise leakage. Furthermore, it en-forces energy concentration, compelling the model to channel all valid restoration signals into the row-space via ⃗ β while restricting ⃗α to absorb stochastic noise. HQ Video 
+
+> GT
+
+Text: The woman in the white skirt adjusts her skirt and walks slowly to the other woman.   
+
+> NST (Ours)
+> LoRA
+> LQ Video
+> GT
+> NST (Ours)
+> LoRA Fig. 3. Qualitative comparison on mixed-quality inputs. LoRA suffers forgetting on HQ inputs (Top) and misses fine-grained cues on LQ inputs (Bottom). In contrast, NST maintains precision on both by restoring LQ inputs while preserving HQ ones.
+
+IV. R ESULTS AND ANALYSIS 
+
+Implementation details. Based on CG-STVG [3], we use ResNet-101 [19] and VidSwin-T [20] for visual feature ex-traction and RoBERTa-base [21] for text encoding. The visual and textual backbones are initialized from MDETR [22] and kept frozen during training. We use the AdamW optimizer [23] with a weight decay of 1e − 4 and a learning rate of 3e − 4 for NST parameters. Loss weights are set to λgate = 5 , λ reg = 1 .All experiments are conducted on NVIDIA RTX 5880 Ada Generation GPUs with a batch size of 32. 
+
+A. Datsets and Metrics 
+
+Datasets. We use two common used benchmarks: HCSTVG-v1/v2 [7] and VidSTG [1]. Following [3], [10], [24], we report results on the validation sets for HCSTVG (v1: 1,160, v2: 2,000 samples) and the test set for VidSTG (10,303 samples). To better benchmark robustness against real-world quality shifts, we design a physics-based degradation pipeline Φ( ·).We apply this pipeline to the datasets to generate their Low-Quality counterparts. By integrating these LQ samples with the original HQ data at a 1:1 ratio, we construct a Mixed-Quality Benchmark to simultaneously evaluate the model’s restoration capability on LQ inputs and preservation ability on HQ ones. Specifically, Φ( ·) comprises: (1) Motion Blur via randomly generated directional kernels simulating rapid camera shake (size ∈ [3 , 21] , angle ∈ [0 , 360 ◦]); (2) Defocus Blur via Gaussian kernels with varying standard deviations to simulate optical focus loss; (3) Low-Light simulation via linear brightness reduction and nonlinear Gamma correction for underexposed scenes; and (4) Resolution degradation by downsampling to discard fine-grained details. 
+
+Metrics. Following prior works [3], [9], we employ m tIoU, m vIoU, and vIoU @R as evaluation metrics. m tIoU mea-sures the average temporal Intersection-over-Union (IoU) be-tween predicted and ground-truth segments. m vIoU evalu-ates the spatio-temporal accuracy by averaging spatial IoUs over the union of temporal frames. vIoU @R denotes the percentage of test samples where vIoU exceeds a threshold 
+
+R ∈ {0.3, 0.5}. Furthermore, to better evaluate the trade-off between restoration and preservation, we propose the 
+
+Weighted Adaptation Score metric: WAS = ∆ LQ − | ∆HQ |, (8) where ∆LQ is the performance gain on LQ data and ∆HQ is the performance drop on HQ data relative to the zero-shot baseline. A higher WAS indicates effective restoration with minimal catastrophic forgetting. 
+
+B. State-of-the-art Comparison 
+
+To validate the effectiveness and robustness of NST, we benchmark it against Full Fine-tune and state-of-the-art PEFT methods based on [3]. Evaluation is conducted across three versions of the VidSTG test set: High-Quality, Low-Quality, and Mixed-Quality. The rank r is set to 64 for all PEFT methods. As detailed in Table I, NST consistently outperforms all methods on the Mixed-Quality set. Specifically, it surpasses Full Fine-tune by 1.39% in m tIoU and 2.37% in vIoU @0.5 for declarative sentences, demonstrating robust adaptability to complex distribution shifts in mixed-quality scenarios. To quantify the balance between restoration and preservation, we calculate the Weighted Adaptation Score based on HQ and LQ results. As shown in Table II. NST achieves the highest WAS across all sentence types and metrics (e.g., 4.50% on vIoU @0.5), outperforming other tuning strategies. To better visualize this superiority, we plot the performance trade-off in Fig. 2. As shown, Full Fine-tune suffers severe catastrophic forgetting with a 4.6% drop on HQ. Similarly, AdaLoRA yields a 4.9% gain on LQ inputs but degrades HQ results with a 2.8% drop. In contrast, our method achieves a balance by matching the restoration capability of leading PEFT methods with a 4.3% on LQ while maintaining HQ performance with a 0.3% drop. This confirms that our method successfully refines degraded inputs while preserving pre-trained knowledge. 
+
+C. Ablation Study 
+
+Impact of Core Mechanisms. To validate our design, we conduct ablation studies on HCSTVG-v1 and report the WAS across metrics. As shown in Table III, replacing the QAU with a simple MLP with only visual features yields the poorest performance, which emphasizes the critical importance of the QAU. However, even with semantic guidance from QAU, naive injection without constraints yields a negligible WAS, as blindly injecting residuals severely disrupts the performance on HQ data. Although the optimization-based strategy im-proves the score via loss regularization, it still fails to enforce strict orthogonality solely through optimization. In contrast, our structural reparameterization achieves the highest WAS. This comparison demonstrates that our design effectively optimizes the trade-off between restoration and preservation. 
+
+Impact of Matrix Null-Space Capacity. To validate the necessity of geometric redundancy, we evaluate layer selection strategies based on the intrinsic rank of pre-trained weights. We categorize layers into High-Nullity layers with lowest 10% in rank ratio and Low-Nullity layers with highest 10% in rank ratio. We report the WAS on the HCSTVG-v1 validation set. As shown in Table IV, inserting modules into Low-Nullity (full rank) layers yields a worst WAS of +0.09% on vIoU @0.5. The limited null-space in these layers creates a bottleneck, as it lacks sufficient capacity to contain potential noise. Consequently, this noise interferes with the processing of HQ data. In contrast, the High-Nullity (low rank) strategy achieves a superior WAS of +4.53%. This confirms that using layers with larger null-space capacity is essential, as they provide sufficient orthogonal degrees of freedom to isolate noise for HQ data while enabling restoration for LQ inputs. 
+
+D. Qualitative Analysis 
+
+We present qualitative results in Fig. 3. On HQ inputs, LoRA exhibits imprecise temporal boundaries for the action “walk”, suggesting interference with the pre-trained knowl-edge. In contrast, NST preserves the original knowledge, yield-ing precise boundaries. On LQ inputs, while LoRA localizes the target, it produces misaligned bounding boxes for the fine-grained query “adjusts her skirt”, indicating difficulty in align-ing degraded features with subtle semantics. Conversely, NST successfully rectifies these features, resulting in precise local-ization. This comparison shows that our framework effectively balances feature restoration with knowledge preservation. V. C ONCLUSIONS 
+
+In this work, we introduced Null-Space Tuning to resolve the fundamental dilemma between adapting to mixed-quality inputs and preserving pre-trained knowledge in real-world STVG. Our key innovation lies in geometrically decoupling adaptation updates: routing restoration signals to the row-space for degraded inputs while directing potential noise for HQ data within the null-space to make it invisible to the backbone. While demonstrating superior robustness, we note that NST is primarily tailored for linear projection layers, relying on the existence of sufficient geometric redundancy in pre-trained weights to harbor these adaptation residuals. ACKNOWLEDGMENT 
+
+This work was supported partially by the NSFC(62476296), Guangdong Natural Science Funds Project (2023B1515040025, 2022B1111010002, 2024A1111120017), Guangdong NSF for DistinguishedYoung Scholar (2022B1515020009). REFERENCES [1] Zhu Zhang et al., “Where does it exist: Spatio-temporal video grounding for multi-form sentences,” in CVPR , 2020, pp. 10668–10677. [2] Nicolas Carion, Francisco Massa, et al., “End-to-end object detection with transformers,” in ECCV . Springer, 2020, pp. 213–229. [3] Xin Gu, Heng Fan, et al., “Context-guided spatio-temporal video grounding,” in CVPR , 2024, pp. 18330–18339. [4] Xin Gu, Yaojie Shen, et al., “Knowing your target: Target-aware transformer makes better spatio-temporal video grounding,” in ICLR .2025, OpenReview.net. [5] Edward J Hu, Yelong Shen, et al., “Lora: Low-rank adaptation of large language models,” ICLR , vol. 1, no. 2, pp. 3, 2022. [6] Zhu Zhang, Zhou Zhao, et al., “Object-aware multi-branch rela-tion networks for spatio-temporal video grounding,” arXiv preprint arXiv:2008.06941 , 2020. [7] Zongheng Tang, Yue Liao, et al., “Human-centric spatio-temporal video grounding with visual transformers,” IEEE TCSVT , vol. 32, no. 12, pp. 8238–8249, 2021. [8] Rui Su et al., “Stvgbert: A visual-linguistic transformer based framework for spatio-temporal video grounding,” in ICCV , 2021, pp. 1533–1542. [9] Antoine Yang, Antoine Miech, et al., “Tubedetr: Spatio-temporal video grounding with transformers,” in CVPR , 2022, pp. 16442–16453. [10] Yang Jin, Zehuan Yuan, et al., “Embracing consistency: A one-stage approach for spatio-temporal video grounding,” NeurIPS , vol. 35, pp. 29192–29204, 2022. [11] Neil Houlsby, Andrei Giurgiu, et al., “Parameter-efficient transfer learning for nlp,” in ICML . PMLR, 2019, pp. 2790–2799. [12] Menglin Jia, Luming Tang, et al., “Visual prompt tuning,” in ECCV .Springer, 2022, pp. 709–727. [13] Qingru Zhang, Minshuo Chen, et al., “Adaptive budget allocation for parameter-efficient fine-tuning,” in ICLR . 2023, OpenReview.net. [14] Shih-Yang Liu, Chien-Yi Wang, et al., “Dora: Weight-decomposed low-rank adaptation,” in ICML , 2024. [15] Shipeng Wang, Xiaorong Li, et al., “Training networks in null space of feature covariance for continual learning,” in CVPR , 2021, pp. 184–193. [16] Junfeng Fang, Houcheng Jiang, et al., “Alphaedit: Null-space con-strained knowledge editing for language models,” in ICLR . 2025, OpenReview.net. [17] De Cheng, Yue Lu, et al., “Mamba-cl: Optimizing selective state space model in null space for continual learning,” arXiv preprint arXiv:2411.15469 , 2024. [18] Heming Zou, Yunliang Zang, et al., “Flylora: Boosting task decoupling and parameter efficiency via implicit rank-wise mixture-of-experts,”

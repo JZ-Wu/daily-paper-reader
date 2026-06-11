@@ -1,0 +1,764 @@
+Title: Driving Video Retrieval for Complex Queries with Structured Grounding
+
+URL Source: https://arxiv.org/pdf/2606.09109v1
+
+Published Time: Tue, 09 Jun 2026 01:48:29 GMT
+
+Number of Pages: 30
+
+Markdown Content:
+# Driving Video Retrieval for Complex Queries with Structured Grounding 
+
+Manyi Yao †, Sparsh Garg ‡, Christian Shelton †,Amit Roy-Chowdhury †, Abhishek Aich ‡‡NEC Laboratories, America, †University of California, Riverside 
+
+## Abstract 
+
+Video retrieval at scale is central to data curation and safety validation in au-tonomous driving, where users want to find not only scenes but also dynamic events such as cut-ins and hard braking. Existing vision-language and keyword-based retrieval methods often miss these events because the relevant motion may not be explicitly described in text or captured by lexical overlap. Rule-based retrieval can encode such events more directly, but it is brittle: generated or hand-written rules often fail when their assumptions do not match real driving data. We propose STRIVE-D, a data-calibrated retrieval framework for driving videos. It uses weakly labeled in-domain videos to estimate when a query rule is reliable, adapt rules that mismatch observed data, and fuse calibrated rule scores with vision-language and keyword-based retrieval signals. Across three driving benchmarks, including newly released human-annotated event data on DrivingDojo, STRIVE-D delivers up to 
+
+84% relative improvement in top-1 accuracy over state-of-the-art methods. 
+
+## 1 Introduction 
+
+The deployment of advanced driver-assistance and autonomous systems has put fleet-scale dashcam and sensor logs at the center of safety engineering, with a single instrumented vehicle generating tens of terabytes of footage per day [ 1– 3 ]. Within these archives, the events that matter most for safety, such as rare interactions, near-misses, and abnormal driving behaviors, are sparsely distributed and difficult to surface manually. Natural-language video retrieval is the principal tool engineers use to query these archives by intent. The dominant approach uses dense vision–language embeddings [ 4 , 5 ] to score query–video similarity. These embeddings pool fine-grained kinematic patterns, such as a hard brake or a lane cut-in, into a single representation that mixes them with surrounding scene content; queries that hinge on specific motion patterns are often not reliably answered by embedding similarity alone. We refer to this failure mode as dilution .Structured-grounding approaches [6–9] address dilution by translating queries into executable rules over per-frame perception output and scoring videos against the rule rather than against a single embedding. Rule-based scoring depends on a rule’s numerical constraints: thresholds at which gates fire, magnitudes that normalize graded scores, window lengths, and combination weights. A large language model (LLM) at synthesis time has text-level priors over what events “mean,” but those priors do not reflect the empirical distribution of signals as measured by the deployed perception pipeline; the numerical constraints an LLM proposes are therefore typically structurally plausible but miscalibrated in scale. We refer to this as miscalibration . Prior structured-retrieval methods either hand-author rules with hand-set constraints or translate queries via LLM without empirically calibrating them against the operating distribution; closing this calibration gap is our central technical contribution. We reframe constraint calibration as learning-to-rank under distant supervision [ 10 , 11 ]
+
+> Preprint.
+> arXiv:2606.09109v1 [cs.CV] 8 Jun 2026
+
+Query : Find videos where a vehicle changing lane in front of the ego vehicle.                         
+
+> Traditional
+> Retrieval
+> (Embedding -based)
+> 𝑆𝑖𝑚 𝑞 ,𝑣 =cos 𝒆 𝑞 ,𝒆 v
+> Our Method
+> (Structured Grounded)
+> ✘Fails on fine -grained motion.
+> ✓Captures temporal state change.
+> 𝑆𝑖𝑚 (𝑞 ,𝑣 )=𝑓 𝑱 𝑣 ,𝑟 𝑞
+> Result 1 Result 2 Result 3
+> ∆𝑥 ≈1m
+> ∆𝑥 (𝑡 )
+> 𝑡
+> ∆𝑙𝑎𝑛𝑒 ≢0
+> ∆𝑙𝑎𝑛𝑒 (𝑡 )
+> 𝑡
+> ∆𝑙𝑎𝑛𝑒 ≢0
+> ∆lane (𝑡 )
+> 𝑡
+> Front car remains in its lane. Cars crosses the intersection. Vehicle comes from the opposite lane.
+
+Figure 1: Advantages of our method. Embedding-based retrieval captures global scene similarity but often ignores short-term motion dynamics, such as lane changing and hard braking. Our structured grounding method explicitly models these motion patterns, enabling accurate retrieval of such events. (using weak supervision from auto-generated captions of unlabeled auxiliary videos), with an LLM proposing constraint assignments inside an iterative optimization loop [12, 13]. STRIVE-D ( STR uctured and semant Ic Video r Etrieval, Driving) instantiates structured-grounding retrieval around three components. First, a calibrated rule library handles queries that match library events directly; each library entry is an (event, rule) pair whose numerical constraints are fitted on auxiliary footage via the calibration loop above. Second, because the library covers a finite set of events while user queries are open-vocabulary (a coverage gap), a confidence-aware adaptation policy decides per query whether to reuse a calibrated rule or synthesize a new rule conditioned on the closest calibrated rule as an in-context exemplar. Third, the symbolic score is combined with dense and lexical retrieval through query-conditioned routing, complementing the symbolic path on descriptive content and rare entities. The primary contributions of this work are summarized as follows: • Failure-mode reframe. We characterize three distinct failure modes of structured-grounding retrieval over driving footage: dilution of motion signals in dense embeddings, miscalibra-tion of LLM-proposed numerical constraints against the deployed perception pipeline, and 
+
+coverage gaps in any fixed rule library. We design a method whose three components each address one. • Numerical-constraint calibration via learning-to-rank under distant supervision. An LLM-as-optimizer loop jointly fits a rule’s thresholds, magnitudes, and window lengths against auxiliary captions; no labels are required in the target benchmark. • Confidence-aware adaptation policy. For queries outside the calibrated library, the policy bridges calibrated reuse and exemplar-conditioned synthesis, preserving the calibrated parameter scale while allowing structural specialization. • Empirical receipts and benchmark release. On three driving benchmarks, STRIVE-D matches or exceeds the strongest dense and structured baselines on every metric ( e.g ., 
+
+83 .6% relative Acc@1 gain on DrivingDojo [ 14 ], ∼1,500 × lower per-query latency than NSVS-TL [6]); we release a human-annotated event-grounding set on DrivingDojo. 
+
+## 2 Related Works 
+
+Vision-Language and Lexical Video Retrieval. Dense vision–language models [ 5, 4, 15 ] retrieve videos by similarity in a shared video–text embedding space, with retrieval-focused variants adding temporally aware aggregation [ 16 –18 ]. Recent video LLMs and retrieval-augmented systems further integrate generation into the same representation [ 19 –21 ]. Sparse lexical retrieval [ 22 , 23 ] comple-ments these by matching query terms against indexed captions on rare-entity and long-tail queries. 2Recent benchmarks [ 24 – 26 ] document a persistent shortfall of both paradigms on queries that require fine-grained spatiotemporal compositionality. Our work addresses this shortfall for motion-event retrieval, complementing dense and lexical retrieval with a structured rule-based path (Section 3). 
+
+Neuro-Symbolic Video Understanding. Neuro-symbolic approaches to video understanding ground language queries in structured representations of the scene, executing rules or programs to verify physical conditions. Temporal-logic methods reason about long-form events by composing per-frame vision-language model (VLM) scores under a temporal logic specification [ 6, 7]; and scene-graph reasoning composes spatial and temporal predicates over parsed entities [ 9]. In the driving domain, related work translates dashcam content into structured representations for downstream language reasoning and analytics [ 27 –31 ]. Across these methods, the numerical constraints that the underlying LLM emits (e.g., thresholds on distance changes or deceleration) are typically used as-is, without an explicit calibration step against the operating distribution. Our work introduces such a calibration step, leaving the symbolic translation to the LLM and grounding the numerical constraints in auxiliary in-domain data. 
+
+Weak Supervision, Ranking, and LLM-as-Optimizer. Our calibration procedure draws on three established lines of work. Learning to rank under binary relevance [ 10 ] provides the standard formulation for optimizing average precision over positive/negative pairs. Distant supervision [ 11 ]obtains training pairs from heuristic alignments rather than human labels, a paradigm widely adopted in natural-language processing and information retrieval. Recent work casts large language models as discrete optimizers, using their proposal distribution to search structured solution spaces under black-box objective evaluations [ 12 , 13 ]. Our method combines these three traditions in the setting of symbolic video retrieval: positive/negative video pairs derived from auxiliary captions provide weakly supervised rankings, and an LLM-driven proposal loop searches over rule parameters under the average-precision objective. 
+
+## 3 Method 
+
+3.1 Problem Formulation 
+
+We address natural-language video retrieval. Given a query q and a corpus of N videos V =
+
+{v1, . . . , v N }, the task is to learn a ranking function R that returns the top-K most relevant videos. We do not assume access to query–video relevance labels on the target corpus. The only labels available during training are weak signals derived from a separate auxiliary set of in-domain footage; their construction is described in Section 3.4. 
+
+3.2 Three Failure Modes 
+
+Motion-event retrieval over driving footage exhibits three failure modes that, in our experiments, no single retrieval mechanism resolves on its own. (F1) Dilution. Dense vision–language embeddings pool fine-grained kinematic patterns (e.g., a hard brake, a lane cut-in) into a single representation that mixes them with surrounding scene content; queries that hinge on specific motion patterns are therefore often not reliably answered by embedding similarity alone. (F2) Miscalibration. Symbolic rules over per-frame perception output mitigate dilution by probing physical signals directly, but their 
+
+numerical thresholds (the values at which a rule fires) depend on the empirical distribution of those signals, to which an LLM at synthesis time has no access. The thresholds an LLM produces therefore tend to reflect text-level priors rather than the operating distribution, leaving rules miscalibrated in scale. (F3) Coverage. Even a fully calibrated library of rules is necessarily incomplete: query-time intents range over an open vocabulary, and any fixed library will miss matches. STRIVE-D answers these failure modes with three components, illustrated in Figure 2. A symbolic path (Section 3.3) translates queries into executable symbolic rules over per-frame structured represen-tation and ranks videos by satisfaction, addressing F1 . A calibrated library (Section 3.4), constructed once on auxiliary in-domain footage, fits the numerical constraints of each rule via learning-to-rank (L2R) under distant supervision, addressing F2 . A confidence-aware adaptation policy operates within the symbolic path: at retrieval time, it reuses a calibrated rule when the query semantically matches a library event, and otherwise synthesizes a new rule conditioned on the closest calibrated rule as an in-context exemplar, switching between calibrated reuse and exemplar-conditioned synthe-3Three Failure Modes                                      
+
+> F1Dilution
+> Video embeddings
+> pool kinematic patterns.
+> F2Miscalibration
+> LLM lacks empirical signal
+> distributions.
+> F3Coverage
+> Afixed library cannot cover
+> open -vocabulary queries.
+> Symbolic Path —addresses F1 Multi -source Retrieval
+> Query Symbolic Rule
+> Entity selectors —who
+> Hard gates —what must
+> Soft scores —how relevant
+> Symbolic
+> Path
+> </ >
+> Embedding
+> Scoring
+> </ >
+> Symbolic
+> Rule
+> Calibrated Library —addresses F2
+> Rank
+> Fusion
+> Query : Find videos with front car
+> cut -in from the left lane.
+> Discover diverse events
+> from in -domain videos
+> Event Mining
+> Entities Attributes Distance
+> s
+> Lanes
+> Calibrated
+> Rules Library
+> Per -frame Structured Representation
+> Top -K
+> Ranking
+> 1
+> 2
+> K
+> …
+> Keyword
+> Matching
+> Calibration via Learning -to -rank
+> Video
+> Ranking
+> Corpus of N videos
+> </ >
+> Symbolic
+> Rule
+> Video Ranking
+> Adaptation —addresses F3
+> </ >
+
+Figure 2: Overview of STRIVE-D. We identify three failure modes of existing query-to-video retrieval in driving ( top-left ): F1 Dilution of kinematic patterns by dense embeddings, F2 Miscal-ibration of LLM-generated rules against empirical signal distributions, and F3 limited Coverage 
+
+of any fixed rule library for open-vocabulary queries. Three components address them in turn: the 
+
+Symbolic Path (top-middle , F1) scores videos by matching a per-frame structured representation (entities, attributes, distance, lane) against a symbolic rule composed of entity selectors, hard gates, and soft scores; the Calibrated Library (bottom-left , F2) mines diverse events from in-domain videos and calibrates rule thresholds via learning-to-rank, yielding a library of empirically grounded rules; 
+
+Adaptation (bottom-middle , F3) handles unseen queries at test time by generating new rules from the calibrated library. Multi-source Retrieval (right ) combines the symbolic path with keyword matching and embedding scoring through rank fusion to produce the final top-K ranking. sis to address F3 . Finally, multi-source fusion (Section 3.5) combines the symbolic path with dense and sparse retrieval signals (defined in Section 3.5), complementing the symbolic rules on descriptive and rare-entity content that they are not designed to express. 
+
+3.3 Symbolic Path: Rule Design Per-frame structured representation. Each video v in the target corpus is represented as a per-frame structured record jv produced by an upstream perception pipeline operating on raw video. Each frame contains a set of tracked objects with associated fields such as object class, distance from the ego vehicle, lane assignment, and lateral offset. We use the structured representation as input to scoring. The specific perception components and field schema used in our experiments are described in Section 4 and Section A. 
+
+Rule composition. A motion-event description naturally decomposes into three questions: who 
+
+is involved, what qualitative conditions must hold, and how strongly the relevant fields change within a short window. A symbolic rule captures these as three components: entity selectors , hard gates , and soft scores , respectively. A rule’s overall score combines them: hard gates determine admissibility (a video scores zero if any single precondition is unsatisfied), soft scores provide the graded ranking magnitude (a calibrated weighted average across multiple constraints), and the entity selector aggregates per-object scores to a video-level score ( any -mode for events localized to a single agent, consensus -mode for group behaviors). Two design properties make the decom-position useful in practice. The Boolean-plus-continuous split between hard gates and soft scores mirrors the satisfaction-and-robustness semantics of signal temporal logic [ 32 , 33 ], and yields an interpretable composite (a video’s relevance is its temporal-pattern strength conditioned on the event’s preconditions being met) rather than a single opaque scalar. The split also keeps the per-event 4constraint set small and flat: a handful of thresholds, magnitudes, window lengths, and weights, so the calibration loop in Section 3.4 can search the constraint space jointly per event. Listing 1 shows a calibrated rule for the event cut-in , and formal definitions of the scoring operators are in Section A.3; a per-component ablation isolating the contribution of each piece is in Section 4.3. Listing 1: A calibrated symbolic rule for the event cut-in . The schema and operators are fixed; the numerical values 40.0 , 4.0 , and 14.0 are fit by L2R against an auxiliary set (Section 3.4).      
+
+> {"entity": { "class_filter": ["car","truck"], "agg_mode": "any" }, // who "hard_gates": [ { "field": "distance", "op": "<", "value": 40.0 } ], // what must "soft_scores": [ { "field": "loc_x", "type": "max_change", "window_seconds": 4.0, "magnitude": 14.0 } ] // how strongly }
+
+3.4 Calibrated Library: Construction and Adaptation Event mining. For each video v′ in a separate auxiliary set of in-domain footage (disjoint from the target corpus and unlabeled), a video captioner generates a description C′ targeted at kinematic content rather than generic scene description (Section D.1). An LLM then extracts candidate motion events from each C′ as (event type, object) pairs (Section D.2), and consolidates them across videos into a deduplicated set E = {e1, . . . , e M }. For each event em, an auxiliary video is treated as positive if the LLM extracts em from its caption, and as negative otherwise; the resulting sets V+
+
+> m
+
+, V− 
+
+> m
+
+serve as weak supervision. We rely on captions only to label which auxiliary videos belong to V+ 
+
+> m
+
+versus 
+
+V−
+
+> m
+
+; candidate rules are scored against the auxiliary videos’ per-frame structured representation, not their captions. 
+
+Calibration via learning-to-rank. For each event em, we hold a human-specified rule form fixed and search over its numerical constraints with an iterative optimization loop in which an LLM acts as the proposer, in the spirit of recent LLM-as-optimizer formulations [ 12 , 13 ]. The loop alternates between three steps: (i) the LLM proposes a candidate constraint assignment for the rule; (ii) the assignment is scored by the average precision (AP) of the ranking it induces over V+ 
+
+> m
+
+∪ V −
+
+> m
+
+, computed from the auxiliary videos’ per-frame structured representation; (iii) the LLM is shown the AP it just achieved together with the best-scoring assignment from prior iterations and asked to propose a revision. The loop terminates when AP exceeds a target threshold or after T iterations, and the best assignment populates the calibrated library L. AP under distant supervision [ 10 , 11 ] is the sole selection criterion: captions are a noisy motion-event signal (captioners often emphasize scene description over kinematic detail), but AP averages over many positive and negative candidates per event, mitigating this noise. Direct caption-based retrieval offers no comparable averaging, since each query depends on a single per-video score, so motion events not verbalized in the caption tend to be missed. Precise definitions are in Section A.4; the captioning, event-extraction, and proposer prompts are in Sections D.1 to D.4. 
+
+Adaptation at retrieval time. The calibrated library is, by construction, incomplete: queries may not match any library event. We use a confidence-aware policy that bridges between calibrated reuse and on-the-fly synthesis. For a query q, an LLM identifies the closest event e∗ ∈ E and produces a confidence score sconf ∈ [0 , 1] . When sconf ≥ γh, the calibrated rule is reused. Otherwise, the LLM adapts the closest calibrated rule to the new query, treating it as an in-context exemplar; this preserves the calibrated threshold scale of the related event while allowing structural specialization. The matcher and adapter prompts are in Sections D.5 and D.6. 
+
+3.5 Multi-Source Fusion 
+
+The symbolic path is designed for physically grounded motion events. Descriptive content and rare entities are better served by two complementary retrieval signals: dense retrieval , which scores videos by similarity in a shared video–text embedding space, and sparse retrieval , which matches query terms against per-video captions via lexical overlap. The three sources are complementary rather than substitutes for each other. To merge their per-source rankings into a single ordering, we use a query-conditioned weighted reciprocal rank fusion [ 34 ] in which the per-source weights are produced 5by an LLM that we call the fusion router : given the query and a short description of each source’s strengths, the fusion router outputs a weight per source, and these weights scale the rank-based contribution of each source in the fusion. The fusion router prompt is in Section D.7; the fusion rule (Equation (7)) and the post-fusion reranker are described in Section A.5. 
+
+## 4 Experiments 
+
+4.1 Settings, Datasets, and Metrics Perception pipeline and library construction. Per-frame structured representations (Section 3.3) are produced by iFinder’s perception pipeline [ 27 ], with fields including class, distance-to-ego, lane assignment, and lateral offset (full module list in Section A.1). The auxiliary set is the Nexar corpus [ 35 ]; from 1,147 Nexar videos disjoint from any evaluation benchmark, we mine and calibrate a rule library of M = 21 events (Section A.2). No queries, labels, or videos from evaluation benchmarks enter library construction. 
+
+Models and hyperparameters. All language model components (rule synthesis, the library matcher used by the confidence-aware adaptation policy, and multi-source fusion weighting) use GPT-4.1 [ 36 ] unless otherwise specified, with full prompts in Section D. Dense retrieval uses Qwen3-VL-Embedding-8B [ 5 ]; sparse retrieval uses BM25 [ 22 ] over auxiliary captions. The reranking pool size is fixed at K′ = 20 for all methods that include a reranker stage; this value is selected from the per-method pool sweep in Section B.1, where it is at or near the optimum for every evaluated model. The library matcher confidence threshold is γh = 0 .6, and the L2R proposal loop runs up to T = 20 
+
+iterations per event. All experiments run on a single NVIDIA RTX A6000 (48 GB). 
+
+Datasets and queries. We evaluate on three dashcam corpora that exercise complementary query types. DrivingDojo [14 ] contains 583 videos; we release human annotations of 41 distinct motion events tied to specific object classes ( e.g ., “ truck cut in ,” “ ego car change lane ”), supporting fine-grained event-grounded retrieval (Section A.6). CarCrashDataset [ 37 ] provides “reason of accident” annotations across 45 categories ( e.g ., “ slipping in the snow ”); we evaluate on the 110 videos carrying these annotations, targeting causal/explanatory queries. MM-AU [ 38 ] contains 1,953 test videos with 49 accident-type annotations ( e.g ., “ ego car hits a crossing pedestrian ”), targeting accident-description queries. The three datasets together span queries from compositional motion (DrivingDojo), through causal explanation (CarCrash), to accident description (MM-AU). 
+
+Baselines. We compare against three families: (i) embedding-based dual encoders, including Qwen3-VL-Embedding (2B/8B) [ 5], SigLIP [ 39 ], and SigLIP2 [ 4 ] (Qwen3-VL is reported paired with its reranker; without-reranker variants in Section B); (ii) retrieval-augmented VideoRAG [ 21 ]; and (iii) neuro-symbolic NSVS-TL [6]. 
+
+Evaluation metrics. We report top-k accuracy ( k ∈ { 1, 3, 5, 10 }), the fraction of queries with at least one ground-truth video in the top-k; mean reciprocal rank (MRR); and mean average precision (mAP). We do not report recall because the number of relevant videos per query varies widely across our annotations (Section A.6), making recall not directly comparable across queries. 
+
+4.2 Main Results 
+
+Table 1 reports retrieval performance on all three benchmarks under a unified reranking pool size 
+
+K′ = 20 . STRIVE-D is highest on every metric on every dataset; the Acc@1 advantage over the neuro-symbolic baseline NSVS-TL [ 6 ] ranges from +4 .8 percentage points (pp) on DrivingDojo [ 14 ]to +20 .4 pp on MM-AU [38]. Gains concentrate at top-of-list precision. On DrivingDojo [ 14 ], STRIVE-D delivers 26 .8% Acc@1 versus 14 .6% for the strongest dense baseline (an 83 .6% relative improvement), and 8.6% mAP versus 
+
+4.7% (+82 .9% relative). The pattern holds elsewhere: MM-AU [ 38 ] Acc@1 improves 20 .4 → 26 .5
+
+(+29 .9% ); on CarCrashDataset [ 37 ], Acc@1 ties the best baseline at 28 .9% while every other metric dominates. Broad-recall metrics (Acc@10) close more because reranker-equipped baselines partially recover at wider candidate pools, a behavior dense alone cannot deliver at top-of-list precision. 6Table 1: Quantitative comparison on three benchmarks (%). All methods are evaluated under a unified reranking pool size K′ = 20 (Section B.1). STRIVE-D achieves the highest score on every metric on every dataset. Bold : best per column. Underline: second-best. 
+
+Type Method (Year) MRR( ↑) mAP( ↑) Acc@1 Acc@3 Acc@5 Acc@10 
+
+DrivingDojo [14] 
+
+Embedding 
+
+QWen3-vl-2B[5](2026) 12.2 1.4 4.9 26.8 46.3 65.9 QWen3-vl-8B[5](2026) 20.1 2.2 14.6 31.7 51.2 68.3 SigLip[39](2023) 23.7 4.7 14.6 22.0 31.7 58.5 SigLip2[4](2025) 25.0 1.9 14.6 31.7 34.2 48.8 
+
+RAG VideoRAG[21](2025) 21.6 3.5 12.2 29.3 29.3 39.0 
+
+Neuro-sym. NSVS-TL[6](2024) 31.8 4.9 22.0 34.2 43.9 53.7 STRIVE-D (Ours) 38.7 8.6 26.8 48.8 53.7 73.2 
+
+MM-AU [38] 
+
+Embedding 
+
+QWen3-vl-2B[5](2026) 26.9 6.0 18.4 30.6 42.9 49.0 QWen3-vl-8B[5](2026) 32.7 6.3 20.4 38.8 55.1 61.2 SigLip[39](2023) 16.1 4.3 6.1 24.5 30.6 38.8 SigLip2[4](2025) 17.8 6.1 8.2 22.5 26.5 40.8 
+
+RAG VideoRAG[21](2025) 22.9 6.0 18.4 24.5 24.5 36.7 
+
+Neuro-sym. NSVS-TL[6](2024) 18.0 2.8 6.1 20.4 36.7 53.1 STRIVE-D (Ours) 40.5 9.5 26.5 53.1 59.2 65.3 
+
+CarCrashDataset [37] 
+
+Embedding 
+
+QWen3-vl-2B[5](2026) 38.3 32.1 26.7 44.4 55.6 64.4 QWen3-vl-8B[5](2026) 40.1 33.5 28.9 46.7 62.2 66.7 SigLip[39](2023) 30.0 22.0 17.8 35.6 51.1 60.0 SigLip2[4](2025) 28.9 23.4 15.6 33.3 51.1 62.2 
+
+RAG VideoRAG[21](2025) 32.1 25.6 20.0 40.0 46.7 55.6 
+
+Neuro-sym. NSVS-TL[6](2024) 23.1 19.3 11.1 24.4 37.8 53.3 STRIVE-D (Ours) 45.0 37.7 28.9 60.0 73.3 75.6 1 3 5 10 
+
+> K
+> 0
+> 20
+> 40
+> 60
+> 80
+> Acc@K (%)
+> Ours
+> w/o Dense
+> w/o Symbolic Rules
+> Symbolic Rules w/o Library
+> w/o Sparse
+
+Figure 3: Component ablation on DrivingDojo. 
+
+Removing the dense path causes the most se-vere degradation; removing the calibrated library, symbolic-rule path, or sparse retrieval each iso-lates a distinct failure mode. 1 3 5 10 
+
+> K
+> 0
+> 20
+> 40
+> 60
+> 80
+> Acc@K (%)
+> Full Rule
+> w/o Entity Selector
+> w/o Hard Gates
+> w/o Soft (binarized)
+
+Figure 4: Rule composition ablation on Driv-ingDojo. All three pieces are load-bearing. Soft scores carry the most weight at top-of-list preci-sion; hard gates contribute substantially; entity selectors contribute incrementally. 
+
+4.3 Ablations and Analysis Component ablation. Figure 3 removes each component of STRIVE-D in turn. Removing the dense path causes the largest drop, Top-1 from 26 .8% to 9.76% : sparse and symbolic rules alone do not fully recover the descriptive content carried by dense embeddings, and dense alone does not reach the same top-of-list precision (Table 1); the two pathways are complementary. Removing the 
+
+71 3 5 10           
+
+> K
+> 0
+> 20
+> 40
+> 60
+> 80
+> Acc@K (%)
+> +26.8%
+> QWen3-vl-2B
+> 13510
+> K
+> 0
+> 20
+> 40
+> 60
+> 80
+> +17.1%
+> QWen3-vl-8B
+> 13510
+> K
+> 0
+> 20
+> 40
+> 60
+> 80
+> +12.2%
+> SigLip2
+> 13510
+> K
+> 0
+> 20
+> 40
+> 60
+> 80
+> +19.5%
+> VideoRAG
+> Baseline Baseline + Ours
+
+Figure 5: Plug-in generalizability evaluated on DrivingDojo. Our method consistently improves the full retrieval curve when integrated into 4 off-the-shelf retrievers spanning different architectures, from lightweight VLM embeddings (QWen3-vl[ 5 ]) to video retrieval systems (VideoRAG[ 21 ]) and vision encoders (SigLip2[4]). Numbers on the right indicate the absolute gain in top-10 accuracy. Table 2: Online per-query latency on DrivingDojo (mean). Embedding and retrieval-augmented methods run in milliseconds; structured-grounding methods run in seconds. 
+
+Type Method Latency 
+
+Embedding SigLIP2 [4] 26 .80 ms Qwen3-VL-Emb-8B [5] 128 .54 ms 
+
+RAG VideoRAG [21] 37 .18 ms 
+
+Neuro-sym. STRIVE-D (Ours) 3.10 sNSVS-TL [6] 4,868 .05 s
+
+Table 3: VLM binary classification baseline on DrivingDojo (%). Qwen3-VL-8B-Instruct [ 5]is prompted with “Does this video show { q}?” 
+
+per candidate; the +Reranker variant additionally re-ranks the predicted-Yes subset with Qwen3-VL-Reranker-8B [5]. 
+
+Method Acc@1 Acc@5 Acc@10 VLM Binary 2.4 29 .3 41 .5
+
++ Reranker 7.3 34 .2 48 .8
+
+STRIVE-D 26 .8 53 .7 73 .2
+
+calibrated library forces the LLM to synthesize rules from scratch at query time, using the same schema (entity selectors, hard gates, soft scores) constrained by few-shot exemplars but without L2R threshold calibration; Top-3 drops sharply with partial recovery at Top-10. Because the rule form 
+
+is held constant, this gap isolates threshold calibration from any structural variation. Removing the symbolic path entirely also drops Top-3 sharply, indicating that the symbolic path contributes precision that dense+sparse alone do not provide in this setting. Removing sparse retrieval leaves Top-10 essentially unchanged but slightly hurts top-rank precision, consistent with sparse’s rare-entity recovery role rather than primary recall. 
+
+Rule composition: entity selectors, hard gates, soft scores. Each symbolic rule (Section 3.3) is composed of three pieces (entity selector, hard gates, soft scores) mapping to who , what conditions ,and how strongly . We disable each piece in turn while holding calibrated thresholds, fusion, and the reranker fixed (no L2R re-run). Figure 4 shows all three pieces are load-bearing, with a clear ordering at top-of-list precision. Graded soft scores carry the most weight : binarizing them at the calibrated threshold drops Acc@1 from 26 .8% to 12 .2% (−14 .6 pp), as the rule loses the ability to distinguish strong from marginal matches. Hard gates contribute substantially (−7.3 pp Acc@1): the binary admissibility check filters out videos otherwise falsely admitted by soft scores alone. The entity selector contributes incrementally (−4.8 pp Acc@1), the smallest drop, as dense and sparse fusion partially compensate for off-target object scoring. All variants converge at Acc@10 (within 
+
+5 pp), reflecting the dense+sparse recall floor; differentiation lives at top-of-list precision where the calibrated symbolic rule is most discriminative. 
+
+Plug-in generalizability. We attach our symbolic-rule pathway to four off-the-shelf retrievers spanning architectures: Qwen3-VL-2B and -8B [ 5 ], VideoRAG [ 21 ], and SigLIP2 [ 4] (Figure 5). Top-10 accuracy improves on every backbone, with gains ranging from 12 .2 pp on SigLIP2 to 26 .8 pp on Qwen3-VL-2B. The 17 .1 pp lift on Qwen3-VL-8B is particularly informative: it shows that the improvement is not solely a result of compensation for a weak backbone. 
+
+Efficiency. Table 2 reports mean per-query online latency on DrivingDojo [ 14 ]. STRIVE-D averages 3.10 s per query. Pure dense retrievers run in ∼130 ms (Qwen3-VL-Embedding-8B [ 5 ]) but 8bus cut-in car collision with city guardrails 
+
+> Ours SigLIP2 Qwen3-8B
+
+Figure 6: Qualitative retrieval comparison. Each row shows the top retrieved results per model for two queries. For bus cut-in , baselines retrieve videos containing buses but miss the cut-in motion. For 
+
+car collision with city guardrails , baselines retrieve either collisions without guardrails or guardrails without collisions. STRIVE-D correctly identifies both the object and the event in each case. do not perform structured grounding and underperform on the precision metrics in Table 1. Within the structured-retrieval paradigm, the meaningful comparison is to NSVS-TL [ 6]: at 4,868 .05 s per query, NSVS-TL is ∼1,500 × slower than STRIVE-D. Two LLM stages—rule synthesis (invoked only when no library rule matches the query) and multi-source fusion—account for ∼87% of the per-query cost, and both are amenable to caching across queries sharing an event category. A full per-stage breakdown is in Section B.3. 
+
+VLM binary classification baseline. A natural alternative to structured retrieval is to ask a general-purpose VLM directly: “Does this video show q?” for each candidate, and rank by the predicted Yes 
+
+probability. Table 3 reports this baseline on DrivingDojo using Qwen3-VL-8B-Instruct [ 5 ], with an optional Qwen3-VL-Reranker-8B [ 5 ] second stage. The scorer alone trails every baseline in Table 1, and even with the reranker it remains well below the strongest embedding-based baselines (Acc@1 
+
+7.3 vs. 14 .6). Per-video binary classification is not a competitive retrieval strategy on this benchmark. 
+
+4.4 Qualitative Results 
+
+Figure 6 illustrates representative retrieval results. For the “ bus cut-in ” query, baseline models retrieve videos containing buses but fail to identify the cut-in behavior, returning scenes where buses are simply present in traffic with no encroachment into the ego lane. For “ car collision with city guardrails ,” baselines retrieve either collisions that do not involve guardrails, or scenes with guardrails but no collision event—capturing one half of the compositional query while missing the other. STRIVE-D grounds both the object type and the motion event, returning videos that satisfy the specified conditions in these examples. 
+
+## 5 Conclusion 
+
+We present STRIVE-D, a calibrated structured-grounding framework for natural-language retrieval over driving video. The framework rests on a single diagnosis: large language models reliably translate a query into the structural form of an executable rule, but are unreliable at fitting that rule’s numerical thresholds to real driving data; this miscalibration is what limits LLM-written rules in practice. STRIVE-D addresses it by factoring the two competencies: an LLM proposes rule structure, while a learning-to-rank objective recovers the numerical thresholds under distant supervision from captions on an auxiliary in-domain corpus, organizing the calibrated rules into a reusable library that a confidence-gated policy reuses or adapts at query time. Across three driving benchmarks, STRIVE-D consistently improves over the strongest embedding-based and structured baselines. Together, these components turn LLM-written rules from structurally plausible but numerically miscalibrated proposals into a calibrated, interpretable retrieval primitive grounded in the empirical signal distribution of an unlabeled in-domain corpus. 9References 
+
+[1] Fisher Yu, Haofeng Chen, Xin Wang, Wenqi Xian, Yingying Chen, Fangchen Liu, Vashisht Madhavan, and Trevor Darrell. BDD100K: A diverse driving dataset for heterogeneous multitask learning. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2020. [2] Holger Caesar, Varun Bankiti, Alex H. Lang, Sourabh Vora, Venice Erin Liong, Qiang Xu, Anush Krishnan, Yu Pan, Giancarlo Baldan, and Oscar Beijbom. nuScenes: A multimodal dataset for autonomous driving. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2020. [3] Pei Sun, Henrik Kretzschmar, Xerxes Dotiwalla, Aurelien Chouard, Vijaysai Patnaik, Paul Tsui, James Guo, Yin Zhou, Yuning Chai, Benjamin Caine, Vijay Vasudevan, Wei Han, Jiquan Ngiam, Hang Zhao, Aleksei Timofeev, Scott Ettinger, Maxim Krivokon, Amy Gao, Aditya Joshi, Yu Zhang, Jonathon Shlens, Zhifeng Chen, and Dragomir Anguelov. Scalability in perception for autonomous driving: Waymo open dataset. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2020. [4] Michael Tschannen, Alexey Gritsenko, Xiao Wang, Muhammad Ferjad Naeem, Ibrahim Alab-dulmohsin, Nikhil Parthasarathy, Talfan Evans, Lucas Beyer, Ye Xia, Basil Mustafa, Olivier Hénaff, Jeremiah Harmsen, Andreas Steiner, and Xiaohua Zhai. Siglip 2: Multilingual vision-language encoders with improved semantic understanding, localization, and dense features. 
+
+arXiv preprint arXiv:2502.14786 , 2025. [5] Mingxin Li, Yanzhao Zhang, Dingkun Long, Chen Keqin, Sibo Song, Shuai Bai, Zhibo Yang, Pengjun Xie, An Yang, Dayiheng Liu, Jingren Zhou, and Junyang Lin. Qwen3-vl-embedding and qwen3-vl-reranker: A unified framework for state-of-the-art multimodal retrieval and ranking. arXiv preprint arXiv:2601.04720 , 2026. [6] Minkyu Choi, Harsh Goel, Mohammad Omama, Yunhao Yang, Sahil Shah, and Sandeep Chinchali. Towards neuro-symbolic video understanding. In European Conference on Computer Vision , pages 220–236. Springer, 2024. [7] Sahil Shah, SP Sharan, Harsh Goel, Minkyu Choi, Mustafa Munir, Manvik Pasula, Radu Marculescu, and Sandeep Chinchali. Neus-qa: Grounding long-form video understanding in temporal logic and neuro-symbolic reasoning. In Proceedings of the AAAI Conference on Artificial Intelligence , 2026. [8] Dídac Surís, Sachit Menon, and Carl Vondrick. ViperGPT: Visual inference via python execution for reasoning. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 2023. [9] Lili Liang, Guanglu Sun, Jin Qiu, and Lizhong Zhang. Neural-symbolic videoqa: Learning compositional spatio-temporal reasoning for real-world video question answering, 2024. [10] Tie-Yan Liu. Learning to rank for information retrieval. Foundations and Trends in Information Retrieval , 3(3):225–331, 2009. [11] Mike Mintz, Steven Bills, Rion Snow, and Daniel Jurafsky. Distant supervision for relation extraction without labeled data. In Proceedings of the Joint Conference of the 47th Annual Meeting of the ACL and the 4th International Joint Conference on Natural Language Processing of the AFNLP , pages 1003–1011, 2009. [12] Chengrun Yang, Xuezhi Wang, Yifeng Lu, Hanxiao Liu, Quoc V. Le, Denny Zhou, and Xinyun Chen. Large language models as optimizers. In International Conference on Learning Representations (ICLR) , 2024. [13] Bernardino Romera-Paredes, Mohammadamin Barekatain, Alexander Novikov, Matej Balog, M. Pawan Kumar, Emilien Dupont, Francisco J. R. Ruiz, Jordan S. Ellenberg, Pengming Wang, Omar Fawzi, Pushmeet Kohli, and Alhussein Fawzi. Mathematical discoveries from program search with large language models. Nature , 625:468–475, 2024. 10 [14] Yuqi Wang, Ke Cheng, Jiawei He, Qitai Wang, Hengchen Dai, Yuntao Chen, Fei Xia, and Zhaoxiang Zhang. DrivingDojo dataset: Advancing interactive and knowledge-enriched driving world model. In Advances in Neural Information Processing Systems (NeurIPS) Datasets and Benchmarks Track , 2024. [15] Weiyun Wang, Zhangwei Gao, Lixin Gu, Hengjun Pu, Long Cui, Xingguang Wei, Zhaoyang Liu, Linglin Jing, Shenglong Ye, Jie Shao, et al. Internvl3. 5: Advancing open-source multimodal models in versatility, reasoning, and efficiency. arXiv preprint arXiv:2508.18265 , 2025. [16] Xinyi Xu, Hongsong Wang, Guo-Sen Xie, Caifeng Shan, and Fang Zhao. Hitea: Hierarchi-cal temporal alignment for training-free long-video temporal grounding. In The Fourteenth International Conference on Learning Representations , 2026. [17] Huaishao Luo, Lei Ji, Ming Zhong, Yang Chen, Wen Lei, Nan Duan, and Tianrui Li. CLIP4Clip: An empirical study of CLIP for end to end video clip retrieval. Neurocomputing , 508:293–304, 2022. [18] Yiwei Ma, Guohai Xu, Xiaoshuai Sun, Ming Yan, Ji Zhang, and Rongrong Ji. X-CLIP: End-to-end multi-grained contrastive learning for video-text retrieval. In Proceedings of the 30th ACM International Conference on Multimedia (ACM MM) , 2022. [19] Zesen Cheng, Sicong Leng, Hang Zhang, Yifei Xin, Xin Li, Guanzheng Chen, Yongxin Zhu, Wenqi Zhang, Ziyang Luo, Deli Zhao, and Lidong Bing. Videollama 2: Advancing spatial-temporal modeling and audio understanding in video-llms. arXiv preprint arXiv:2406.07476 ,2024. [20] KunChang Li, Yinan He, Yi Wang, Yizhuo Li, Wenhai Wang, Yali Wang, Limin Wang, and Yu Qiao. VideoChat: Chat-centric video understanding. Science China Information Sciences ,2025. [21] Soyeong Jeong, Kangsan Kim, Jinheon Baek, and Sung Ju Hwang. VideoRAG: Retrieval-augmented generation over video corpus. In Findings of the Association for Computational Linguistics (ACL Findings) , 2025. [22] Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: Bm25 and beyond. Found. Trends Inf. Retr. , 3(4):333–389, April 2009. [23] Thibault Formal, Benjamin Piwowarski, and Stéphane Clinchant. SPLADE: Sparse lexical and expansion model for first stage ranking. In Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR) , pages 2288–2292, 2021. [24] Dahun Kim, AJ Piergiovanni, Ganesh Mallya, and Anelia Angelova. VideoComp: Advancing fine-grained compositional and temporal alignment in video-text models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 29060–29070, 2025. [25] L. Ventura, A. Yang, C. Schmid, and G. Varol. Tf-covr: Temporally fine-grained composed video retrieval. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2024. [26] Yiqing Shen, Chenxiao Fan, Chenjia Li, and Mathias Unberath. Reasoning text-to-video retrieval via digital twin video representations and large language models, 2025. [27] Manyi Yao, Bingbing Zhuang, Sparsh Garg, and Abhishek Aich. ifinder: Structured zero-shot vision-based llm grounding for dash-cam video reasoning. In Proceedings of the 39th Conference on Neural Information Processing Systems (NeurIPS) , 2025. [28] Johnathan Leung, Guansen Tong, Parasara Sridhar Duggirala, and Praneeth Chakravarthula. From road to code: Neuro-symbolic program synthesis for autonomous driving scene translation and analysis. In George Pappas, Pradeep Ravikumar, and Sanjit A. Seshia, editors, Proceedings of the International Conference on Neuro-symbolic Systems , volume 288 of Proceedings of Machine Learning Research , pages 331–351. PMLR, 28–30 May 2025. 11 [29] Yuxuan Yan, Shiqi Jiang, Ting Cao, Yifan Yang, Qianqian Yang, Yuanchao Shu, Yuqing Yang, and Lili Qiu. AVA: Towards agentic video analytics with vision language models. In USENIX Symposium on Networked Systems Design and Implementation (NSDI) , 2026. [30] Chonghao Sima, Katrin Renz, Kashyap Chitta, Li Chen, Hanxue Zhang, Chengen Xie, Jens Beißwenger, Ping Luo, Andreas Geiger, and Hongyang Li. DriveLM: Driving with graph visual question answering. In Proceedings of the European Conference on Computer Vision (ECCV) ,2024. [31] Licheng Wen, Daocheng Fu, Xin Li, Xinyu Cai, Tao Ma, Pinlong Cai, Min Dou, Botian Shi, Liang He, and Yu Qiao. DiLu: A knowledge-driven approach to autonomous driving with large language models. In International Conference on Learning Representations (ICLR) , 2024. [32] Oded Maler and Dejan Nickovic. Monitoring temporal properties of continuous signals. In 
+
+Formal Techniques, Modelling and Analysis of Timed and Fault-Tolerant Systems (FORMAT-S/FTRTFT) , volume 3253 of Lecture Notes in Computer Science , pages 152–166. Springer, 2004. [33] Alexandre Donzé and Oded Maler. Robust satisfaction of temporal logic over real-valued signals. In Formal Modeling and Analysis of Timed Systems (FORMATS) , volume 6246 of 
+
+Lecture Notes in Computer Science , pages 92–106. Springer, 2010. [34] Gordon V. Cormack, Charles L A Clarke, and Stefan Buettcher. Reciprocal rank fusion outperforms condorcet and individual rank learning methods. In Proceedings of the 32nd International ACM SIGIR Conference on Research and Development in Information Retrieval ,SIGIR ’09, page 758–759, New York, NY, USA, 2009. Association for Computing Machinery. [35] Daniel C. Moura, Shizhan Zhu, and Orly Zvitia. Nexar dashcam collision prediction dataset and challenge. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW) , 2025. [36] Aaron Hurst, Adam Lerer, Adam P Goucher, Adam Perelman, Aditya Ramesh, Aidan Clark, AJ Ostrow, Akila Welihinda, Alan Hayes, Alec Radford, et al. Gpt-4o system card, 2024. [37] Wentao Bao, Qi Yu, and Yu Kong. Uncertainty-based traffic accident anticipation with spatio-temporal relational learning. In ACM Multimedia Conference , May 2020. [38] Jianwu Fang, Lei-lei Li, Junfei Zhou, Junbin Xiao, Hongkai Yu, Chen Lv, Jianru Xue, and Tat-Seng Chua. Abductive ego-view accident video understanding for safe driving perception. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 22030–22040, June 2024. [39] Xiaohua Zhai, Basil Mustafa, Alexander Kolesnikov, and Lucas Beyer. Sigmoid loss for language image pre-training. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 2023. [40] Shuai Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin Ge, Sibo Song, Kai Dang, Peng Wang, Shijie Wang, Jun Tang, et al. Qwen2.5-VL technical report. arXiv preprint arXiv:2502.13923 ,2025. [41] Alexander Veicht, Paul-Edouard Sarlin, Philipp Lindenberger, and Marc Pollefeys. GeoCalib: Single-image calibration with geometric optimization. In European Conference on Computer Vision (ECCV) , 2024. [42] Zhe Chen, Jiannan Wu, Wenhai Wang, Weijie Su, Guo Chen, Sen Xing, Muyan Zhong, Qinglong Zhang, Xizhou Zhu, Lewei Lu, et al. InternVL: Scaling up vision foundation models and aligning for generic visual-linguistic tasks. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 24185–24198, 2024. [43] Zachary Teed and Jia Deng. DROID-SLAM: Deep visual SLAM for monocular, stereo, and RGB-D cameras. Advances in Neural Information Processing Systems (NeurIPS) , 34:16558– 16569, 2021. 12 [44] Matthias Minderer, Alexey Gritsenko, and Neil Houlsby. Scaling open-vocabulary object detection. In Advances in Neural Information Processing Systems (NeurIPS) , 2023. [45] Yifu Zhang, Peize Sun, Yi Jiang, Dongdong Yu, Fucheng Weng, Zehuan Yuan, Ping Luo, Wenyu Liu, and Xinggang Wang. ByteTrack: Multi-object tracking by associating every detection box. In Proceedings of the European Conference on Computer Vision (ECCV) , 2022. [46] Dongkwon Jin and Chang-Su Kim. OMR: Occlusion-aware memory-based refinement for video lane detection. In European Conference on Computer Vision (ECCV) , 2024. [47] Mu Hu, Wei Yin, Chi Zhang, Zhipeng Cai, Xiaoxiao Long, Hao Chen, Kaixuan Wang, Gang Yu, Chunhua Shen, and Shaojie Shen. Metric3D v2: A versatile monocular geometric foundation model for zero-shot metric depth and surface normal estimation. IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI) , 2024. [48] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer Whitehead, Alexander C. Berg, Wan-Yen Lo, et al. Segment anything. arXiv preprint arXiv:2304.02643 , 2023. [49] Xingyi Zhou, Vladlen Koltun, and Philipp Krähenbühl. Tracking objects as points. In European Conference on Computer Vision (ECCV) , 2020. 13 A Experimental Setup 
+
+A.1 Perception Pipeline 
+
+We adopt the perception pipeline of iFinder [ 27 ] with a single substitution: the video captioner used at library-construction time is replaced by Qwen2.5-VL-7B [ 40 ]. The pipeline produces per-frame structured representations consumed by the symbolic-rule evaluation in Section A.3; each record contains a set of tracked objects with object class, 3D distance from the ego vehicle, lane assignment, lateral offset, and additional context fields. The modules and the pretrained model used for each are: • Camera intrinsics and lens-distortion estimation. GeoCalib [ 41 ] predicts focal length, principal point, and radial/tangential distortion coefficients per video. • Scene understanding and per-object attributes (image VLM). InternVL [ 42 ] extracts global scene context (weather, road structure, time of day) and per-object attributes such as vehicle color and traffic-light state. • Video captioning (video VLM, library-construction only). Qwen2.5-VL-7B [ 40 ] pro-duces the per-video event description used to seed library construction. This module is invoked only when building the rule library and is not used at retrieval time. • Ego-vehicle camera-pose estimation. DROID-SLAM [ 43 ] provides per-frame camera translations, from which ego heading-rate and speed are derived to populate the ego turn/-motion state. • 2D object detection. OWL-V2 [ 44 ] provides open-vocabulary, class-conditioned bounding boxes. • Multi-object tracking. ByteTrack [ 45 ] associates detections across frames into per-object tracks. • Lane detection. OMR [ 46 ] predicts per-frame lane-marking polylines, which are converted to per-object lane assignments by mapping each object’s bottom-midpoint into the lane partition. • Metric depth. Metric3D [47] predicts a metric depth map per frame. • Foreground segmentation for distance-to-ego. SAM [ 48 ] produces a binary foreground mask within each detected bounding box; the per-object distance is the mean masked depth. • 3D detection for object orientation. CenterTrack [ 49 ] provides 3D bounding boxes whose yaw angles are matched to the 2D detections via Hungarian assignment. 
+
+A.2 Rule Library Construction 
+
+The rule library is built from 1,147 de-duplicated dashcam videos drawn from the Nexar training set [ 35 ], which is disjoint from all evaluation benchmarks. For each video, motion-related events are extracted from its Qwen2.5-VL-7B caption (Section A.1) against a predefined inventory of 21 event categories; a video may yield zero, one, or multiple event mentions, and each event is associated with the set of all videos whose captions mention it. One symbolic rule is then learned per event by AP-driven calibration (Section A.4): we search for constraint assignments of smot that rank the event’s associated videos above the rest of the corpus, yielding a 21-rule library. During retrieval, the library matcher either directly maps high-confidence queries to the closest rule without invoking the LLM, or injects the matched rule as a warm-start seed for adaptation. Table 4 lists all 21 event categories along with the number of associated videos per category. Event frequency varies considerably: hard braking (1,068 videos) and swerving (1,019 videos) are the most common, while rare events such as rollover and reverse have fewer than ten associated videos each; despite this imbalance, every category is represented in the final library. 
+
+A.3 Rule Scoring: Formal Definitions 
+
+Given a symbolic rule rq , the motion relevance score smot (v, r q ) is computed in three steps; symbol conventions follow Section 3. 14 Hard gates. With G hard-gate constraints {(ϕg , op g , θ g )}Gg=1 , where ϕg is gate g’s target field (e.g ., distance , loc_x ) and each θg is a threshold calibrated against the auxiliary set, the hard-gate score is 
+
+shard (v, r q ) = 
+
+> G
+
+Y
+
+> g=1
+
+1 ∃o, ∃t : op g (ϕg (o, t ), θ g )  , (1) where ϕg (o, t ) is the value of ϕg for object o at frame t. A video is gated to shard = 0 if any single precondition is unsatisfied. 
+
+Soft scores. For each soft constraint c with target field ϕc, expected magnitude δc, and window length ∆Tc, the per-object score for object o is the maximum within-window change in ϕc, normalized by δc:
+
+s(o) 
+
+> c
+
+= min 
+
+
+
+1, max 0<t 2−t1≤∆Tc |ϕc(o, t 2) − ϕc(o, t 1)|
+
+δc
+
+
+
+. (2) When constraint c specifies a signed direction (e.g ., negative for an approaching object), the absolute value is replaced by the corresponding one-sided difference ( e.g ., max(0 , ϕ c(o, t 1) −
+
+ϕc(o, t 2)) ); Equation (2) shows the unsigned default. The aggregate per-object soft score is the weighted average s(o)obj =   P  
+
+> c
+
+wc s(o)
+
+> c
+
+/  P  
+
+> c
+
+wc
+
+ ∈ [0 , 1] , with weights wc calibrated jointly with the other numerical constraints. 
+
+Entity aggregation and final score. The entity selector aggregates per-object scores to a video-level score: 
+
+sent (v, r q ) = 
+
+
+
+max i s(i)obj (any -mode )
+
+> 12
+
+
+
+max i s(i)obj + sobj 
+
+
+
+(consensus -mode ) , (3) where sobj is the mean across candidate objects. The final motion relevance score is the product 
+
+smot (v, r q ) = shard (v, r q ) · sent (v, r q ). Hard gates and soft scores are aggregated independently at the video level, so a video can satisfy hard gates via one object and accrue soft scores via another; this decoupling is intentional, with hard gates acting as a global admissibility filter and soft scores capturing graded evidence anywhere in the video. 
+
+A.4 L2R Calibration: Precise Definitions Selection objective. At iteration τ of the calibration loop, candidate rule r(τ ) 
+
+> em
+
+is scored by the average precision (AP) of the ranking π that smot induces on V+ 
+
+> m
+
+∪ V −
+
+> m
+
+:
+
+AP( r(τ ) 
+
+> em
+
+, V+
+
+> m
+
+, V−
+
+> m
+
+) = 1
+
+|V +
+
+> m
+
+|
+
+X  
+
+> k:v′
+> πk∈V +
+> m
+
+|{ j ≤ k : v′ 
+
+> πj
+
+∈ V +
+
+> m
+
+}| 
+
+k , (4) where j is the inner running index over {1, . . . , k }. AP is the only quantity used to compare proposals; the per-field summary statistics provided to the LLM at proposal time are conditioning inputs only and do not appear in this objective. 
+
+Best-so-far feedback. We denote the best-scoring rule among the first τ proposals by 
+
+r(τ )∗ 
+
+> em
+
+:= arg max   
+
+> τ′≤τ
+
+AP( r(τ ′) 
+
+> em
+
+, V+
+
+> m
+
+, V−
+
+> m
+
+). (5) When AP( r(τ ) 
+
+> em
+
+, V+
+
+> m
+
+, V−
+
+> m
+
+) < γ AP , the LLM is fed the previous AP together with r(τ −1) ∗ 
+
+> em
+
+as an anchor and asked to propose a revision; this repeats up to T = 20 iterations. 
+
+Calibrated library. After calibration, the best assignment per event is recorded as 
+
+L = {(em, r (T )∗ 
+
+> em
+
+)}Mm=1 , (6) and used at retrieval time according to the confidence-aware policy in Section 3.4. 15 Table 4: Extracted driving event categories in the Nexar training set (1,147 dashcam videos after de-duplication and canonicalization). 
+
+Event # Videos 
+
+Hard Brake 1,068 Swerving 1,019 Pedestrian Crossing 370 Near Miss 199 Cut-In 170 Cut-Out 166 Traffic Disruption 151 Lane Change 96 Object Approach 78 Collision 62 Emergency Vehicle 31 Evasive Maneuver 20 Sudden Speed Change 18 Lateral Movement 10 Sudden Stop 9Loss of Control 8Rollover 8Dynamic Object Crossing 8Object Departure 3Reverse 1Sharp Turn 1
+
+Total 1,147 Search space and proposal conditioning. For each event, the proposal loop searches all four classes of numerical constraints jointly: hard-gate thresholds θg , soft-score expected magnitudes δc,soft-score weights wc, and window lengths ∆Tc. To keep proposals on the right scale, each LLM proposal step is conditioned on per-field summary statistics (mean, standard deviation, and quantiles) computed from the auxiliary set’s per-frame structured representations; these statistics anchor initial guesses but do not enter the AP objective. 
+
+A.5 Multi-Source Fusion: Formal Definition 
+
+Per-source rankings from the symbolic-rule path, dense embedding, and sparse lexical retrieval are merged via query-conditioned weighted reciprocal rank fusion [34]: 
+
+sfusion (v) = X   
+
+> s∈ { rule ,dense ,bm25 }
+
+ws(q)
+
+kRRF + rank s(v) , kRRF = 60 , (7) where rank s(v) ∈ { 1, 2, . . . } is the position of v in source s’s ranking, ws(q) ∈ R≥0 is the query-conditioned weight produced by the fusion router (Section D.7), and kRRF is the standard RRF smoothing constant [ 34 ]. The final ranking is obtained by sorting the candidate pool by sfusion in descending order; a post-fusion reranker is then applied over the top-K′ items (Section 4.1). 
+
+A.6 DrivingDojo Event Annotation 
+
+We annotate 583 videos from DrivingDojo [ 14 ] with structured event labels and release these annotations alongside this paper. Each annotation specifies the event type, the object class (ego or surrounding vehicle), and the direction of motion where applicable. Of the 583 annotated videos, 236 are ground-truth positives for at least one query; the remaining videos serve as non-relevant candidates in the retrieval pool. The benchmark comprises 41 distinct queries, with each query having between 1 and 138 relevant videos (a video may be relevant to multiple queries). As shown in Table 5, the queries fall into four event types: Cut-In , Cut-Out , Lane Change , and 
+
+Turn . Cut-In and Cut-Out queries are further stratified by the surrounding vehicle’s object class 16 Table 5: Query categories in the DrivingDojo [ 14 ] annotation release. Cut-In/Cut-Out are stratified by object class (car, motorcycle, two-wheeled, bicycle, truck, bus) plus an class-agnostic variant, each with any/left/right direction variants. Video count range is across object-class queries; 236 unique videos total. 
+
+Event Queries # Videos 
+
+Cut-In (surrounding vehicle) 18 2–138 Cut-Out (surrounding vehicle) 17 1–80 Lane Change (ego) 3 47–98 Turn (ego) 3 38–92 
+
+Total / unique videos 41 236 
+
+(car, motorcycle, two-wheeled vehicle, bicycle, truck, and bus), plus a class-agnostic variant; each class-specific query also includes left and right directional sub-queries. Lane Change and Turn queries involve the ego vehicle and likewise include directional variants. Each query is expressed as a free-form natural-language description specifying the event type, object class, and direction where applicable. 
+
+## B Additional Experiments 
+
+B.1 Effect of Candidate Pool Size K′10 15 20 50      
+
+> Re-ranking pool size K′
+> 0
+> 20
+> 40
+> 60
+> 80
+> Acc@K (%)
+> K′= 20
+> Acc@1 Acc@3 Acc@5 Acc@10
+
+(a) STRIVE-D (Ours) 10 15 20 50      
+
+> Re-ranking pool size K′
+> 0
+> 20
+> 40
+> 60
+> 80
+> Acc@K (%)
+> Acc@1 Acc@3 Acc@5 Acc@10
+
+(b) Qwen3-VL-8B 10 15 20 50     
+
+> Re-ranking pool size K′
+> 0
+> 20
+> 40
+> 60
+> 80
+> Acc@K (%)
+> Acc@1 Acc@3 Acc@5 Acc@10
+
+(c) SigLIP2 10 15 20 50      
+
+> Re-ranking pool size K′
+> 0
+> 20
+> 40
+> 60
+> 80
+> Acc@K (%)
+> Acc@1 Acc@3 Acc@5 Acc@10
+
+(d) VideoRAG 
+
+Figure 7: Sensitivity to re-ranking pool size K′ on DrivingDojo, evaluated for STRIVE-D and reranker-equipped baselines. Every method either peaks at or is at the plateau by K′ = 20 , so we adopt this value uniformly throughout the main paper. We study how the candidate pool size K′ affects retrieval performance for STRIVE-D and each reranker-equipped baseline (Figure 7). All evaluated methods attain strong, near-peak performance at 
+
+K′ = 20 , with further increases yielding only marginal change. The Acc@ k values reported for the 17 Table 6: Structured grounding choice (DrivingDojo, %). Replacing our calibrated symbolic rules with NSVS-TL’s temporal-logic grounding within an otherwise identical fusion pipeline (dense + sparse + query-conditioned router + reranker) loses 14 .6 pp Acc@1 and 4.7 pp mAP. The precision gain is attributable to the calibrated symbolic-rule component rather than to generic structured grounding.                         
+
+> Variant MRR ↑mAP ↑Acc@1 Acc@3 Acc@5 Acc@10 NSVS-TL standalone [6] 31.8 4.9 22.0 34.2 43.9 53.7 NSVS-TL within our pipeline 28.7 3.9 12.2 34.2 53.7 70.7 Full STRIVE-D 38.7 8.6 26.8 48.8 53.7 73.2
+
+reranker-equipped baselines in Table 1 are lifted from this sweep at K′ = 20 for fair comparison; we therefore fix K′ = 20 throughout the main paper. 
+
+B.2 Structured Grounding Choice: Symbolic Rules vs. NSVS-TL within Our Pipeline 
+
+The main-paper comparison in Table 1 shows that STRIVE-D outperforms NSVS-TL [ 6 ], but does not isolate which part of our framework is responsible for that gap: the calibrated symbolic rules, the multi-source fusion, the reranker, or some combination. To answer this, we compare three structured-retrieval variants on DrivingDojo [ 14 ]: NSVS-TL as a standalone retriever in its as-published configuration; NSVS-TL substituted into our pipeline (replacing the symbolic-rule component while keeping dense retrieval, sparse retrieval, the query-conditioned router, and the reranker identical); and full STRIVE-D. Table 6 shows that full STRIVE-D outperforms NSVS+pipeline by 14 .6 pp Acc@1, 4.7 pp mAP, and 10 .0 pp MRR despite identical fusion machinery. The gap concentrates at top-of-list precision; broad-recall metrics (Acc@5, Acc@10) are closer because dense and sparse retrieval establish a recall floor independent of the symbolic choice. NSVS+pipeline also drops below NSVS-TL standalone at Acc@1: NSVS-TL emits binary verdicts that our continuous query-conditioned weighted fusion cannot leverage as effectively as graded scores, whereas our symbolic rules produce graded scores by design. This isolates the contribution of the calibrated symbolic rules beyond generic structured grounding: the gain is attributable to the rules’ calibrated graded scoring, not to the surrounding fusion machinery. Beyond accuracy, online inference cost separates the two paradigms decisively: NSVS-TL averages 
+
+4,868 .05 s per query because each query requires running its full temporal-logic verification over the corpus, whereas STRIVE-D averages 3.10 s per query, a ∼1,500 × reduction (Section 4.3). The cross-dataset NSVS-TL numbers in Table 1 were obtained at this prohibitive per-query cost; STRIVE-D reaches the reported accuracy without it. 
+
+B.3 Per-stage Latency Breakdown 
+
+Table 7: STRIVE-D per-stage latency breakdown (mean per query, DrivingDojo). The two LLM stages, rule synthesis (run only when no library rule matches the query) and multi-source fusion, together account for ∼87% of the total 3,096 .66 ms ( 3.10 s); the three retrieval branches (sparse, dense, rule matching) cost ∼384 ms combined. Both LLM stages are amenable to caching across queries that share an event category.        
+
+> Stage Latency (ms) Sparse retrieval (BM25 [22]) 1.27
+> Dense retrieval (Qwen3-VL-Embedding-8B [5]) 128 .54
+> Rule matching 254 .16
+> Rule synthesis 1,987 .43
+> Multi-source fusion 725 .26
+> Total 3,096 .66
+
+18 Table 8: Effect of Qwen3-VL-Reranker on the embedding baselines (%). For each dataset, we report Qwen3-VL-2B and Qwen3-VL-8B with and without their corresponding Qwen3-VL-Reranker. The +Reranker variants are used as the default in the main results (Table 1).                                                                                    
+
+> Method MRR( ↑)mAP( ↑)Acc@1 Acc@3 Acc@5 Acc@10 Dataset: DrivingDojo [14] QWen3-vl-2B 10.0 2.3 4.3 14.6 24.4 46.3 QWen3-vl-2B + Reranker 12.2 1.4 4.9 7.3 17.1 46.3 QWen3-vl-8B 15.8 1.2 4.9 19.5 31.7 56.1 QWen3-vl-8B + Reranker 20.1 2.2 7.3 22.0 39.0 56.1 Dataset: MM-AU [38] QWen3-vl-2B 17.8 4.0 8.2 20.4 30.6 46.9 QWen3-vl-2B + Reranker 26.9 6.0 18.4 30.6 42.9 49.0 QWen3-vl-8B 34.6 8.6 18.4 32.7 44.9 53.1 QWen3-vl-8B + Reranker 32.7 6.3 20.4 38.8 55.1 61.2 Dataset: CarCrashDataset [37] QWen3-vl-2B 31.9 24.8 17.8 37.8 48.9 64.4 QWen3-vl-2B + Reranker 32.1 38.3 26.7 44.4 55.6 64.4 QWen3-vl-8B 34.9 27.5 20.0 44.4 55.6 66.7 QWen3-vl-8B + Reranker 40.1 33.5 28.9 46.7 62.2 66.7
+
+Table 7 reports the per-stage online latency breakdown of STRIVE-D on DrivingDojo [ 14 ], com-plementing the cross-method comparison in Table 2 of the main paper. The two LLM stages, rule synthesis (invoked only on the exemplar-conditioned fallback path, when no library rule matches the query) and multi-source fusion, together account for ∼87% of the total per-query latency. Both stages are amenable to caching across queries that share an event category, which our timings do not exploit; the remaining stages (rule matching against per-frame records, dense retrieval, BM25 [ 22 ]sparse retrieval) are inexpensive. 
+
+B.4 Variability across Runs 
+
+Several components of our pipeline are stochastic, including VLM-based video captioning (Sec-tion A.1), event extraction from captions, and the LLM proposer in the calibration loop (Section A.4). To assess the cumulative variability across these sources, we re-ran the full pipeline—library con-struction followed by retrieval—five times with independent samples, holding all other settings fixed, and report mean ± one standard deviation (1-σ) across the five runs in Table 9. At top-10 , the candidate set typically saturates the relevant items, so the ranking is largely insensitive to small rule perturbations; the relative ordering against the strongest baseline is preserved in every run. Table 9: Variability of STRIVE-D across 5 independent runs. Mean ± one standard devia-tion (1-σ); variability captures the cumulative effect of all stochastic components in the pipeline (VLM captioning, event extraction, LLM proposer). Standard deviations stay below 1.3 points for Acc@ {1, 3, 5} and below 0.3 for Acc@ 10 on all three benchmarks.                                         
+
+> Dataset Acc@1 Acc@3 Acc@5 Acc@10 MMAU [38] 26 .5±1.153 .1±1.159 .2±1.165 .3±0.0
+> DrivingDojo [14] 26 .8±1.348 .8±1.153 .7±1.173 .2±0.0
+> CarCrash [37] 28 .9±1.260 .0±1.173 .3±0.975 .6±0.3
+
+## C Additional Qualitative Results 
+
+Figure 8 presents additional qualitative comparisons on four complex queries from the Driving-Dojo [ 14 ] dataset. Our method retrieves videos matching the query, while vision-language baselines (SigLIP2 [4], Qwen3-VL [5]) return less relevant results on these examples. 19 truck skidded in the rain car collided with a rock at a city intersection  
+
+> Ours SigLIP2 Qwen3-8B
+> car drove into the field truck fell into the ditch
+> Ours SigLIP2 Qwen3-8B
+
+Figure 8: Qualitative retrieval comparison. Sampled frames from the top-1 retrieved video per method for four complex natural-language queries on DrivingDojo [ 14 ]; our method consistently surfaces semantically relevant videos while vision-language baselines (SigLIP2 [ 4 ], Qwen3-VL [ 5 ]) struggle with queries involving environmental conditions or rare event types. 
+
+Cross-dataset retrievals beyond ground-truth annotations. Figure 9 presents examples in which our method retrieves videos that fall outside the ground-truth annotations, yet appear visually consis-tent with the query. For instance, the query “car skids in snow” retrieves snowy road-incident videos from CarCrash [ 37 ], DrivingDojo [ 14 ], and MM-AU [ 38 ]; the query “motorcycle cutin” retrieves motorcycles encroaching on the ego lane across all three datasets. These examples also illustrate that the same calibrated rule library can be applied across dataset boundaries without dataset-specific adaptation. 
+
+## D LLM Prompts 
+
+This section documents the seven LLM prompt templates used by STRIVE-D, grouped by pipeline stage. Library-construction prompts (Sections D.1 to D.4) run once on the auxiliary set to caption videos, extract candidate events, and calibrate the rules’ numerical constraints. Retrieval-time prompts (Sections D.5 to D.7) run per query to match against the calibrated library, synthesize an adapted rule when no library entry matches, and produce per-source weights that combine the symbolic, dense, and sparse retrieval signals through weighted reciprocal rank fusion [34]. 
+
+D.1 Video Captioner 
+
+The captioner runs at library construction only, on each video in the auxiliary set, to produce the natural-language description C′ that downstream event extraction (Section D.2) parses for weak-supervision labels. The prompt targets kinematic content (spacing, movement, signals, scene ad-justments) rather than generic scene description; even with this prompting, captions remain a noisy motion-event signal, which motivates the AP-averaged calibration objective (Section A.4). 20 car skids in snow motorcycle cutin 
+
+> CarCrash DrivingDojo MM-AU
+
+Figure 9: Cross-dataset retrieval results beyond ground-truth annotations. For each query and dataset (CarCrash [ 37 ], DrivingDojo [ 14 ], MM-AU [ 38 ]), we show sampled frames from the top-1 retrieved video. The retrieved videos are not present in the ground-truth annotations, yet appear visually consistent with the query. Listing 2: Video captioner system prompt: chronological motion-targeted description used at library construction. 
+
+You are an autonomous driving expert, specializing in recognizing traffic scenes. You receive a series of traffic images captured from the perspective of the ego car. Your task is to analyze the video and provide a detailed, chronological description of the scene. For the scene description, for each significant event or change, describe: - Changes in Spacing: Note how the distance between vehicles and stable objects changes over time. Indicate if vehicles get closer to or farther from these objects. - Movement Dynamics: Explain the movement of each vehicle, including their direction, any noticeable adjustments in their position relative to other vehicles and stationary elements, and whether the vehicle is approaching or stopping. - Vehicle Signals: Pay attention to whether vehicles have their blinkers or lights on, and note their status in your description. - Scene Adjustments: Describe any significant changes in the arrangement of vehicles and objects and their impact on the overall scene. Ensure that the description captures the sequence of events as they occur in the video, detailing vehicle behavior and scene dynamics without referring to individual frames. 
+
+D.2 Event Extraction 
+
+For each auxiliary video, the extractor parses the captioner’s description into a list of (event_type, subject) candidates with a short evidence quote. After consolidation across the auxiliary set, the deduplicated list forms the event index E = {e1, . . . , e M } used to construct the calibrated library L.Per-event positive and negative video sets V+
+
+> m
+
+, V− 
+
+> m
+
+are derived by matching extracted events against each caption: a video is positive for em if its extracted events contain em, and negative otherwise. Listing 3: Event extraction system prompt: emits a JSON array of (event_type, subject, confidence, evidence) tuples per caption. 
+
+You are an expert in driving video analysis and vehicle kinematics. Given a driving video summary, extract ALL notable kinematic events -- i.e., events that involve measurable physical motion that could be captured by sensors (speed, distance, lateral position, trajectory). INCLUDE events involving: - Sudden longitudinal speed changes (hard braking, rapid acceleration, emergency stop) 
+
+21 - Lateral movements (cut-in, cut-out, lane change, swerving) - Object approach / departure (vehicle closing in, near miss, overtaking) - Dynamic object crossing (pedestrian, cyclist, animal crossing the road) - Emergency vehicle passing (siren, flashing lights with motion) - Construction zone entry / slowing DO NOT include: - Static scene descriptions with no motion (parked car, road type, weather alone) - Object presence without motion relevance (car visible in mirror but not interacting) - Ambiguous non-kinematic observations Output a JSON array (can be empty []). Each element must have: {"event_type": "<snake_case label, e.g. hard_brake / cutin / pedestrian_crossing>", "subject": "ego" | "object" | "both", "confidence": "high" | "medium" | "low", "evidence": "<short exact quote or paraphrase from the summary>" }Return ONLY the JSON array, no explanation. 
+
+D.3 L2R Proposer: Initial Proposal 
+
+For each event em extracted in Section D.2, the L2R loop’s first iteration calls the proposer with the event’s natural-language label and per-field summary statistics from the auxiliary set, producing a complete candidate rule (entity selector, hard gates, soft scores, agg_mode). Subsequent iterations use the revision prompt (Section D.4). Threshold values in the few-shot examples are illustrative structures only; the proposer is expected to substitute dataset-specific values from the field-statistics block. Listing 4: L2R proposer initial-proposal system prompt: emits a complete symbolic rule conditioned on the event label and per-field summary statistics. 
+
+You are a driving video retrieval expert. Translate a natural-language query about driving behavior into a structured JSON symbolic rule that can deterministically score every video in a dataset. ## Dataset context Dataset: {DATASET_NAME} (dashcam videos, ego-centric, 10 fps, typical length 10-30 s). Task: rank videos by relevance to the query; the rule will be scored against tracked-object time-series extracted from JSON annotations. ## Available fields (per tracked object, per frame) | Field | Source | Unit | Notes | |------------|-------------------|--------|-------| | distance | 2D monocular depth| m | Integer-quantized | | loc_z | 3D detector | m | Forward depth. Only for tracked objects. | | loc_x | 3D detector | m | Lateral offset: positive = right of ego, negative = left. | | lane_rel | VLM text label | lanes | Relative lane vs ego: 0=same, +1=one right, -1= one left. | | bbox_area | 2D detector | px^2 | Bounding box of objects. | ### agg_mode="any" (object events: cut-in, approach, hard-brake) Your threshold MUST be calibrated so that only rare individual tracks satisfy it: - A threshold at the P50 means ~50% of all tracks will satisfy it -- far too permissive. - For a query matching ~20% of videos: aim for P75-P85 (~15-25% of tracks exceed). - For a rare event (<10%): target P90-P95. - Use ’pct_exceeding’ rows to read off: "if I set min_delta=X, what fraction of tracks will pass?" Example: distance P50-change-in-4s = 12 m and 57% of tracks exceed 10 m -> min_delta=10 is too permissive for a rare proximity event. Use 30 m (P80) instead. 
+
+22 ## Entity spec {"role": "object", // "object" = a detected other vehicle/pedestrian "class_filter": ["car"], // null = any class; valid: car, truck, bus, pedestrian, motorcycle, bicycle, barrier, traffic_cone "selection": "any", // "any" = evaluate all matching tracks // "closest" = only the nearest object by distance "agg_mode": "any" // HOW to aggregate scores across multiple tracks: // "any" = max over tracks (default) // Use when ONE specific object causes the event // (cut-in, hard-brake, pedestrian crossing) // "consensus" = mean over tracks when min_fraction pass the gate // Use for EGO-MOTION events (lane change, turn): // when ego changes lane, ALL nearby objects shift // in the same direction simultaneously }NOTE: This dataset does NOT have an explicit ego-lane-index field. To detect ego maneuvers (lane change, turn), use surrounding objects’ relative motion as proxy: - Ego changes lane RIGHT -> nearby objects shift LEFT (lane_rel decreases, loc_x decreases) - Ego turns LEFT -> nearby objects’ loc_x shifts RIGHT - For ego-motion queries, ALWAYS set "agg_mode": "consensus" -- the pattern should appear across most surrounding vehicles, not just a lucky single track. ## Hard gates (binary, video scores 0 if none of its tracks pass) { "field": "distance", "op": "lt", "value": 40.0 } Operators: "lt" (<), "le" (<=), "gt" (>), "ge" (>=). Use gates only when there is a clear physical reason (e.g., object must be within 40 m for a near-miss). ## Soft Scores (continuous in [0, 1]) soft_scores: weighted evidence terms that produce a graded relevance in [0, 1] per video ( unlike hard_gates which are binary pass/fail). Each entry tests one kinematic signal on one field and scores smoothly: signal == threshold -> 0.5; signal == 2x threshold -> 1.0; wrong direction -> 0. Per-track scores are aggregated by entity.agg_mode: "any" -> max (one object suffices: cut-in, brake, pedestrian crossing) "consensus" -> mean over tracks, gated by min_fraction (ego-motion: lane change, turn) The final video score is the weight-weighted average of all soft_scores. Use weight to express relative importance; use min_fraction (not min_delta) to discriminate ego-motion from noise. ## Output format Return ONLY a valid JSON object -- no markdown, no comments, no text outside the JSON: {"event": "short_snake_case_event_name", "confidence": 0.85, "entity": { "role": "object", "class_filter": ["car", "truck"], "selection": "any", "agg_mode": "any" }, "hard_gates": [...], "soft_scores": [...], "scoring_notes": "One sentence explaining the rule’s logic, threshold choices, direction, and agg_mode." }
+
+23 ## Few-shot examples Note: threshold values in these examples are illustrative STRUCTURES only. Always substitute thresholds from the {FIELD_STATS} section above for the actual dataset. ### Query: "ego car change lane to the right" {"event": "ego_lane_change_right", "confidence": 0.80, "entity": { "role": "object", "class_filter": ["car", "truck", "bus"], "selection": "any", "agg_mode": "consensus" }, "hard_gates": [], "soft_scores": [ {"type": "monotonic_trend", "field": "loc_x", "direction": "decreasing", "min_duration_seconds": 2.0, "min_fraction": 0.20, "weight": 1.0 }], "scoring_notes": "Ego moves right -> ALL nearby objects shift LEFT (loc_x decreasing). min_fraction=0.20 requires 20% of tracks to show a 2+ s sustained decrease simultaneously. In noise ~25% of tracks show this in some window; but a real lane change shifts ALL tracks consistently, so a much higher fraction agree -> better-ranked videos. NO temporal_change -- window-based change is dominated by noise for ego -motion." }### Query: "object approaching ego" {"event": "approach", "confidence": 0.90, "entity": { "role": "object", "class_filter": null, "selection": "any", "agg_mode": "any" }, "hard_gates": [], "soft_scores": [ {"type": "monotonic_trend", "field": "distance", "direction": "decreasing", "min_duration_seconds": 3.0, "weight": 1.0 }, {"type": "temporal_change", "field": "distance", "min_delta": 30.0, "window_seconds": 5.0, "direction": "negative", "weight": 0.8 }], "scoring_notes": "One specific object approaches. direction=negative on temporal_change counts only distance reductions (not random fluctuation). agg_mode=any -- only the approaching object needs to show this signal. Threshold at >=P85 of distance change." }Now translate the following query. Return ONLY the JSON object. 
+
+24 D.4 L2R Proposer: Revision 
+
+When a candidate assignment fails self-consistency checks on the auxiliary set, the proposer is fed back the previous AP, a percentile summary of the score distribution, and a list of issue tags, and asked to revise. Listing 5: L2R proposer revision user message: feeds back the previous AP, score-distribution percentiles, and a list of issue tags, with the best-so-far assignment as the anchor for the next proposal. 
+
+The previous rule for query ’{query}’ achieved AP={ap_t} on the auxiliary set (target >= {tap}). Best-so-far AP: {ap_best}; use the best-so-far rule as the anchor for this revision. Issue tags detected: {issues} Score distribution across {N} auxiliary videos: P10={p10} P25={p25} P50={p50} P75={p75} P90={p90} P95={p95} nonzero (>0.05): {nonzero_ratio} of videos Please revise the rule with these adjustments: {hints} Keep the same event type. Return ONLY a valid JSON object. 
+
+D.5 Library Matcher 
+
+The library matcher maps a natural-language query to one of 21 predefined event categories and returns a scalar confidence score. Queries with confidence ≥ γh (γh = 0 .6) are routed directly to the matched library template; queries with confidence < γ h trigger the rule translator, which generates an adapted rule using the highest-confidence library template as a few-shot exemplar. Listing 6: Library matcher system prompt: event categories, disambiguation rules, and JSON output format. 
+
+You are a driving event classifier for a video retrieval system. Given a natural-language query about a driving incident, identify which of the following event categories best describes the PRIMARY event. If no category fits well, return "none". Event categories: - hard brake: The EGO vehicle decelerates suddenly/abruptly. - swerving: The EGO vehicle weaves or makes erratic lateral movements (all surroundings shift together -- camera effect). NOT for a surrounding vehicle that moves sideways; use "lateral movement". - lane change: The EGO or another vehicle smoothly changes lanes. - evasive maneuver: The EGO driver steers/brakes sharply to avoid an obstacle. - sudden speed change: The EGO vehicle abruptly accelerates or decelerates. - sudden stop: The EGO vehicle stops abruptly from speed. - loss of control: A vehicle loses control: spins out, drifts. If the query adds a condition the kinematic rule cannot encode (snow/rain/ice/"for no apparent reason"), cap confidence at 0.55. - rollover: A vehicle rolls over, tips onto its side, or flips. - reverse: A vehicle is reversing/backing up. - sharp turn: A vehicle makes a sharp or aggressive turn. - cutin: A SURROUNDING vehicle cuts in front of the ego car (lane-change encroachment). NOT a general collision. - cutout: A SURROUNDING vehicle ahead moves out of the ego lane. - lateral movement: A SURROUNDING vehicle (not the ego) moves noticeably sideways. - object approach: A surrounding object rapidly approaches the ego. - object departure: A surrounding object moves away from the scene. - traffic disruption: A vehicle blocks or disrupts traffic flow. - collision: Direct physical impact: vehicle-vehicle or vehicle-object crash. - near miss: Close call without actual contact. 
+
+25 - pedestrian crossing: A pedestrian crosses in front of the ego. - emergency vehicle: Ambulance, fire truck, or police is present. - dynamic object crossing: Animal, debris, or non-vehicle object crosses the road. Disambiguation rules: - "swerving" = EGO weaves; all surroundings shift together (camera). "lateral movement" = a SURROUNDING vehicle moves sideways. Not the same. - "cutin"/"cutout" = lane-change encroachments only -- not crashes. - "collision" = any direct physical impact. - "rollover" = rolls, tips, flips, falls on its side. - Condition-modifier rule: weather/road conditions (snow, rain, ice) or vague causes ("for no apparent reason") set confidence <= 0.55, so the system generates a fresh adapted rule instead of reusing the library template. - Return "none" only when the query describes no driving incident at all. Respond with valid JSON only -- no extra text: {"event": "<category_or_none>", "confidence": <0.0-1.0>, "reason": "<one sentence>"} 
+
+D.6 Rule Adapter 
+
+When the library matcher confidence falls below γh, the rule adapter produces a query-specific rule by adjusting the highest-confidence library template under dataset field statistics, treating the template as a few-shot exemplar. The system prompt below (Listing 7) specifies the rule schema, constraint types, and few-shot examples; the user message (Listing 8) prepends the matched template alongside the new query. Listing 7: Rule adapter system prompt: task definition, field statistics, rule schema, constraint types, and few-shot examples. 
+
+You are a driving video retrieval expert. Translate a natural-language query about driving behavior into a structured JSON symbolic rule that can deterministically score every video in a dataset. Dataset context Dataset: [DATASET_NAME] (dashcam videos, ego-centric, 10 fps, 10-30s). Task: rank videos by relevance to the query; the rule will be scored against tracked-object time-series extracted from JSON annotations. Available fields (per tracked object, per frame): - distance : forward distance (m), 2D depth - loc_z : forward depth (m), 3D detection - loc_x : lateral offset (m), 3D detection; +=right of ego - lane_rel : lane offset (lanes), VLM; 0=same, +1=right, -1=left - bbox_area : bounding-box area (px^2), 2D detection CRITICAL: Data-driven field statistics for this dataset [Automatically generated from the target dataset. Contains, for each field (distance, loc_x, loc_z, lane_rel) and each time window (2s, 4s, 8s): percentile distribution of max|Delta value| across all tracked objects, plus the fraction of tracks exceeding representative thresholds in a 4s window. Example snippet (DrivingDojo):] How to use the statistics to set thresholds: - A threshold at P50 means ~50% of tracks satisfy it -- too permissive for rare events. - For a query matching ~20% of videos: aim for P75-P85 (~15-25% of tracks exceed). - For a rare event (<10%): target P90-P95. Entity spec: {"role": "object", "class_filter": ["car"], // null = any; valid: car, truck, bus, // pedestrian, motorcycle, bicycle, // barrier, traffic_cone "selection": "any", // "any" = all matching tracks "agg_mode": "any" // "any" = max over tracks (ONE object causes event) // "consensus" = mean when min_fraction pass (EGO-MOTION) 
+
+26 }Constraint types: temporal_change -- max field change within any sliding window: {"type": "temporal_change", "field": "distance", "min_delta": 30.0, // set from field stats (P80-P95) "window_seconds": 4.0, "direction": null, // null=absolute | "positive" | "negative" "min_fraction": null, // only for consensus: fraction of tracks >= 0.5 "weight": 1.0 }Hard gates (binary; video scores 0 if no track passes): { "field": "distance", "op": "lt", "value": 40.0 } Operators: "lt" (<), "le" (<=), "gt" (>), "ge" (>=). Use gates only when there is a clear physical reason. Output format -- return ONLY a valid JSON object, no markdown: {"event": "short_snake_case_event_name", "confidence": 0.85, "entity": { "role": "object", "class_filter": [...], "selection": "any", "agg_mode": "any" }, "hard_gates": [...], "soft_scores": [...], "scoring_notes": "One sentence explaining the rule’s logic, thresholds, and agg_mode." }Few-shot examples (thresholds are dataset-specific; substitute from FIELD_STATS): Query: "other car cutin" {"event": "cutin", "confidence": 0.90, "entity": { "role": "object", "class_filter": ["car","truck"], "selection": "any", "agg_mode": "any" }, "hard_gates": [{"field": "distance", "op": "lt", "value": 40.0}], "soft_scores": [ { "type": "temporal_change", "field": "loc_x", "min_delta": 14.0, "window_seconds": 4.0, "direction": null, "weight": 1.0 }, { "type": "temporal_change", "field": "distance", "min_delta": 20.0, "window_seconds": 4.0, "direction": "negative", "weight": 0.7 } ], "scoring_notes": "Lateral shift >= P90 loc_x combined with approach; agg_mode=any." }Query: "ego car change lane to the right" {"event": "ego_lane_change_right", "confidence": 0.80, "entity": { "role": "object", "class_filter": ["car","truck","bus"], "selection": "any", "agg_mode": "consensus" }, "hard_gates": [], "soft_scores": [ { "type": "temporal_change", "field": "loc_x", "min_delta": 3.5, "window_seconds": 4.0, "direction": "negative", "min_fraction": 0.20, "weight": 1.0 } ], "scoring_notes": "Ego right => objects shift left (negative loc_x); min_fraction=0.20 for consensus agreement; agg_mode=consensus." }Query: "object approaching ego" {"event": "approach", 
+
+27 "confidence": 0.90, "entity": { "role": "object", "class_filter": null, "selection": "any", "agg_mode": "any" }, "hard_gates": [], "soft_scores": [ { "type": "temporal_change", "field": "distance", "min_delta": 30.0, "window_seconds": 5.0, "direction": "negative", "weight": 1.0 } ], "scoring_notes": "direction=negative counts reductions only; agg_mode=any." }Now translate the following query. Return ONLY the JSON object. 
+
+Listing 8: Rule adapter user message: injects the closest library template as an initialization seed alongside the new query. 
+
+A similar event from the rule library is "[matched_event_key]" (keyword similarity=[sim]). Use this rule as a starting point and adapt it to the new query. Adjust thresholds to match the target dataset’s field statistics, and change entity/class_filter as needed. Reference rule: [JSON of the closest library template] Query: <natural-language query> 
+
+D.7 Fusion Router 
+
+The fusion router outputs a per-source weight for three retrieval backends: a dense vision-language embedding (Backend A), the symbolic-rule path (Backend B), and a sparse lexical retriever over per-video summaries (Backend C). The prompt frames weight assignment as a perception-alignment decision: which backend’s input modality contains the discriminator that separates matching from non-matching videos for this query? The LLM identifies a primary backend whose modality carries the discriminator and optionally adds a supplementary weight to Backend C when the query has surface tokens (a color, a model, a place name) likely to appear in summary text. Three geometric facts about the dashcam setup (ego-motion produces global pixel shifts; surrounding-object motion produces local pixel changes whose visibility depends on end-of-motion location; summary text rarely contains technical event names) anchor the decision in physical priors rather than free-form reasoning. Listing 9: Fusion router prompt: outputs per-source weights for dense (Backend A), symbolic rule (Backend B), and sparse lexical (Backend C) retrieval. 
+
+For this query, assign per-source weights for fusion across three retrieval backends. Each backend produces its own ranking; the weights you output determine how much each ranking contributes to the final ordering. The three backends, identified by neutral labels A, B, C, are each defined by what they perceive and nothing more: - Backend A : perceives pixels. Ranks each candidate video by the visual similarity between its dashcam frames and the implied content of the query, as a human would judge it by looking at the frames. Returns degenerate ranks when matching and non-matching frames look the same to a human. - Backend B : has no access to pixels. Perceives, for each video, a per-frame numeric record of detected objects (each object’s position relative to the ego camera, distance, over time). Ranks each candidate by whether this numeric record matches a pattern derived from the query. Returns informative ranks precisely when the visual frames are NOT enough to discriminate matching from 
+
+28 non-matching cases -- when the discriminator is in the numeric record only. - Backend C : perceives a single natural-language summary string per video. Ranks candidates by token overlap with the query. Useful only when the discriminating words in the query also literally appear in the matching summaries (and not in non-matching ones). Geometric facts about the dashcam (apply these directly): Fact 1. The camera is rigidly mounted on the ego vehicle. When EGO moves (rotates or translates), every pixel in the frame shifts coherently -- lane markings sweep, the horizon tilts, every off-road landmark slides. This is a global change in pixels that Backend A picks up immediately. Fact 2. When the ego is straight-and-steady and another object moves, only the pixels covering THAT object change. Whether Backend A picks up this local pixel change depends on where the object ends up: - End position in the central viewport (large, close, ahead): the object dominates the frame, matching frames look distinct from non-matching ones, Backend A discriminates. - End position off-centre (alongside ego in a parallel lane, no longer interacting with ego): matching frames look the same as ordinary multi-lane driving, Backend A’s signal is degenerate; only Backend B (which sees the numeric record) can discriminate. Fact 3. Dashcam summary text is generic ("a car drives along ..."). Technical event names ("cutin", "cutout", "lane change") rarely appear in summaries even when the event occurs, so Backend C is informative only when the query has a non-technical token (a color, a model, a place). Reasoning protocol: Step 1 -- Decode the physical motion in ONE short sentence: (a) the moving subject (ego, or a specific other object class) (b) the direction of motion in ego’s reference frame (c) where the subject is at the END of the motion Step 2 -- Identify the PRIMARY backend whose perception aligns with the discriminator for this query. Apply Facts 1 and 2 to decide which backend’s input modality contains the discriminator that separates matching from non-matching videos. The primary backend should receive the highest weight. Step 3 -- Decide whether to add a SUPPLEMENTARY weight to Backend C. Inspect the query’s surface tokens: if the query contains non-technical tokens (a color, a model, a place name) likely to appear literally in summary text (Fact 3), assign Backend C a small supplementary weight; otherwise leave it at zero. Step 4 -- Output JSON of the form {"dense": <float>, "rule": <float>, "bm25": <float>} where the value at each label is the weight you have assigned to that backend (Backend A <-> "dense", Backend B <-> "rule", Backend C <-> "bm25"). Query: "{query}" Output Step 1, Step 2 (cite which Fact and why), Step 3 (count surface tokens and decide whether Backend C should receive supplementary weight), and on a final line output ONLY the JSON object. 
+
+29 E Limitations and Broader Impact 
+
+E.1 Limitations Compositional queries. Our symbolic rules natively express conjunctions of hard gates and weighted combinations of soft scores. They do not include explicit temporal-sequencing operators (e.g ., “event A followed by event B”) or scoped negation. Queries that require such structure either (a) fall back to dense or lexical retrieval through the routing stage, or (b) are approximated by the closest available rule structure during exemplar-guided synthesis. A richer rule schema with explicit composition operators is a natural extension. 
+
+E.2 Broader Impact 
+
+STRIVE-D targets natural-language retrieval over driving video; plausible positive uses include scenario mining for autonomous-driving development, retrieval of rare or safety-critical events for regulatory and post-incident analysis, and curation of training or evaluation corpora for downstream perception and planning. The same capability could be repurposed for driver surveillance or privacy-eroding video mining, and biases in the upstream perception pipeline ( e.g ., demographic disparities in detection or tracking) propagate into retrieval results without being corrected by our calibration. To mitigate these risks, we recommend two safeguards: (i) restricting source corpora to data with appropriate consent and provenance, and (ii) auditing the upstream perception pipeline for such biases before deployment. More broadly, our results suggest that numerical calibration is a binding constraint in applying LLM-written rules to physically grounded retrieval, that data-driven calibration closes this gap without sacrificing the interpretability of rule-based scoring, and that the factoring, defined over generic per-frame structured representations, should extend beyond driving wherever similar structure is available—to other domains such as surgical, sports, or industrial monitoring— provided that domain-specific risks are re-examined for each new setting rather than inherited from the driving case. 30

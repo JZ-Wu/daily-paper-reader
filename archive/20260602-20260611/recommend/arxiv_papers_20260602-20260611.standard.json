@@ -1,0 +1,791 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-11T07:54:52.550608+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 13,
+    "deep_cap": 6,
+    "deep_selected": 7,
+    "quick_candidates": 16,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2606.03539v1",
+      "source": "arxiv",
+      "title": "Knowledge-Preserved Model Tuning in Null-Space for Robust Spatio-Temporal Video Grounding",
+      "abstract": "Spatio-Temporal Video Grounding aims to localize object tubes based on textual queries. While recent methods have achieved remarkable success, they mainly focus on high-quality(HQ) inputs, neglecting the widespread presence of low-quality(LQ) videos in real-world scenarios. Although tuning methods like LoRA can adapt to degraded inputs, they inevitably disrupt pre-trained knowledge. To address this, we propose Null-Space Tuning (NST). This framework exploits the geometric property that adding vectors within the null-space of frozen weights to the layer input does not affect the output. Leveraging this, NST injects learnable residuals into input features that can be selectively invisible to the pre-trained backbone. Specifically, NST combines the Quality-Adaptive Unit and Dual-Space Reparameterization to synthesize these residuals by confining components for HQ inputs to the null-space, while directing restoration components for LQ inputs to the non-null space. As the frozen weights eliminate null-space components, we effectively rectify degraded inputs while preserving pre-trained knowledge for HQ inputs. Extensive experiments show that NST outperforms state-of-the-art methods on our Mixed-Quality benchmark.",
+      "authors": [
+        "Haoxuan Chen",
+        "Xianqin Liu",
+        "Jian-Fang Hu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-02T11:59:27+00:00",
+      "link": "https://arxiv.org/pdf/2606.03539v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "spatio-temporal video grounding via null-space tuning",
+      "llm_evidence_cn": "通过零空间调优的时空视频定位",
+      "llm_evidence": "通过零空间调优的时空视频定位",
+      "canonical_evidence": "通过零空间调优的时空视频定位",
+      "llm_tldr_en": "Proposes Null-Space Tuning for robust spatio-temporal video grounding, preserving pre-trained knowledge while adapting to low-quality videos.",
+      "llm_tldr_cn": "针对目前时空视频定位方法在高清输入下有效，但低质量视频中性能下降的问题，提出零空间微调（NST）框架。利用冻结权重的零空间特性注入可学习残差，在不影响预训练知识的前提下适应退化输入。实验证明NST在多种低质量条件下保持高精度定位，为真实场景鲁棒视频定位提供了有效方案。",
+      "llm_tldr": "针对目前时空视频定位方法在高清输入下有效，但低质量视频中性能下降的问题，提出零空间微调（NST）框架。利用冻结权重的零空间特性注入可学习残差，在不影响预训练知识的前提下适应退化输入。实验证明NST在多种低质量条件下保持高精度定位，为真实场景鲁棒视频定位提供了有效方案。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "video grounding task",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.06294v1",
+      "source": "arxiv",
+      "title": "Towards One-to-Many Temporal Grounding",
+      "abstract": "Temporal Grounding (TG) aims to localize video segments corresponding to a textual query. Prior research predominantly focuses on single-segment retrieval. Real-world scenarios, however, often require localizing multiple disjoint segments for a single query -- a setting we term One-to-Many Temporal Grounding (OMTG). Previous state-of-the-art MLLMs, optimized for one-to-one settings, struggle in this context, often yielding near-zero scores due to a lack of event cardinality perception. To bridge this gap, we present a systematic solution with three key contributions. First, we establish the first comprehensive OMTG benchmark, introducing Count Accuracy (C-Acc) and Effective Temporal F1 (EtF1) as evaluation metrics. Second, we curate a high-quality OMTG dataset comprising 56k samples through a sophisticated construction pipeline. Third, we develop novel temporal and caption reward functions specifically designed for OMTG. In particular, the caption reward leverages Chain-of-Thought reasoning over dense video captions to explicitly guide policy optimization toward both preciseness and completeness. Extensive experiments show our model achieves a new state-of-the-art EtF1 of 43.65\\% on OMTG Bench, outperforming Gemini 2.5 Pro and Seed-1.8 by 15.85\\% and 15.61\\%, respectively.",
+      "authors": [
+        "Qi Xu",
+        "Yue Tan",
+        "Shihao Chen",
+        "Jiahao Meng",
+        "Anna Wang",
+        "Shunping Ji",
+        "Hao Fei",
+        "Jason Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-04T15:31:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.06294v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "one-to-many temporal grounding: localizing multiple video segments for a single query",
+      "llm_evidence_cn": "一对多时序定位：为单个查询定位多个视频片段",
+      "llm_evidence": "一对多时序定位：为单个查询定位多个视频片段",
+      "canonical_evidence": "一对多时序定位：为单个查询定位多个视频片段",
+      "llm_tldr_en": "Identifies the overlooked one-to-many temporal grounding problem where a query corresponds to multiple disjoint video segments. Contributes a benchmark, a dataset of 56k samples, and shows that current MLLMs fail on this task, advocating for event cardinality awareness.",
+      "llm_tldr_cn": "针对现有时序定位仅关注单片段检索的局限，提出一对多时序定位（OMTG）任务，要求为同一文本查询定位多个不相交视频片段。该工作构建首个全面OMTG评测基准，引入计数准确率等新指标，并整理5.6万样本数据集。实验表明当前最先进多模态大模型在此任务上表现极差，揭示了事件基数感知的缺失，为视频定位研究开辟了新方向。",
+      "llm_tldr": "针对现有时序定位仅关注单片段检索的局限，提出一对多时序定位（OMTG）任务，要求为同一文本查询定位多个不相交视频片段。该工作构建首个全面OMTG评测基准，引入计数准确率等新指标，并整理5.6万样本数据集。实验表明当前最先进多模态大模型在此任务上表现极差，揭示了事件基数感知的缺失，为视频定位研究开辟了新方向。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "video grounding task",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.07924v1",
+      "source": "arxiv",
+      "title": "Decoupling Semantics and Logic: A Training-Free Coarse-to-Fine Pipeline for Video Retrieval-Augmented Generation",
+      "abstract": "This paper presents our system description for the 2nd Workshop on Multimodal Augmented Generation via MultimodAl Retrieval (MAGMaR). Addressing the critical challenges of cross-lingual long-video comprehension, strict persona adherence, and zero-hallucination temporal grounding, we propose a fully training-free, two-stage cascaded Video RAG pipeline. Our architecture strategically decouples semantic retrieval from cognitive logical reasoning through a modality-aware division of labor. In the first stage, a high-recall semantic pre-fetching module employs dense retrieval using only high-fidelity visual summaries and global text descriptions, explicitly isolating noisy modalities (e.g., OCR and ASR) to maintain a pristine vector space. In the second stage, an Adaptive, Iterative, and Reasoning-based (A.I.R.) filtering agent, powered by a commercial Large Language Model (LLM), performs fine-grained cognitive reranking. The agent re-incorporates full multimodal contexts to enforce strict logical alignment with user personas, effectively pruning semantically similar but logically irrelevant candidates. Finally, a Prompt Sculpting mechanism constrains the generator to synthesize the distilled subset into strictly formatted JSON responses with exact chunk-level citations. Evaluated on the RAG track, our resource-aware approach shows exceptional precision in both information retrieval and persona-conditioned generation.",
+      "authors": [
+        "Jiaxin Dai",
+        "Zehang Wei",
+        "Jiamin Yan",
+        "Xiang Xiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL",
+        "cs.LG",
+        "cs.MM"
+      ],
+      "published": "2026-06-06T01:17:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.07924v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free pipeline for video RAG with zero-hallucination temporal grounding, using semantic retrieval and logical reasoning modules",
+      "llm_evidence_cn": "无训练视频RAG管线，通过语义检索与逻辑推理实现零幻觉时间定位",
+      "llm_evidence": "无训练视频RAG管线，通过语义检索与逻辑推理实现零幻觉时间定位",
+      "canonical_evidence": "无训练视频RAG管线，通过语义检索与逻辑推理实现零幻觉时间定位",
+      "llm_tldr_en": "Addressing long-video comprehension and temporal grounding, this work introduces a training-free, two-stage video RAG pipeline that decouples semantic retrieval from logical reasoning, achieving zero-hallucination temporal grounding without costly training.",
+      "llm_tldr_cn": "针对长视频理解与时间定位挑战，提出一种无需训练的两阶段视频检索增强生成管线，将语义检索与逻辑推理解耦，利用多模态分工实现零幻觉的时间定位任务，避免了高昂的训练成本。",
+      "llm_tldr": "针对长视频理解与时间定位挑战，提出一种无需训练的两阶段视频检索增强生成管线，将语义检索与逻辑推理解耦，利用多模态分工实现零幻觉的时间定位任务，避免了高昂的训练成本。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "Training free or low cost video grounding using large vision language model agents for general and surgical domains",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.08436v1",
+      "source": "arxiv",
+      "title": "Reinforcing Temporal Answer Grounding in Instructional Video via Candidate-Aware Causal Reasoning",
+      "abstract": "The task of temporal answer grounding in instructional video (TAGV), which aims to locate precise video segments that respond to natural language queries, is increasingly important for direct video answer retrieval. This task remains challenging due to the need to comprehend semantically complex questions and to address the significant length mismatch between untrimmed videos and short target moments. Existing methods often suffer from sensitivity to irrelevant content or insufficient visual reasoning capabilities. To tackle these limitations, we propose a Candidate-Aware Causal Reasoning (CACR) framework. Our approach first employs a Visual-Language Pre-training based Candidate Selection (VBCS) algorithm to efficiently generate K candidate segments, then applies a temporal logic reasoning module enhanced by a rejection reward mechanism and optimized via Group Relative Policy Optimization (GRPO) for robust inference. Extensive experiments on six benchmarks demonstrate that our method achieves state-of-the-art performance in terms of mean Intersection-over-Union (mIoU), providing a new perspective for reasoning-based retrieval in long videos.",
+      "authors": [
+        "Muge Qi",
+        "Rong Fu",
+        "Pengbin Feng",
+        "Xianda Li",
+        "Yu Cai",
+        "Yifu Guo",
+        "Shizhe Zhang",
+        "Simon James Fong",
+        "Lei Ma",
+        "Bin Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-07T03:23:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.08436v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "directly tackles temporal answer grounding in instructional videos via candidate-aware causal reasoning",
+      "llm_evidence_cn": "直接解决教学视频中的时间答案定位任务，通过候选感知因果推理",
+      "llm_evidence": "直接解决教学视频中的时间答案定位任务，通过候选感知因果推理",
+      "canonical_evidence": "直接解决教学视频中的时间答案定位任务，通过候选感知因果推理",
+      "llm_tldr_en": "For temporal answer grounding in instructional videos, this work proposes a Candidate-Aware Causal Reasoning framework, using VLM-based candidate selection and causal reasoning to precisely locate answer segments.",
+      "llm_tldr_cn": "针对教学视频中文本查询的时间定位难题，提出候选感知因果推理框架，先通过视觉语言预训练筛选候选片段，再结合因果推理强化定位精度，在复杂问题与长视频条件下性能优越。",
+      "llm_tldr": "针对教学视频中文本查询的时间定位难题，提出候选感知因果推理框架，先通过视觉语言预训练筛选候选片段，再结合因果推理强化定位精度，在复杂问题与长视频条件下性能优越。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "video grounding task",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.09109v1",
+      "source": "arxiv",
+      "title": "Driving Video Retrieval for Complex Queries with Structured Grounding",
+      "abstract": "Video retrieval at scale is central to data curation and safety validation in autonomous driving, where users want to find not only scenes but also dynamic events such as cut-ins and hard braking. Existing vision-language and keyword-based retrieval methods often miss these events because the relevant motion may not be explicitly described in text or captured by lexical overlap. Rule-based retrieval can encode such events more directly, but it is brittle: generated or hand-written rules often fail when their assumptions do not match real driving data. We propose STRIVE-D, a data-calibrated retrieval framework for driving videos. It uses weakly labeled in-domain videos to estimate when a query rule is reliable, adapt rules that mismatch observed data, and fuse calibrated rule scores with vision-language and keyword-based retrieval signals. Across three driving benchmarks, including newly released human-annotated event data on DrivingDojo, STRIVE-D delivers up to 84% relative improvement in top-1 accuracy over state-of-the-art methods.",
+      "authors": [
+        "Manyi Yao",
+        "Sparsh Garg",
+        "Christian Shelton",
+        "Amit Roy-Chowdhury",
+        "Abhishek Aich"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-06-08T07:00:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.09109v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "temporal grounding of events in driving videos using structured queries and data-calibrated retrieval",
+      "llm_evidence_cn": "使用结构化查询和数据校准检索对驾驶视频中的事件进行时序定位",
+      "llm_evidence": "使用结构化查询和数据校准检索对驾驶视频中的事件进行时序定位",
+      "canonical_evidence": "使用结构化查询和数据校准检索对驾驶视频中的事件进行时序定位",
+      "llm_tldr_en": "Proposes STRIVE-D, a data-calibrated retrieval framework for driving videos that localizes complex events like cut-ins and hard braking. It uses weakly labeled data to calibrate query rules, enabling reliable grounding of dynamic events unseen by previous methods.",
+      "llm_tldr_cn": "针对自动驾驶视频检索中复杂动态事件（如切入、急刹）难以通过普通文本或关键词检索定位的问题，提出数据校准的检索框架STRIVE-D。该框架利用弱标注视频校准查询规则的可靠性，自适应调整规则以匹配实际数据分布，从而有效定位未显式描述的动态事件。实验表明，STRIVE-D显著提升了复杂事件检索的准确率，为视频定位任务提供了新思路。",
+      "llm_tldr": "针对自动驾驶视频检索中复杂动态事件（如切入、急刹）难以通过普通文本或关键词检索定位的问题，提出数据校准的检索框架STRIVE-D。该框架利用弱标注视频校准查询规则的可靠性，自适应调整规则以匹配实际数据分布，从而有效定位未显式描述的动态事件。实验表明，STRIVE-D显著提升了复杂事件检索的准确率，为视频定位任务提供了新思路。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "video grounding task",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.09248v1",
+      "source": "arxiv",
+      "title": "Temporal-Aware Reasoning Optimization for Video Temporal Grounding",
+      "abstract": "Multi-modal Large Language Models (MLLMs) have achieved remarkable progress in video temporal grounding with reinforcement learning for generating reasoning paths. However, existing models often produce superficial reasoning, which offers limited guidance for precise temporal localization. This limitation stems from (1) inefficient random exploration and (2) reward functions that focus solely on the answer correctness while ignoring reasoning quality. To address these issues, we propose TaRO (Temporal-Aware Reasoning Optimization), a framework that explicitly enhances the model's ability of thinking with time. First, we introduce a Constructive Reasoning Exploration that leverages pre-generated dense captions to construct reasoning paths grounded in explicit visual cues and timestamps, enabling efficient exploration of high-quality time-aware reasoning. Second, to evaluate reasoning quality, we design a Temporal-Sensitivity Reward. High-quality reasoning should be anchored to specific events and timestamps. If the event boundary under thinking is disrupted, such reasoning should become invalid, leading to a drop in the logit of the reasoning path. We utilize this drop as a critique of reasoning quality. Finally, TaRO follows a progressive curriculum, which starts by utilizing this reward to select better constructed reasoning paths, and evolves to a free exploration phase where the model autonomously generates effective reasoning. Experiments demonstrate that TaRO achieves state-of-the-art performance on VTG benchmarks. Code is available at https://github.com/oceanflowlab/TaRO.",
+      "authors": [
+        "Minghang Zheng",
+        "Zihao Yin",
+        "Yi Yang",
+        "Yuxin Peng",
+        "Yang Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-08T09:21:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.09248v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "temporal video grounding with temporal-aware reasoning optimization",
+      "llm_evidence_cn": "时间感知推理优化的视频时序定位",
+      "llm_evidence": "时间感知推理优化的视频时序定位",
+      "canonical_evidence": "时间感知推理优化的视频时序定位",
+      "llm_tldr_en": "TaRO enhances video temporal grounding in MLLMs by constructive reasoning exploration and a reward function that evaluates reasoning quality, improving temporal localization accuracy.",
+      "llm_tldr_cn": "针对多模态大模型在视频时序定位中产生肤浅推理、定位精度不足的问题，提出时间感知推理优化（TaRO）框架。通过构造性推理探索利用预生成密集字幕构建时序推理路径，并设计评估推理质量的奖励函数。实验表明TaRO能生成高质量推理过程，显著提升时序定位精度。",
+      "llm_tldr": "针对多模态大模型在视频时序定位中产生肤浅推理、定位精度不足的问题，提出时间感知推理优化（TaRO）框架。通过构造性推理探索利用预生成密集字幕构建时序推理路径，并设计评估推理质量的奖励函数。实验表明TaRO能生成高质量推理过程，显著提升时序定位精度。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "video grounding task",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.10651v1",
+      "source": "arxiv",
+      "title": "Kwai Keye-VL-2.0 Technical Report",
+      "abstract": "We introduce Kwai Keye-VL-2.0-30B-A3B, an open-source Mixture-of-Experts (MoE) multimodal foundation model designed to advance long-video understanding and agentic intelligence. To address the challenges of ultra-long contexts, information redundancy, and prohibitive computational costs inherent in hour-level videos, Keye-VL-2.0 is the first to adapt DeepSeek Sparse Attention (DSA) to GQA-based multimodal architectures, enabling lossless 256K context processing while capturing critical frames and long-range temporal dependencies. This architecture is underpinned by a highly optimized training and inference infrastructure, including scalable video I/O, heterogeneous ViT-LM parallelism, and custom DSA kernels that significantly maximize throughput and minimize computational overhead. Furthermore, to overcome the algorithmic dilemma of catastrophic forgetting during multi-task alignment, we introduce Cross-Modal Multi-Teacher On-Policy Distillation (MOPD) paired with Context-RL and Video-RL. By distilling dense token-level teacher feedback from on-policy rollouts back into the MoE backbone, which activates only 3B parameters, Keye-VL-2.0 natively empowers advanced agent collaboration across Code, Tool, and Search scenarios with multimodal self-correction. Extensive evaluations across video understanding, temporal grounding, reasoning, STEM, and agent benchmarks demonstrate that Keye-VL-2.0-30B-A3B achieves state-of-the-art performance among models of similar scale, particularly excelling in fine-grained temporal localization on TimeLens and long-video comprehension on Video-MME-v2 and LongVideoBench. We release our model checkpoints to accelerate community progress toward scalable and robust multimodal agentic applications.",
+      "authors": [
+        "Kwai Keye Team",
+        "Bin Wen",
+        "Changyi Liu",
+        "Chengru Song",
+        "Chongling Rao",
+        "Guowang Zhang",
+        "Han Li",
+        "Haonan Fan",
+        "Hengrui Ju",
+        "Jiankang Chen",
+        "Jiapeng Chen",
+        "Jiawei Yuan",
+        "Kaixuan Yang",
+        "Kaiyu Jiang",
+        "Kun Gai",
+        "Lingzhi Zhou",
+        "Na Nie",
+        "Sen Na",
+        "Tianke Zhang",
+        "Tingting Gao",
+        "Xuanyu Zheng",
+        "Yulong Chen",
+        "Fan Yang",
+        "Haixuan Gao",
+        "Lele Yang",
+        "Mingqiao Liu",
+        "Muxi Diao",
+        "Qi Zhang",
+        "Qile Su",
+        "Wei Chen",
+        "Wentao Hong",
+        "Xingyu Lu",
+        "Yancheng Long",
+        "Yankai Yang",
+        "Yingxin Li",
+        "Yiyang Fan",
+        "Yu Xia",
+        "Yuzhe Chen",
+        "Ziliang Lai",
+        "Chuan Yi",
+        "Haonan Jia",
+        "Tianming Liang",
+        "Weixin Xu",
+        "Xiaoxiao Ma",
+        "Yang Tian",
+        "Yufei Han",
+        "Feng Han",
+        "Hang Li",
+        "Jing Wang",
+        "Jinghui Jia",
+        "Junmin Chen",
+        "Junyu Shi",
+        "Ruilin Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-09T09:58:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.10651v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "multimodal MoE model for agentic long-video understanding with efficient 256K context",
+      "llm_evidence_cn": "面向代理式长视频理解的高效256K上下文多模态MoE模型",
+      "llm_evidence": "面向代理式长视频理解的高效256K上下文多模态MoE模型",
+      "canonical_evidence": "面向代理式长视频理解的高效256K上下文多模态MoE模型",
+      "llm_tldr_en": "Introduces Kwai Keye-VL-2.0, an open-source MoE multimodal foundation model optimized for long-video understanding and agentic intelligence, achieving efficient processing of hour-level videos via DeepSeek Sparse Attention adaptation and custom kernels, enabling lossless 256K context in VLM agents.",
+      "llm_tldr_cn": "针对小时级长视频理解中上下文长度冗余、计算成本高的挑战，提出Kwai Keye-VL-2.0，一个开源混合专家多模态基础模型，首次将DeepSeek稀疏注意力适应于GQA架构，实现无损256K上下文处理，并配合优化的训练推理基础设施，大幅提升吞吐量、降低开销，为高效、代理式的长视频理解提供了强大的基础，可直接用于零样本视频定位等任务，推动通用和手术视频领域的低成本视频理解代理发展。模型通过优化的可扩展视频I/O、异构并行及定制内核，显著提升吞吐量并最小化计算开销，在长视频理解基准上表现优异，为视频定位等代理式任务提供了训练无关的低成本解决方案，有望在手术视频分析等垂直领域实现零样本应用。",
+      "llm_tldr": "针对小时级长视频理解中上下文长度冗余、计算成本高的挑战，提出Kwai Keye-VL-2.0，一个开源混合专家多模态基础模型，首次将DeepSeek稀疏注意力适应于GQA架构，实现无损256K上下文处理，并配合优化的训练推理基础设施，大幅提升吞吐量、降低开销，为高效、代理式的长视频理解提供了强大的基础，可直接用于零样本视频定位等任务，推动通用和手术视频领域的低成本视频理解代理发展。模型通过优化的可扩展视频I/O、异构并行及定制内核，显著提升吞吐量并最小化计算开销，在长视频理解基准上表现优异，为视频定位等代理式任务提供了训练无关的低成本解决方案，有望在手术视频分析等垂直领域实现零样本应用。",
+      "llm_tags": [
+        "query:tf-vl-ag:composite"
+      ],
+      "matched_query_tag": "query:tf-vl-ag:composite",
+      "matched_query_text": "Papers central to 大模型多模态视频理解代理的训练无关/低成本视频定位，通用与手术视频领域, especially work that connects or combines: video grounding task; vision language model for video understanding; low-cost and efficient video understanding; agent-based method for video grounding; surgical video analysis and understanding; multimodal agent for video reasoning; Training free or low cost video grounding using large vision language model agents for general and surgical domains; Multimodal agent based video understanding without training for video grounding; Efficient VLM agents for zero shot video grounding in surgery and general computer vision.",
+      "matched_requirement_id": "req-composite-tf-vl-ag",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.03954v1",
+      "source": "arxiv",
+      "title": "VLESA: Vision-Language Embodied Safety Agent for Human Activity Monitoring",
+      "abstract": "As AI systems increasingly assist humans in physical tasks, ensuring safety becomes paramount -- physical actions carry immediate and irreversible consequences that digital errors do not. We introduce the Vision-Language Embodied Safety Agent (VLESA), a framework that monitors human activities from egocentric video and triggers real-time safety interventions when dangerous actions are predicted. VLESA addresses intent-dependent safety where identical actions can be safe or dangerous depending on context. A dataset pairing egocentric frames with goal-conditioned safety annotations is introduced, enabling a goal-conditioned safety Q-filter trained via GRPO that evaluates actions with respect to inferred intent without retraining. On top of that, an intent-action prediction agent is proposed to jointly infer goals and predict future actions from video. On the ASIMOV-2.0 benchmark, VLESA achieves higher intervention accuracy at the exact ground-truth frame compared to baselines, while the GRPO-trained Q-filter improves action safety by over 41 percentage points through goal-conditioned constrained decoding. Code is available at https://github.com/HanjiangHu/VLESA.",
+      "authors": [
+        "Hanjiang Hu",
+        "Yiyuan Pan",
+        "Jiaxing Li",
+        "Xusheng Luo",
+        "Alexander Robey",
+        "Na Li",
+        "Yebin Wang",
+        "Changliu Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "published": "2026-06-02T17:42:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.03954v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "VLESA is a vision-language agent that monitors egocentric video for safety, performing video reasoning without retraining.",
+      "llm_evidence_cn": "VLESA是一种视觉语言智能体，监控自我中心视频进行安全推理",
+      "llm_evidence": "VLESA是一种视觉语言智能体，监控自我中心视频进行安全推理",
+      "canonical_evidence": "VLESA是一种视觉语言智能体，监控自我中心视频进行安全推理",
+      "llm_tldr_en": "VLESA is a vision-language agent that monitors egocentric video for real-time safety interventions, using a goal-conditioned Q-filter to assess action safety based on intent without retraining.",
+      "llm_tldr_cn": "针对AI辅助物理任务中的安全监控问题，提出视觉语言具身安全智能体VLESA。该框架从自我中心视频中监测人类活动，通过目标条件安全Q-过滤器推断意图并评估动作安全性，在危险时实时触发干预。论文还构建了配对目标条件安全标注的数据集，使得VLESA无需重新训练即可在不同意图下判别同一动作的安全风险。该方法为安全干预领域的无训练解决方案做出贡献。",
+      "llm_tldr": "针对AI辅助物理任务中的安全监控问题，提出视觉语言具身安全智能体VLESA。该框架从自我中心视频中监测人类活动，通过目标条件安全Q-过滤器推断意图并评估动作安全性，在危险时实时触发干预。论文还构建了配对目标条件安全标注的数据集，使得VLESA无需重新训练即可在不同意图下判别同一动作的安全风险。该方法为安全干预领域的无训练解决方案做出贡献。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "multimodal agent for video reasoning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.03054v1",
+      "source": "arxiv",
+      "title": "ToolGate: Token-Efficient Pre-Call Control for Tool-Augmented Vision-Language Agents",
+      "abstract": "Tool-augmented vision-language agents can acquire external perceptual evidence through OCR, detection, segmentation, and other tools, but executing every proposed tool call is costly and sometimes unnecessary. We study the pre-call control problem: after a ReAct-style VLM agent proposes a perceptual tool call, should the call be executed, or skipped before its output enters the context? Across five benchmarks, we find that the baseline agent exhibits poor local selectivity: helpful and harmful calls occur at similar rates (11.8% vs. 9.9%), while most calls do not change the immediate forced-answer prediction. We introduce ToolGate, a lightweight external controller that predicts execute/skip decisions from trajectory text and simple structural features. Across two Qwen3-VL backbones, ToolGate reduces token cost to 64-69% of the unrestricted ReAct baseline while preserving average accuracy in cross-domain settings. With matched-domain trajectory training on Qwen3-VL-30B, it further improves average accuracy by 1.65 points. These results show that tool-augmented VLM agents benefit not only from better perceptual tools, but also from explicit control over when tool outputs are worth paying for.",
+      "authors": [
+        "Anjie Liu",
+        "Yan Song",
+        "Zhixun Chen",
+        "Ziqin Gong",
+        "Zhongwei Yu",
+        "Jun Wang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-02T02:44:27+00:00",
+      "link": "https://arxiv.org/pdf/2606.03054v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "token-efficient pre-call control for tool-augmented VLM agents",
+      "llm_evidence_cn": "工具增强VLM代理的令牌高效预调用控制",
+      "llm_evidence": "工具增强VLM代理的令牌高效预调用控制",
+      "canonical_evidence": "工具增强VLM代理的令牌高效预调用控制",
+      "llm_tldr_en": "Proposes ToolGate, a lightweight controller that decides whether to execute tool calls in ReAct-style VLM agents, reducing cost without hurting accuracy.",
+      "llm_tldr_cn": "工具增强的视觉语言代理在执行感知工具调用时，许多调用成本高且不必要。该论文研究预调用控制问题，提出ToolGate轻量级外部控制器，根据轨迹文本和简单结构化输入预测执行或跳过决策。在五个基准测试上，ToolGate能在不降低准确率的前提下显著减少工具调用，提升效率。该方法为构建高效的多模态代理提供了通用解决方案，特别适用于视频理解等需要多次感知调用的场景。",
+      "llm_tldr": "工具增强的视觉语言代理在执行感知工具调用时，许多调用成本高且不必要。该论文研究预调用控制问题，提出ToolGate轻量级外部控制器，根据轨迹文本和简单结构化输入预测执行或跳过决策。在五个基准测试上，ToolGate能在不降低准确率的前提下显著减少工具调用，提升效率。该方法为构建高效的多模态代理提供了通用解决方案，特别适用于视频理解等需要多次感知调用的场景。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "Efficient VLM agents for zero shot video grounding in surgery and general computer vision",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06853v1",
+      "source": "arxiv",
+      "title": "MotionEnhancer: Leveraging Video Diffusion for Motion-Enhanced Vision-Language Models",
+      "abstract": "The new era has witnessed a remarkable capability to extend Vision-Language Models (VLMs) for tackling tasks of video understanding. While current VLMs excel at event- or story-level understanding, their ability to capture fine-grained motion details remains limited, primarily due to their focus on high-level static semantic structures and macro-event logic. In contrast, Video Diffusion Models (VDMs) are adept at modeling dynamic motion patterns, benefiting from large-scale video data and the intrinsic requirement of temporal generation. In this paper, we introduce MotionEnhancer, a novel approach that leverages motion priors distilled from a powerful video diffusion model as auxiliary supervision to enhance the motion understanding capability of a VLM via attention alignment. MotionEnhancer comprises two simple parameter-free modules, Motion-sensitive Head Selection (MHS) and Motion-salient Text Token Identification (MTTI), to directly extract and optimize motion-related attentions from the VDM in a computation-only manner. MotionEnhancer provides a scalable solution for motion understanding without additional training parameters, modifications to existing architectures, or tool calling. Extensive experiments demonstrate that MotionEnhancer can achieve consistent improvements over state-of-the-art VLMs on two motion-level video understanding benchmarks, especially on motion-related metrics.",
+      "authors": [
+        "Yifan Xu",
+        "Chao Zhang",
+        "Ruifei Ma",
+        "Fei Gao",
+        "Zhifei Yang",
+        "Jiaxing Qi",
+        "Zhipeng Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-05T02:56:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.06853v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "enhances VLMs for video understanding via motion priors from video diffusion",
+      "llm_evidence_cn": "通过视频扩散的运动先验增强VLM的视频理解",
+      "llm_evidence": "通过视频扩散的运动先验增强VLM的视频理解",
+      "canonical_evidence": "通过视频扩散的运动先验增强VLM的视频理解",
+      "llm_tldr_en": "Proposes MotionEnhancer to improve VLM fine-grained motion understanding by distilling motion priors from a video diffusion model, addressing the gap in current VLMs that focus on high-level semantics, enabling better video comprehension.",
+      "llm_tldr_cn": "现有的视觉语言模型（VLM）在视频理解中通常聚焦于高层语义，难以捕获精细运动细节，限制了其在视频定位等时空推理任务中的表现。为此，本文提出MotionEnhancer，利用大规模视频扩散模型蒸馏的运动先验作为辅助监督，增强VLM对动态运动的感知能力。该方法通过知识蒸馏将扩散模型捕捉的丰富运动模式注入VLM，无需额外标注。实验表明，MotionEnhancer在多个视频理解基准上显著提升了运动相关的识别与定位性能，为训练高效、低成本的视频定位VLM代理提供了新的运动增强策略。",
+      "llm_tldr": "现有的视觉语言模型（VLM）在视频理解中通常聚焦于高层语义，难以捕获精细运动细节，限制了其在视频定位等时空推理任务中的表现。为此，本文提出MotionEnhancer，利用大规模视频扩散模型蒸馏的运动先验作为辅助监督，增强VLM对动态运动的感知能力。该方法通过知识蒸馏将扩散模型捕捉的丰富运动模式注入VLM，无需额外标注。实验表明，MotionEnhancer在多个视频理解基准上显著提升了运动相关的识别与定位性能，为训练高效、低成本的视频定位VLM代理提供了新的运动增强策略。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.04351v1",
+      "source": "arxiv",
+      "title": "Video2LoRA: Parametric Video Internalization for Vision-Language Models",
+      "abstract": "Processing video in vision-language models is expensive: each frame occupies hundreds of tokens, and inference cost scales with every frame and every repeated query. We introduce Video2LoRA, a method for parametric video internalization. A perceiver hypernetwork reads the intermediate representations produced layer-by-layer as a frozen VLM encodes a video, and generates a Low-Rank Adaptation (LoRA) adapter in a single forward pass. Unlike standard LoRA fine-tuning, which requires iterative gradient updates, Video2LoRA predicts these weights directly from the video. Trained for SmolVLM2 500M and 2.2B on video summarization and captioning, Video2LoRA enables the same frozen VLM to answer queries from the adapter alone, with zero visual tokens in its context at query time. Video2LoRA is statistically non-inferior and equivalent to direct video-in-context inference across all five captioning benchmarks at both model scales, and across seven of eight video question answering benchmark-scale pairings. Although trained only on 12 frames at 384px, it remains stable up to 1,024 frames and 1024px, where direct video-in-context inference often degenerates. Across this sweep, it reduces answer-time visual-token load by up to 1,500x and query TTFT by 6-80x, while preserving video-faithful outputs. We also find that independently generated adapters for non-overlapping video segments can compose in rank space, suggesting a path toward chunked long-video internalization.",
+      "authors": [
+        "Manan Suri",
+        "Sarvesh Baskar",
+        "Dinesh Manocha"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CL"
+      ],
+      "published": "2026-06-03T02:07:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.04351v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Video2LoRA internalizes video into LoRA to answer queries with zero visual tokens, enabling efficient video understanding with VLMs.",
+      "llm_evidence_cn": "Video2LoRA通过LoRA内化视频，实现零视觉令牌查询，高效视频理解",
+      "llm_evidence": "Video2LoRA通过LoRA内化视频，实现零视觉令牌查询，高效视频理解",
+      "canonical_evidence": "Video2LoRA通过LoRA内化视频，实现零视觉令牌查询，高效视频理解",
+      "llm_tldr_en": "Video2LoRA converts a video into a LoRA adapter via a hypernetwork, enabling a frozen VLM to answer queries without visual tokens, significantly reducing inference cost.",
+      "llm_tldr_cn": "针对视觉语言模型处理视频时视觉令牌成本高的问题，提出Video2LoRA方法。它使用感知超网络读取冻结VLM逐层编码视频时产生的中间表示，单次前向生成LoRA适配器。该适配器使得VLM在无视觉令牌输入的情况下直接回答关于视频的查询，从而大幅降低多次查询的推理开销。在视频摘要与字幕任务上验证了其有效性，为高效视频理解提供了一种新颖的参数化内化途径。",
+      "llm_tldr": "针对视觉语言模型处理视频时视觉令牌成本高的问题，提出Video2LoRA方法。它使用感知超网络读取冻结VLM逐层编码视频时产生的中间表示，单次前向生成LoRA适配器。该适配器使得VLM在无视觉令牌输入的情况下直接回答关于视频的查询，从而大幅降低多次查询的推理开销。在视频摘要与字幕任务上验证了其有效性，为高效视频理解提供了一种新颖的参数化内化途径。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.03075v1",
+      "source": "arxiv",
+      "title": "TGV-KV: Text-Grounded KV Eviction for Vision-Language Models",
+      "abstract": "Vision-Language Models (VLMs) inherit the auto-regressive generation paradigm and cache the keys and values (KV) of all previous tokens to accelerate inference, resulting in memory consumption that scales linearly with context length. This issue is particularly pronounced in VLMs due to substantial redundancy in the visual modality. Although KV cache eviction approaches can effectively reduce inference memory, they often incur significant performance degradation in VLMs, as most are designed for language models and overlook the inherent gap between text and vision. By systematically analyzing the modality gap in VLMs in this work, we argue that the importance of visual information should be grounded in textual guidance and accordingly propose a Text-Grounded KV Eviction method for VLMs (TGV-KV). TGV-KV comprises three submodules: (1) Text-Vision Budgeting (TVB) assigns budget to each layer based on the mutual information interaction. (2) Text-Weighted Ranking (TWR) assesses the priority of text and ranks vision importance based on weighted text-image attention. (3) Text-Prioritised Retention (TPR) policy strategically preserves text KV to avoid acute information loss. We evaluate TGV-KV across five models with different sizes and architectures, showing that TGV-KV preserves 99.2% full-KV accuracy on the VizWiz-VQA task with LLaVA-NeXT and boosts end-to-end throughput by 52.6% with an extreme retention budget of 5%. Code is available at https://github.com/Danielement321/TGV-KV.",
+      "authors": [
+        "Jizhihui Liu",
+        "Ruizi Han",
+        "Miao Zhang",
+        "Rui Shao",
+        "Xuebo Liu",
+        "Weili Guan",
+        "Yaowei Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-02T03:06:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.03075v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "text-grounded KV eviction for efficient VLM inference",
+      "llm_evidence_cn": "基于文本的KV缓存淘汰实现高效VLM推理",
+      "llm_evidence": "基于文本的KV缓存淘汰实现高效VLM推理",
+      "canonical_evidence": "基于文本的KV缓存淘汰实现高效VLM推理",
+      "llm_tldr_en": "Proposes TGV-KV, a KV cache eviction method that uses textual guidance to preserve important visual tokens, reducing memory for VLM inference.",
+      "llm_tldr_cn": "视觉语言模型在推理时缓存所有先前令牌的键值对，导致内存随上下文长度线性增长。该论文分析VLM中的模态差距，提出基于文本引导的KV缓存淘汰方法TGV-KV，根据文本重要性来保留关键视觉信息。实验表明，该方法在显著减少推理内存的同时，性能下降较小。这为长视频理解等应用提供了高效的VLM推理方案，特别适合资源受限场景。",
+      "llm_tldr": "视觉语言模型在推理时缓存所有先前令牌的键值对，导致内存随上下文长度线性增长。该论文分析VLM中的模态差距，提出基于文本引导的KV缓存淘汰方法TGV-KV，根据文本重要性来保留关键视觉信息。实验表明，该方法在显著减少推理内存的同时，性能下降较小。这为长视频理解等应用提供了高效的VLM推理方案，特别适合资源受限场景。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.05758v1",
+      "source": "arxiv",
+      "title": "DRIFT: A Residual Flow Adapter for Decoding Continuous Outputs in Vision-Language Models",
+      "abstract": "Many modern vision-language models (VLMs) build on autoregressive decoding of discrete tokens. While text-based output interfaces enable scalable pretraining and strong zero-shot generalization across diverse tasks, they are poorly suited for problems that require precise continuous outputs, such as localizing temporal boundaries of events or generating robotic control actions. To address this challenge, we propose DRIFT, a general framework for adapting pretrained VLMs to continuous decoding tasks. DRIFT combines a base predictor, which provides a coarse estimate of the target output, with a generative refinement module based on flow matching that iteratively improves the prediction. This residual formulation transforms the generative modeling problem from learning a global output distribution to modeling a localized residual distribution around a strong prior, substantially simplifying optimization. We evaluate DRIFT on both perception and planning tasks, including visual grounding and robotic control. Across multiple tasks and architectures spanning MLLMs, VLAs, and WAMs, DRIFT consistently outperforms a strong set of regression- and generative-based solutions.",
+      "authors": [
+        "Zhuoming Liu",
+        "Jinhong Lin",
+        "Kwan Man Cheng",
+        "Lin Zhang",
+        "Shayok Bagchi",
+        "Yin Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-04T06:37:10+00:00",
+      "link": "https://arxiv.org/pdf/2606.05758v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "proposes adapter for VLMs to decode continuous outputs like temporal boundaries for video events",
+      "llm_evidence_cn": "提出用于VLM的适配器，解码连续输出如视频事件的时间边界",
+      "llm_evidence": "提出用于VLM的适配器，解码连续输出如视频事件的时间边界",
+      "canonical_evidence": "提出用于VLM的适配器，解码连续输出如视频事件的时间边界",
+      "llm_tldr_en": "DRIFT adapts pretrained VLMs to continuous decoding via a residual flow matching module, enabling precise temporal localization of events without sacrificing text-based capabilities.",
+      "llm_tldr_cn": "针对视觉语言模型难以输出精确定位连续值的问题，提出DRIFT框架，通过残差流匹配适配微调模型，实现视频事件时间边界的准确定位，扩展了VLM在视频理解中的连续输出能力。",
+      "llm_tldr": "针对视觉语言模型难以输出精确定位连续值的问题，提出DRIFT框架，通过残差流匹配适配微调模型，实现视频事件时间边界的准确定位，扩展了VLM在视频理解中的连续输出能力。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.03837v1",
+      "source": "arxiv",
+      "title": "Where Do We (Not) Need Temporal Context in Low-Resource Video Task Adaptation?",
+      "abstract": "Parameter-efficient fine-tuning (PEFT) and probing enable adaptation of foundation models using only a small number of trainable parameters, making it attractive for video understanding where annotation and computation are expensive. However, video PEFT has focused on adapting image-pretrained models, while standard PEFT methods can also be applied to video representations. These settings are rarely compared and both confine temporal reasoning to a single component of the model, leaving open how temporal context should be distributed across backbone, PEFT and probe. In this work we provide a systematic study of model adaptation strategies for video understanding. We evaluate methods across appearance-focused, motion-focused and spatially dense settings, with a particular focus on scenarios with limited data where parameter-efficiency is most beneficial. Our results provide new insights into PEFT and probing across settings and demonstrate the importance of temporal context allocation for effective video adaptation",
+      "authors": [
+        "Luc P. J. Sträter",
+        "Hazel Doughty"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-02T16:19:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.03837v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "systematic study of parameter-efficient fine-tuning for video understanding to reduce computation",
+      "llm_evidence_cn": "系统研究视频理解中的参数高效微调以降低计算成本",
+      "llm_evidence": "系统研究视频理解中的参数高效微调以降低计算成本",
+      "canonical_evidence": "系统研究视频理解中的参数高效微调以降低计算成本",
+      "llm_tldr_en": "This paper systematically studies where to distribute temporal context across backbone, PEFT, and probe for efficient video adaptation, comparing image-pretrained and video-pretrained models.",
+      "llm_tldr_cn": "针对视频理解中标注与计算成本高的问题，系统研究了参数高效微调（PEFT）与探测方式下时序上下文的分布。作者比较了基于图像预训练和视频预训练模型的多种适配策略，评估它们在外观聚焦、运动聚焦等任务上的表现。实验揭示了时序推理不应局限于单一组件，而是需要根据任务特征在主干、适配器和探测头间灵活分配。该研究为低资源视频任务适配提供了实践指导。",
+      "llm_tldr": "针对视频理解中标注与计算成本高的问题，系统研究了参数高效微调（PEFT）与探测方式下时序上下文的分布。作者比较了基于图像预训练和视频预训练模型的多种适配策略，评估它们在外观聚焦、运动聚焦等任务上的表现。实验揭示了时序推理不应局限于单一组件，而是需要根据任务特征在主干、适配器和探测头间灵活分配。该研究为低资源视频任务适配提供了实践指导。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06532v1",
+      "source": "arxiv",
+      "title": "GOPAgen: Motion-Aware and Efficient Agentic Long-Video Understanding with Structural Memory and Hierarchical Reasoning",
+      "abstract": "Despite significant progress in agentic long video understanding, existing methods still lack detailed motion comprehension coupled with an efficient memory architecture. In this paper, we propose GOPAgen, a novel approach that first integrates video codec into the video understanding framework via a meticulously designed motion agent trained on Groups of Pictures (GOPs) from video codec. We further develop a GOP tree reasoning algorithm, which is naturally aligned with video codec and enhances the model's ability to understand local detailed motions in videos. Additionally, we carefully design a structural memory mechanism that integrates local motion information with detailed captions in structural pages, and propose an efficient coarse-to-fine zoom-in algorithm to fully exploit the structural memory. Furthermore, we incorporate a motion vector database into the framework to enable efficient retrieval of motion vectors at different granularities. Overall, our method achieves superior Video Question Answering (VQA) performance on various video understanding benchmarks, including MotionBench and Egoschema, thereby demonstrating the superiority of our proposed framework.",
+      "authors": [
+        "Haozhe Chi",
+        "Yang Jin",
+        "Yadong Mu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-03T17:47:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.06532v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "agentic long-video understanding with motion agent and efficient structural memory",
+      "llm_evidence_cn": "基于运动代理和高效结构记忆的代理式长视频理解",
+      "llm_evidence": "基于运动代理和高效结构记忆的代理式长视频理解",
+      "canonical_evidence": "基于运动代理和高效结构记忆的代理式长视频理解",
+      "llm_tldr_en": "Proposes GOPAgen, an agentic framework that leverages video codec structure and motion agents for efficient long-video understanding, achieving detailed motion comprehension with structural memory and hierarchical reasoning.",
+      "llm_tldr_cn": "针对现有代理式长视频理解缺乏精细运动感知与高效记忆架构的问题，本文提出GOPAgen，创新性地将视频编解码器中的图像组（GOP）作为核心概念，训练运动代理并设计GOP树推理算法以增强局部运动理解，同时构建结构记忆机制融合运动信息与详细描述，实现高效的长视频运动理解。实验表明该方法在保持效率的同时显著提升细节捕捉能力，为视频定位等下游任务提供了新颖的代理式技术路径。",
+      "llm_tldr": "针对现有代理式长视频理解缺乏精细运动感知与高效记忆架构的问题，本文提出GOPAgen，创新性地将视频编解码器中的图像组（GOP）作为核心概念，训练运动代理并设计GOP树推理算法以增强局部运动理解，同时构建结构记忆机制融合运动信息与详细描述，实现高效的长视频运动理解。实验表明该方法在保持效率的同时显著提升细节捕捉能力，为视频定位等下游任务提供了新颖的代理式技术路径。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "multimodal agent for video reasoning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.04433v1",
+      "source": "arxiv",
+      "title": "Stateful Visual Encoders for Vision-Language Models",
+      "abstract": "Vision-language models (VLMs) are increasingly used in multi-image, multi-turn agentic settings where decisions depend on visual changes. However, in existing open-weight VLMs, visual comparisons happen only inside the language model, while the visual encoder itself remains stateless: each image is encoded independently, without access to the prior visual context. As a result, small but task-critical changes may be attenuated before the language model has a chance to compare them, especially when those changes do not affect the high-level semantics of the scene. We introduce a Stateful Visual Encoder, which conditions each visual representation on prior visual features. Under supervised finetuning, VLMs equipped with stateful encoders achieve consistent improvements on controlled tasks involving cross-image spatial aggregation, multi-object visual differencing, and visual trajectory behavior cloning. These improvements are consistent across input resolutions, language model sizes, and VLM backbones. Finally, we validate our model on real-world tasks, including longitudinal radiology, fine-grained image comparison, and remote sensing, where stateful encoders consistently improve generalist VLM baselines and can match or surpass specialized models in selected domains. Project page: https://statefulvisualencoders.github.io/",
+      "authors": [
+        "Zirui Wang",
+        "Junwei Yu",
+        "Adam Yala",
+        "David M. Chan",
+        "Joseph E. Gonzalez",
+        "Trevor Darrell"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-06-03T04:31:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.04433v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "stateful visual encoder for VLMs in multi-image agentic settings",
+      "llm_evidence_cn": "面向多图像智能体设置的状态化视觉编码器用于VLM",
+      "llm_evidence": "面向多图像智能体设置的状态化视觉编码器用于VLM",
+      "canonical_evidence": "面向多图像智能体设置的状态化视觉编码器用于VLM",
+      "llm_tldr_en": "Introduces a stateful visual encoder that conditions on prior visual features, improving VLM performance on multi-image, multi-turn agentic tasks.",
+      "llm_tldr_cn": "现有开源视觉语言模型在多图像多轮智能体场景中，视觉编码器独立处理每张图像，缺乏对先前视觉上下文的感知，导致微小变化被忽略。该论文提出状态化视觉编码器，使每个视觉表示有条件地依赖先前的视觉特征。在监督微调下，配备状态化编码器的VLM在需要视觉比较的任务上取得一致提升。该方法为视频理解等序列视觉任务提供了更好的时序建模能力，有望应用于多模态智能体。",
+      "llm_tldr": "现有开源视觉语言模型在多图像多轮智能体场景中，视觉编码器独立处理每张图像，缺乏对先前视觉上下文的感知，导致微小变化被忽略。该论文提出状态化视觉编码器，使每个视觉表示有条件地依赖先前的视觉特征。在监督微调下，配备状态化编码器的VLM在需要视觉比较的任务上取得一致提升。该方法为视频理解等序列视觉任务提供了更好的时序建模能力，有望应用于多模态智能体。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "multimodal agent for video reasoning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.07512v1",
+      "source": "arxiv",
+      "title": "MemDreamer: Decoupling Perception and Reasoning for Long Video Understanding via Hierarchical Graph Memory and Agentic Retrieval Mechanism",
+      "abstract": "Current Vision-Language Models struggle with hours-long videos because processing full-length visual sequences induces prohibitive token explosion and attention dilution. To overcome this, we introduce MemDreamer to decouple perception and reasoning, shifting long-video understanding into an agentic exploration process. As a plug-and-play framework, it incrementally streams videos to construct a Hierarchical Graph Memory, a top-down three-tier architecture for semantic abstraction, anchored by a foundational graph capturing spatiotemporal and causal relations. During inference, the reasoning model employs agentic tool-augmented retrieval, navigating hierarchies, searching nodes, and traversing logical edges via an Observation-Reason-Action loop. Experiments show MemDreamer achieves SOTA results across four mainstream benchmarks, narrowing the gap with human experts to only 3.7 points. It constrains the reasoning context window to merely 2% of full-context ingestion while delivering a 12.5 point absolute accuracy gain. Furthermore, statistical analysis uncovers a strong positive linear correlation between an VLM's performance on logic reasoning and long-video understanding benchmarks, establishing agentic capability scaling as a new paradigm for multimodal comprehension.",
+      "authors": [
+        "Cong Chen",
+        "Guo Gan",
+        "Kaixiang Ji",
+        "ChaoYang Zhang",
+        "Zhen Yang",
+        "Guangming Yao",
+        "Hao Chen",
+        "Jingdong Chen",
+        "Yi Yuan",
+        "Chunhua Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-06-05T17:59:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.07512v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "agentic retrieval mechanism for video reasoning",
+      "llm_evidence_cn": "用于视频推理的代理检索机制",
+      "llm_evidence": "用于视频推理的代理检索机制",
+      "canonical_evidence": "用于视频推理的代理检索机制",
+      "llm_tldr_en": "MemDreamer tackles long video understanding by decoupling perception and reasoning, constructing a hierarchical graph memory, and employing agentic tool-augmented retrieval for efficient exploration.",
+      "llm_tldr_cn": "针对视觉语言模型处理长视频时序列膨胀和注意力稀释问题，MemDreamer解耦感知与推理，将长视频理解转化为代理探索过程。它增量流式构建三层层次图记忆，基于基础图捕获时空因果关系，推理时进行代理式工具增强检索。该方法实现长视频高效语义抽象，为Agent驱动的视频理解提供了新途径。",
+      "llm_tldr": "针对视觉语言模型处理长视频时序列膨胀和注意力稀释问题，MemDreamer解耦感知与推理，将长视频理解转化为代理探索过程。它增量流式构建三层层次图记忆，基于基础图捕获时空因果关系，推理时进行代理式工具增强检索。该方法实现长视频高效语义抽象，为Agent驱动的视频理解提供了新途径。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "multimodal agent for video reasoning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.09641v1",
+      "source": "arxiv",
+      "title": "MAVIS: Multi-Agent Video Retrieval via Structured Video Understanding",
+      "abstract": "The dominant paradigm in video retrieval relies on embedding-based full-corpus scanning, which suffers from inherent computational inefficiency and the semantic asymmetry between information-dense videos and sparse textual queries. To bridge this gap, we introduce \\textbf{MAVIS}, a novel multi-agent framework that rethinks retrieval as cooperative reasoning rather than brute-force search. MAVIS first bridges the granularity mismatch by parsing raw videos into a \\textbf{Structured Semantic Library}, enabling explicit attribute-level indexing. During retrieval, a planner decomposes complex user intents into atomic sub-tasks, dispatching specialized agents to independently nominate candidates. Crucially, MAVIS employs a \\textbf{Logic-aware Debate} mechanism with a strict veto protocol, where agents collaboratively prune logical mismatches to identify a compact set of ``controversial'' candidates for fine-grained verification. This agentic workflow effectively bypasses the inefficiency of full-library traversal. Extensive experiments on MSR-VTT, MSVD, and ActivityNet demonstrate that MAVIS achieves competitive performance without task-specific fine-tuning, offering a scalable and interpretable alternative to traditional dual-encoder approaches.",
+      "authors": [
+        "Jie Zhang",
+        "Qilang Ye",
+        "Hao Zhou",
+        "Haochen Liang",
+        "Fei Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-08T15:36:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.09641v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "multi-agent video retrieval with structured understanding and logic-aware debate",
+      "llm_evidence_cn": "通过结构化理解和逻辑感知辩论的多代理视频检索",
+      "llm_evidence": "通过结构化理解和逻辑感知辩论的多代理视频检索",
+      "canonical_evidence": "通过结构化理解和逻辑感知辩论的多代理视频检索",
+      "llm_tldr_en": "MAVIS uses a multi-agent framework with a structured semantic library and logic-aware debate to improve video retrieval efficiency and accuracy.",
+      "llm_tldr_cn": "传统视频检索依赖嵌入匹配，存在计算效率低和语义不对称问题。MAVIS提出多代理框架，将视频解析为结构化语义库，实现属性级索引。检索时，规划器将复杂意图分解为子任务，派遣专门代理独立提名候选，并通过逻辑感知辩论机制进行协调。实验表明，MAVIS在检索精度和效率上优于现有方法。该框架为复杂视频理解任务提供了可解释且高效的代理协作范式，有望扩展至视频定位等领域。",
+      "llm_tldr": "传统视频检索依赖嵌入匹配，存在计算效率低和语义不对称问题。MAVIS提出多代理框架，将视频解析为结构化语义库，实现属性级索引。检索时，规划器将复杂意图分解为子任务，派遣专门代理独立提名候选，并通过逻辑感知辩论机制进行协调。实验表明，MAVIS在检索精度和效率上优于现有方法。该框架为复杂视频理解任务提供了可解释且高效的代理协作范式，有望扩展至视频定位等领域。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "multimodal agent for video reasoning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    }
+  ]
+}
