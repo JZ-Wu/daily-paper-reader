@@ -25,3 +25,62 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: TF-VL-AG
+      description: 大模型多模态视频理解代理的训练无关/低成本视频定位，通用与手术视频领域
+      enabled: true
+      paper_sources:
+        - arxiv
+      keywords:
+        - keyword: video grounding
+          keyword_cn: 视频定位
+          query: video grounding task
+        - keyword: vision language model
+          keyword_cn: 视觉语言模型
+          query: vision language model for video understanding
+        - keyword: low-cost video understanding
+          keyword_cn: 低成本视频理解
+          query: low-cost and efficient video understanding
+        - keyword: agent-based video grounding
+          keyword_cn: 基于代理的视频定位
+          query: agent-based method for video grounding
+        - keyword: surgical video understanding
+          keyword_cn: 手术视频理解
+          query: surgical video analysis and understanding
+        - keyword: multimodal video agent
+          keyword_cn: 多模态视频代理
+          query: multimodal agent for video reasoning
+      intent_queries:
+        - query: >-
+            Training free or low cost video grounding using large vision language model agents for general and surgical
+            domains
+          query_cn: 使用大视觉语言模型代理进行训练无关或低成本视频定位，涵盖通用和手术领域
+          enabled: true
+          source: manual
+          note: ''
+        - query: Multimodal agent based video understanding without training for video grounding
+          query_cn: 基于多模态代理的无训练视频定位视频理解
+          enabled: true
+          source: manual
+          note: ''
+        - query: Efficient VLM agents for zero shot video grounding in surgery and general computer vision
+          query_cn: 手术和通用计算机视觉中用于零样本视频定位的高效VLM代理
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-06-11T07:02:32.291Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
