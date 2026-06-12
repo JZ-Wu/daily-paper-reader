@@ -1,0 +1,280 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-12T21:46:34.917361+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.12047v1",
+      "source": "arxiv",
+      "title": "Metadata-Aware Multi-Prompt Reasoning for Zero-Shot Accident Understanding",
+      "abstract": "In this paper, we address the problem of zero-shot understanding of accidents from surveillance videos by identifying when an impact event occurs, what type of impact it is, and where in the frame it occurs using natural language. We propose a three-stage pipeline that decomposes the accident understanding into when, what, and where. The first stage extracts a short temporal window around the impact using vision-language similarity. In the second stage, we perform metadata-driven multi-prompt reasoning with five complementary views (baseline, motion, geometry, contrast, and tiebreaker) and resolve disagreement via an entropy-gated pairwise adjudicator. Finally, we localize the impact of an open-vocabulary detector queried on the predicted accident type and scene layout, and aggregate detections across keyframes using a score-weighted centroid. Our pipeline achieves a substantial improvement in the harmonic-mean score over a centre-of-frame baseline on the zero-shot ACCIDENT @ CVPR benchmark. We show that decomposing zero-shot video understanding into temporal localization, semantic classification, and spatial grounding enable more reliable reasoning with vision-language models than direct prompting alone.",
+      "authors": [
+        "Tarandeep Singh",
+        "Soumyanetra Pal",
+        "Soham Biswas",
+        "Nishanth Chandran"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "stat.ML"
+      ],
+      "published": "2026-06-10T13:12:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.12047v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Zero-shot accident understanding from surveillance videos, localizing when, what, and where an impact occurs using VL similarity and multi-prompt reasoning, directly relevant to efficient zero-shot video grounding.",
+      "llm_evidence_cn": "从监控视频中零样本事故理解，利用视觉语言相似性和多提示推理定位撞击事件的时间、类型和位置，与高效零样本视频定位直接相关。",
+      "llm_evidence": "从监控视频中零样本事故理解，利用视觉语言相似性和多提示推理定位撞击事件的时间、类型和位置，与高效零样本视频定位直接相关。",
+      "canonical_evidence": "从监控视频中零样本事故理解，利用视觉语言相似性和多提示推理定位撞击事件的时间、类型和位置，与高效零样本视频定位直接相关。",
+      "llm_tldr_en": "This paper proposes a three-stage pipeline using vision-language similarity and metadata-driven multi-prompt reasoning for zero-shot accident understanding, achieving temporal and spatial grounding without training.",
+      "llm_tldr_cn": "事故理解需要从监控视频中识别撞击事件的时间、类型和位置，无需额外训练。本文提出三阶段流水线：首先通过视觉-语言相似性提取撞击时间窗口，然后采用元数据驱动的多提示推理（含基线、运动、几何、对比和决胜五个视图）并经熵门控成对裁决确定事故类型，最后使用开放词汇检测器根据预测的事故标签定位空间位置。该方法实现了零样本条件下的精确事件定位，为通用视频定位任务提供了高效参考。",
+      "llm_tldr": "事故理解需要从监控视频中识别撞击事件的时间、类型和位置，无需额外训练。本文提出三阶段流水线：首先通过视觉-语言相似性提取撞击时间窗口，然后采用元数据驱动的多提示推理（含基线、运动、几何、对比和决胜五个视图）并经熵门控成对裁决确定事故类型，最后使用开放词汇检测器根据预测的事故标签定位空间位置。该方法实现了零样本条件下的精确事件定位，为通用视频定位任务提供了高效参考。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "Efficient VLM agents for zero shot video grounding in surgery and general computer vision",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.07433v1",
+      "source": "arxiv",
+      "title": "Watch, Remember, Reason: Human-View Video Understanding with MLLMs",
+      "abstract": "Video understanding is being rapidly transformed by multimodal large language models (MLLMs), as research moves from short clips to long, multimodal, and knowledge-intensive video scenarios. These scenarios require models to handle sparse evidence, long-range dependencies, multimodal alignment, and reliable inference under limited computational budgets. This work presents a human-view perspective on LLM-based video understanding, organized around three functional abilities: watching, remembering, and reasoning. Rather than treating video tasks as isolated benchmarks, this view provides a unified structure for analyzing how video MLLMs acquire evidence, preserve context, and produce grounded outputs. We introduce a formulation that characterizes video understanding systems by their perceptual representations, memory states, reasoning traces, and final predictions. Based on this formulation, we identify challenges in spatio-temporal perception, efficient long-video processing, memory modeling, streaming understanding, and faithful reasoning. Representative methods are organized by their roles in video MLLM systems. Watching covers fine-grained, comprehensive, audio-visual, and efficient perception. Remembering includes offline and streaming memory, while reasoning covers text-only reasoning and thinking with videos. We further examine application domains such as egocentric, sports, instructional, medical, and narrative videos, and cover training datasets and evaluation benchmarks across task types, supervision formats, modalities, and capability dimensions. Finally, we outline open problems and future directions for scalable, memory-aware, and evidence-grounded video intelligence. Related works will be continuously traced at https://github.com/marinero4972/Awesome-HumanView-VideoUnderstanding.",
+      "authors": [
+        "Jiahao Meng",
+        "Yue Tan",
+        "Qi Xu",
+        "Kuan Gao",
+        "Weisong Liu",
+        "Yanwei Li",
+        "Jason Li",
+        "Lingdong Kong",
+        "Haochen Wang",
+        "Qianyu Zhou",
+        "Jiangning Zhang",
+        "Guangliang Cheng",
+        "Yunhai Tong",
+        "Lu Qi",
+        "Minghsuan Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-06-05T16:29:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.07433v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes a unified human-view framework for video understanding with multimodal LLMs, structuring abilities into watching, remembering, and reasoning.",
+      "llm_evidence_cn": "提出面向多模态大语言模型的统一视频理解框架，将能力组织为观看、记忆与推理。",
+      "llm_evidence": "提出面向多模态大语言模型的统一视频理解框架，将能力组织为观看、记忆与推理。",
+      "canonical_evidence": "提出面向多模态大语言模型的统一视频理解框架，将能力组织为观看、记忆与推理。",
+      "llm_tldr_en": "This paper presents a human-view perspective on LLM-based video understanding, organizing tasks around three cognitive abilities: watching, remembering, and reasoning. It provides a unified structure for analyzing how video MLLMs acquire evidence, preserve context, and produce grounded outputs.",
+      "llm_tldr_cn": "现有视频多模态大语言模型（MLLM）通常将视频任务视为孤立基准，缺乏统一的分析框架。本文从人类认知视角出发，将基于LLM的视频理解组织为观看、记忆和推理三种功能能力，提出了一个统一的结构来分析视频MLLM如何获取证据、保持上下文并产生有根据的输出。该视角有助于推动长视频、多模态和知识密集型视频场景的研究，为视频理解系统提供了更可解释的评估维度。",
+      "llm_tldr": "现有视频多模态大语言模型（MLLM）通常将视频任务视为孤立基准，缺乏统一的分析框架。本文从人类认知视角出发，将基于LLM的视频理解组织为观看、记忆和推理三种功能能力，提出了一个统一的结构来分析视频MLLM如何获取证据、保持上下文并产生有根据的输出。该视角有助于推动长视频、多模态和知识密集型视频场景的研究，为视频理解系统提供了更可解释的评估维度。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.05677v1",
+      "source": "arxiv",
+      "title": "LongSpace: Exploring Long-Horizon Spatial Memory from Perception to Recall in Video",
+      "abstract": "Multimodal Large Language Models (MLLMs) have advanced image and video understanding and can increasingly handle longer visual inputs. Long-horizon tasks such as autonomous driving and robotic navigation require more than recognizing the current view, as models must remember and retrieve previously observed spatial layouts, routes, viewpoint changes, and object states. To evaluate this capability, we introduce LongSpace-Bench, a room-tour video benchmark for long-horizon spatial memory, covering scene perception, spatial relations, and spatial memory. In this work, we further propose LongSpace, a memory framework for long-video spatial reasoning. LongSpace models long videos as sequential chunks, incorporates 3D structural cues into early decoder layers, and constructs layer-aware memory for question-guided retrieval. Experiments on multiple spatial reasoning benchmarks show that LongSpace improves long-video spatial understanding, further demonstrating explicit spatial memory as a key capability for long-horizon video MLLMs.",
+      "authors": [
+        "Shiqiang Lang",
+        "Jing Liu",
+        "Haoyang He",
+        "Peiwen Sun",
+        "Yuanteng Chen",
+        "Tao Liu",
+        "Lan Yang",
+        "Longteng Guo",
+        "Honggang Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-06-04T04:00:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.05677v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Proposes a memory framework for long-video spatial reasoning using Multimodal Large Language Models (MLLMs)",
+      "llm_evidence_cn": "提出使用多模态大语言模型进行长视频空间推理的记忆框架",
+      "llm_evidence": "提出使用多模态大语言模型进行长视频空间推理的记忆框架",
+      "canonical_evidence": "提出使用多模态大语言模型进行长视频空间推理的记忆框架",
+      "llm_tldr_en": "LongSpace introduces a memory framework using MLLMs for long-horizon spatial reasoning in videos, addressing token explosion and attention dilution in hour-long videos.",
+      "llm_tldr_cn": "当前多模态大语言模型处理超长视频时面临token爆炸和注意力稀释问题，为此本文提出LongSpace框架，通过将长视频分块建模并结合3D结构线索构建记忆机制，实现长时域空间推理。在LongSpace-Bench基准上验证了其有效性，为长视频理解提供了新的记忆增强方法。",
+      "llm_tldr": "当前多模态大语言模型处理超长视频时面临token爆炸和注意力稀释问题，为此本文提出LongSpace框架，通过将长视频分块建模并结合3D结构线索构建记忆机制，实现长时域空间推理。在LongSpace-Bench基准上验证了其有效性，为长视频理解提供了新的记忆增强方法。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.08615v1",
+      "source": "arxiv",
+      "title": "Harnessing Streaming Video in the Wild",
+      "abstract": "Vision-Language Models (VLMs) are increasingly required to process unbounded video streams in applications such as video-call assistants, live commentary, and embodied robots. An ideal streaming system should support proactive interaction, long-horizon memory, and real-time processing, while resting on a VLM backbone capable of handling diverse in-the-wild streaming tasks. However, existing VLMs excel at offline video understanding but fall short in streaming capabilities and lack dedicated infrastructure for streaming deployment. We address this gap on three fronts. (i) For backbone capability, we construct \\textbf{Streaming-Train-248K}, a streaming dataset paired with a novel training objective for adapting VLMs to streaming interaction and understanding. (ii) For real-world deployment, we introduce \\textbf{Streaming Harness}, a plug-and-play system that endows any VLM with three core abilities: proactive interaction (per-second response decisions), long-term memory (12-hour context retention), and real-time processing (sub-second latency). (iii) To drive continued community progress on streaming capabilities, we design \\textbf{Streaming-Eval}, a benchmark that reflects models' capabilities across diverse in-the-wild scenarios. Extensive experiments demonstrate consistent gains from our approach across all core capabilities required for streaming video understanding. We will open-source our data, code, and benchmark to advance the community's shift from offline video understanding to deployable streaming intelligence.",
+      "authors": [
+        "Dingyu Yao",
+        "Shuhuan Gu",
+        "Qingyi Si",
+        "Junhao Zhou",
+        "Chenxu Yang",
+        "Chuanyu Qin",
+        "Naibin Gu",
+        "Zheng Lin",
+        "Weiping Wang",
+        "Nan Duan",
+        "Jiaqi Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CL"
+      ],
+      "published": "2026-06-07T13:00:19+00:00",
+      "link": "https://arxiv.org/pdf/2606.08615v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "adapts VLMs for streaming video understanding with training objectives and infrastructure for real-world deployment",
+      "llm_evidence_cn": "通过训练目标和基础设施适配视觉语言模型进行流式视频理解",
+      "llm_evidence": "通过训练目标和基础设施适配视觉语言模型进行流式视频理解",
+      "canonical_evidence": "通过训练目标和基础设施适配视觉语言模型进行流式视频理解",
+      "llm_tldr_en": "The paper addresses streaming video understanding by constructing a streaming dataset, proposing a training objective to adapt VLMs for proactive interaction and long-horizon memory, and providing real-time deployment infrastructure.",
+      "llm_tldr_cn": "现有视觉语言模型擅长离线视频理解，但缺乏流式处理能力。本文构建大规模流式训练数据集，设计新颖的训练目标以适配VLM进行实时交互和长期记忆，并开源部署基础设施。在多个流式视频任务上，改进后的VLM表现出实用级的实时理解性能，为真实世界流式应用提供了完整解决方案。",
+      "llm_tldr": "现有视觉语言模型擅长离线视频理解，但缺乏流式处理能力。本文构建大规模流式训练数据集，设计新颖的训练目标以适配VLM进行实时交互和长期记忆，并开源部署基础设施。在多个流式视频任务上，改进后的VLM表现出实用级的实时理解性能，为真实世界流式应用提供了完整解决方案。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.11792v1",
+      "source": "arxiv",
+      "title": "MultiToP: Learning to Patch Visual Tokens to Mitigate Hallucinations in Video Large Multimodal Models",
+      "abstract": "Video Large Multimodal Models have achieved remarkable progress in video understanding, yet they remain prone to hallucinations, where generated responses are not faithfully supported by the input video. In this paper, we propose MultiToP, a multimodal-context-aware visual token patching framework that mitigates hallucinations by refining unreliable visual tokens before language generation. MultiToP introduces a lightweight Visual Token Patcher to predict token-level replacement distributions and selectively substitute unreliable visual tokens with a dynamic global patch token. To train the patcher effectively, we further propose information-guided rank calibration, which uses answer-conditioned frame-level information cues derived from the backbone to guide token replacement. Combined with ground-truth answer supervision and sparsity regularization, MultiToP enables localized visual evidence refinement without modifying the original model. Extensive experiments demonstrate that MultiToP effectively reduces hallucinations on Vript-HAL with negligible inference overhead, improving the F1 scores of Qwen3-VL-4B-Instruct by 50.60% over the vanilla model. Meanwhile, MultiToP preserves general video understanding ability, yielding an 18.58% relative accuracy gain on ActivityNet-QA for Video-LLaVA-7B.",
+      "authors": [
+        "Yuansheng Gao",
+        "Wenbin Xing",
+        "Jiahao Yuan",
+        "Kaiwen Zhou",
+        "Han Bao",
+        "Zonghui Wang",
+        "Wenzhi Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-06-10T08:25:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.11792v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Mitigates hallucinations in video VLMs, improving video understanding reliability",
+      "llm_evidence_cn": "通过修补视觉令牌缓解视频VLMs的幻觉，提升视频理解可靠性",
+      "llm_evidence": "通过修补视觉令牌缓解视频VLMs的幻觉，提升视频理解可靠性",
+      "canonical_evidence": "通过修补视觉令牌缓解视频VLMs的幻觉，提升视频理解可靠性",
+      "llm_tldr_en": "MultiToP introduces a lightweight visual token patching framework that reduces hallucinations in video large multimodal models by refining unreliable tokens, enhancing factual grounding.",
+      "llm_tldr_cn": "MultiToP 针对视频大型多模态模型容易产生幻觉的问题，提出了一种多模态上下文感知的视觉令牌修补框架。该方法通过预测令牌级替换分布并选择性替换不可靠视觉令牌，在语言生成前细粒度修正模型对视频的理解。额外设计的信息引导排序校准训练策略有效提升了令牌修补的准确性。实验表明，MultiToP 显著降低了幻觉率，并提高了视频问答等任务的性能。",
+      "llm_tldr": "MultiToP 针对视频大型多模态模型容易产生幻觉的问题，提出了一种多模态上下文感知的视觉令牌修补框架。该方法通过预测令牌级替换分布并选择性替换不可靠视觉令牌，在语言生成前细粒度修正模型对视频的理解。额外设计的信息引导排序校准训练策略有效提升了令牌修补的准确性。实验表明，MultiToP 显著降低了幻觉率，并提高了视频问答等任务的性能。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.07669v1",
+      "source": "arxiv",
+      "title": "MemoVAD: Resource-Efficient Video Anomaly Detection via Dynamic Semantic Memory in Edge Computing Scenarios",
+      "abstract": "Deploying Video Anomaly Detection (VAD) in real-world surveillance faces a fundamental tension between the demand for high-level semantics to ensure effectiveness and the limited computational resources of edge devices. Vision-Language Models (VLMs) provide rich open-vocabulary semantics, but their latency and computational cost preclude on-device deployment. To address the challenge, we propose MemoVAD, an edge-cloud collaborative framework that selectively incorporates VLM semantics into streaming VAD. MemoVAD runs most inference on the edge with a lightweight detector and a causal Temporal Context Encoder (TCE) to model temporal dependencies. Specifically, we introduce an Uncertainty-Aware Gating (UAG) policy grounded in Subjective Logic to model perceived uncertainty and query the cloud-based VLM only for high-uncertainty and semantically novel clips. Besides, a Dynamic Semantic Memory (DSM) is designed to cache VLM-verified prototypes for efficient retrieval, enabling the edge model to progressively incorporate VLM-level semantics via a semantic adapter. Experiments on UCF-Crime and XD-Violence datasets via a real edge device show that MemoVAD substantially reduces communication overhead while surpassing state-of-the-art performance.",
+      "authors": [
+        "Guo Li",
+        "Jiandian Zeng",
+        "Yang Li",
+        "Zihao Peng",
+        "Ke Chen",
+        "Tian Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-04T06:57:28+00:00",
+      "link": "https://arxiv.org/pdf/2606.07669v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "resource-efficient video anomaly detection using VLM semantics via edge-cloud collaboration",
+      "llm_evidence_cn": "利用视觉语言模型语义并通过边云协同实现资源高效视频异常检测",
+      "llm_evidence": "利用视觉语言模型语义并通过边云协同实现资源高效视频异常检测",
+      "canonical_evidence": "利用视觉语言模型语义并通过边云协同实现资源高效视频异常检测",
+      "llm_tldr_en": "MemoVAD proposes an edge-cloud framework that selectively queries VLM semantics for video anomaly detection, using uncertainty-aware gating to balance cost and accuracy, achieving low-latency on-device processing.",
+      "llm_tldr_cn": "真实场景视频异常检测面临计算资源与高级语义需求之间的矛盾。MemoVAD提出边云协同框架，边缘端运行轻量检测器，通过不确定性门控机制按需调用云端VLM语义，在保证检测效果的同时大幅降低计算开销。实验表明，该方法在资源受限下实现了高精度实时检测，为边缘视频理解提供了经济有效的方案。",
+      "llm_tldr": "真实场景视频异常检测面临计算资源与高级语义需求之间的矛盾。MemoVAD提出边云协同框架，边缘端运行轻量检测器，通过不确定性门控机制按需调用云端VLM语义，在保证检测效果的同时大幅降低计算开销。实验表明，该方法在资源受限下实现了高精度实时检测，为边缘视频理解提供了经济有效的方案。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

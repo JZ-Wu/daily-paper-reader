@@ -6,58 +6,40 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-11
-- 运行时间：2026-06-11 22:25:22 UTC
+- 最新运行日期：2026-06-12
+- 运行时间：2026-06-12 21:52:09 UTC
 - 运行状态：成功
-- 本次总论文数：12
-- 精读区：6
-- 速读区：6
+- 本次总论文数：6
+- 精读区：4
+- 速读区：2
 
 ### 今日简报（AI）
-今日聚焦视频理解的智能进化，从长视频检索到多模态代理推理，精读两篇满分研究。
-最值得关注的是用搜索解决小时级视频定位的新范式，以及让基础模型主动调用工具、结合上下文推理的代理型架构。
-想尝鲜的读者可从视觉文本交织的思维链入手，为长视频问答或内容审核搭建轻量实验。
-- 详情：[/202606/11/README](/202606/11/README)
+今日精读两篇前沿论文，聚焦多模态大模型的零样本推理与视频理解，洞见视觉语义与记忆机制。  
+最值得关注的是《Metadata-Aware Multi-Prompt Reasoning》对零样本事故理解的突破，以及《Watch, Remember, Reason》如何模拟人类视角理解视频，两者均在可解释性与场景落地性上表现突出。  
+建议读者重点关注将抽象知识（如元数据、记忆链）注入大模型以缓解幻觉的实践思路，可尝试在自身业务中试水“记忆增强”式推理。
+- 详情：[/202606/12/README](/202606/12/README)
 
 ### 精读区论文标签
-1. [InternVideo3: Agentify Foundation Models with Multimodal Contextual Reasoning](/202606/11/2606.12195v1-internvideo3-agentify-foundation-models-with-multimodal-contextual-reasoning)  
+1. [Metadata-Aware Multi-Prompt Reasoning for Zero-Shot Accident Understanding](/202606/12/2606.12047v1-metadata-aware-multi-prompt-reasoning-for-zero-shot-accident-understanding)  
    标签：评分：10.0/10、query:tf-vl-ag
-   evidence：增强视频理解的代理行为框架，采用多模态上下文推理和闭环过程处理长视频任务
-2. [Natural-Language Temporal Grounding in Hour-Long Videos is a Search Problem: A Benchmark and Empirical Decomposition](/202606/11/2606.12300v1-natural-language-temporal-grounding-in-hour-long-videos-is-a-search-problem-a-benchmark-and-empirical-decomposition)  
-   标签：评分：10.0/10、query:tf-vl-ag
-   evidence：小时级时序定位基准和分析，将定位视为Video-LLM的搜索问题
-3. [Kwai Keye-VL-2.0 Technical Report](/202606/11/2606.10651v1-kwai-keye-vl-20-technical-report)  
+   evidence：从监控视频中零样本事故理解，利用视觉语言相似性和多提示推理定位撞击事件的时间、类型和位置，与高效零样本视频定位直接相关。
+2. [Watch, Remember, Reason: Human-View Video Understanding with MLLMs](/202606/12/2606.07433v1-watch-remember-reason-human-view-video-understanding-with-mllms)  
    标签：评分：9.0/10、query:tf-vl-ag
-   evidence：面向长视频理解与代理智能的开源MoE多模态模型，采用高效稀疏注意力
-4. [From Content to Knowledge: Lightning Fast Long-Video Understanding with Neural Knowledge Representations](/202606/11/2606.11913v1-from-content-to-knowledge-lightning-fast-long-video-understanding-with-neural-knowledge-representations)  
-   标签：评分：9.0/10、query:tf-vl-ag
-   evidence：智能体知识蒸馏将长视频压缩为轻量级神经网络权重，实现高效视频理解
-5. [Frames2LoRA: Parametric Video Internalization for Vision-Language Models](/202606/11/2606.04351v2-frames2lora-parametric-video-internalization-for-vision-language-models)  
+   evidence：提出面向多模态大语言模型的统一视频理解框架，将能力组织为观看、记忆与推理。
+3. [LongSpace: Exploring Long-Horizon Spatial Memory from Perception to Recall in Video](/202606/12/2606.05677v1-longspace-exploring-long-horizon-spatial-memory-from-perception-to-recall-in-video)  
    标签：评分：8.0/10、query:tf-vl-ag
-   evidence：Frames2LoRA通过将视频参数化为LoRA适配器，消除VLM中每次查询的视觉token成本，实现高效视频理解。
-6. [VCIFBench: Evaluating Complex Instruction Following for Video Understanding](/202606/11/2606.04588v1-vcifbench-evaluating-complex-instruction-following-for-video-understanding)  
+   evidence：提出使用多模态大语言模型进行长视频空间推理的记忆框架
+4. [Harnessing Streaming Video in the Wild](/202606/12/2606.08615v1-harnessing-streaming-video-in-the-wild)  
    标签：评分：8.0/10、query:tf-vl-ag
-   evidence：用于评估多模态大语言模型在视频理解中复杂指令遵循的基准
+   evidence：通过训练目标和基础设施适配视觉语言模型进行流式视频理解
 
 ### 速读区论文标签
-1. [VTI-CoT: Visual-Textual Interleaved Chain of Thought for Video Reasoning](/202606/11/2606.05736v1-vti-cot-visual-textual-interleaved-chain-of-thought-for-video-reasoning)  
+1. [MultiToP: Learning to Patch Visual Tokens to Mitigate Hallucinations in Video Large Multimodal Models](/202606/12/2606.11792v1-multitop-learning-to-patch-visual-tokens-to-mitigate-hallucinations-in-video-large-multimodal-models)  
    标签：评分：7.0/10、query:tf-vl-ag
-   evidence：视觉-文本交织的思维链通过将视觉帧与推理步骤结合提升视频推理能力。
-2. [UNIVID: Unified Vision-Language Model for Video Moderation](/202606/11/2606.05748v1-univid-unified-vision-language-model-for-video-moderation)  
-   标签：评分：7.0/10、query:tf-vl-ag
-   evidence：统一视觉语言模型用于视频审核，生成策略感知字幕，实现可解释视频理解
-3. [MemoryCard: Topic-Aware Multi-Modal Clue Compression for Long-Video Question Answering](/202606/11/2606.05917v1-memorycard-topic-aware-multi-modal-clue-compression-for-long-video-question-answering)  
-   标签：评分：7.0/10、query:tf-vl-ag
-   evidence：MemoryCard通过主题感知记忆卡压缩长视频，实现高效问答
-4. [Don't Pause: Streaming Video-Language Synchrony for Online Video Understanding](/202606/11/2606.06991v1-dont-pause-streaming-video-language-synchrony-for-online-video-understanding)  
-   标签：评分：7.0/10、query:tf-vl-ag
-   evidence：采用训练无关有限状态机控制器的流式视频语言同步在线视频理解
-5. [Q-Fold: Query-Aware Focus-Context Spatio-Temporal Folding for Long Video Understanding](/202606/11/2606.12125v1-q-fold-query-aware-focus-context-spatio-temporal-folding-for-long-video-understanding)  
-   标签：评分：7.0/10、query:tf-vl-ag
-   evidence：免训练输入构建框架，压缩长视频以实现高效LLM处理。
-6. [AVIS: Adaptive Test-Time Scaling for Vision-Language Models](/202606/11/2606.11576v1-avis-adaptive-test-time-scaling-for-vision-language-models)  
+   evidence：通过修补视觉令牌缓解视频VLMs的幻觉，提升视频理解可靠性
+2. [MemoVAD: Resource-Efficient Video Anomaly Detection via Dynamic Semantic Memory in Edge Computing Scenarios](/202606/12/2606.07669v1-memovad-resource-efficient-video-anomaly-detection-via-dynamic-semantic-memory-in-edge-computing-scenarios)  
    标签：评分：6.0/10、query:tf-vl-ag
-   evidence：自适应测试时扩展平衡视觉语言模型效率与性能
+   evidence：利用视觉语言模型语义并通过边云协同实现资源高效视频异常检测
 
 
 <div class="dpr-home-promo-card">
