@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       conference:
-        description: "会议名：NIPS/NeurIPS 或 ICML"
+        description: "会议名：NIPS/NeurIPS / ICML / ICLR / AAAI / CVPR / ICCV（可逗号多选）"
         required: true
-        default: "ICML"
+        default: "ICLR"
       years:
         description: "年份列表，例如 2024,2025"
         required: true
@@ -62,6 +62,20 @@ jobs:
       DPR_ICML_PAPERS_TABLE: icml_openreview_papers
       DPR_ICML_VECTOR_RPC_EXACT: match_icml_openreview_papers_exact
       DPR_ICML_BM25_RPC: match_icml_openreview_papers_bm25
+      # ICLR / AAAI / CVPR / ICCV —— 数据在 fork 自管的 Supabase（CONF_SUPABASE_*），
+      # 表/RPC 名走 source_config 默认值；NeurIPS/ICML 仍走作者共享后端（不设 URL）。
+      DPR_ENABLE_ICLR_BACKEND: "1"
+      DPR_ICLR_URL: ${{ secrets.CONF_SUPABASE_URL }}
+      DPR_ICLR_ANON_KEY: ${{ secrets.CONF_SUPABASE_ANON_KEY }}
+      DPR_ENABLE_AAAI_BACKEND: "1"
+      DPR_AAAI_URL: ${{ secrets.CONF_SUPABASE_URL }}
+      DPR_AAAI_ANON_KEY: ${{ secrets.CONF_SUPABASE_ANON_KEY }}
+      DPR_ENABLE_CVPR_BACKEND: "1"
+      DPR_CVPR_URL: ${{ secrets.CONF_SUPABASE_URL }}
+      DPR_CVPR_ANON_KEY: ${{ secrets.CONF_SUPABASE_ANON_KEY }}
+      DPR_ENABLE_ICCV_BACKEND: "1"
+      DPR_ICCV_URL: ${{ secrets.CONF_SUPABASE_URL }}
+      DPR_ICCV_ANON_KEY: ${{ secrets.CONF_SUPABASE_ANON_KEY }}
       RERANK_PROFILE: ${{ secrets.RERANK_PROFILE }}
       RERANK_PROVIDER: ${{ secrets.RERANK_PROVIDER }}
       RERANK_MODEL: ${{ secrets.RERANK_MODEL }}
@@ -81,6 +95,8 @@ jobs:
       DPR_EMBED_API_TIMEOUT: "60"
       DPR_EMBED_API_URL: ${{ secrets.DPR_EMBED_API_URL || 'https://zwwen.online/embed' }}
       DPR_EMBED_API_KEY: ${{ secrets.DPR_EMBED_API_KEY }}
+      # 没有公益 embed key 时，远端 401 → 回退本地 bge-small（与灌库用的同模型，查询↔论文一致）。
+      DPR_EMBED_ALLOW_LOCAL_FALLBACK: "1"
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
       DEEPSEEK_MODEL: ${{ secrets.DEEPSEEK_MODEL }}
@@ -119,6 +135,8 @@ jobs:
           python -m pip install uv
           python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.5.1+cpu"
           uv pip install --system -r /tmp/req.txt
+          # 本地 embedding 回退所需（沿用上面已装的 torch 2.5.1，不再 pin 2.9.1）
+          uv pip install --system sentence-transformers transformers
 
       - name: Prepare PaperCropper (optional)
         continue-on-error: true
