@@ -1,0 +1,771 @@
+Title: Hierarchical Semantic-Constrained Heterogeneous Graph for Audio-Visual Event Localization
+
+URL Source: https://arxiv.org/pdf/2606.07033v1
+
+Published Time: Mon, 08 Jun 2026 00:44:15 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+> JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 1
+
+# Hierarchical Semantic-Constrained Heterogeneous Graph for Audio-Visual Event Localization 
+
+Zhe Yang, Ruyi Zhang, Hongtao Chen, Wenrui Li, Member, IEEE Hengyu Man Wangmeng Zuo, Senior Member, IEEE Xiaopeng Fan, Senior Member, IEEE 
+
+Abstract —Open-vocabulary audio-visual event localization (OV-AVEL) jointly models audio-visual cues to recognize and temporally localize events, including categories unseen during training. Existing methods primarily learn joint audio-visual representations in Euclidean space, but still face two significant challenges. First, the lack of supervision signals for unseen categories makes it difficult to maintain audio-visual consistency across multiple temporal scales. Second, the lack of hierarchical constraints between segment- and video-level semantics prevents the model from establishing semantic consistency across different levels. To address these challenges, we propose a hierarchi-cal semantic constrained heterogeneous graph (HSCHG) for audio-visual event localization framework. We first construct a heterogeneous hierarchical graph in Euclidean space, which includes audio and visual segment nodes and their corresponding video-level nodes. We use multi-directional temporal edges to capture complete temporal information within each modality. Simultaneously, we employ a dual-threshold filtering gated fu-sion strategy, introducing cross-modal information only when the alignment confidence is high. Furthermore, we introduce bidirectional semantic constraints between segment- and video-level representations to achieve semantic consistency across different levels. Based on this, we map the multi-level audio-visual representations and text prototypes uniformly into hyperbolic space. We use a hierarchical entailment regularization loss to characterize the hierarchical relationships between videos and segments. Extensive experimental results show that our method outperforms existing methods on the OV-AVEL benchmark. Ablation studies further validate the effectiveness of our method. 
+
+Index Terms —Multi-modal learning, event localization 
+
+I. I NTRODUCTION 
+
+# WITH the rapid growth of multimedia content, models need to understand multi-source information such as images, speech, and text simultaneously. Multi-modal learning has therefore become an important direction in video under-standing, and has continuously made progress in tasks such as image-text understanding [1]–[4], video-text understanding [5]–[9], and audio-visual learning [10]–[14]. The common 
+
+This work was supported in part by the National Key R&D Program of China (2023YFA1008501) and the National Natural Science Foundation of China (NSFC) under grant 624B2049 and U22B2035. (Corresponding author: Wenrui Li) Zhe Yang, Ruyi Zhang, Hongtao Chen, Wenrui Li, Hengyu Man and Wangmeng Zuo are with the Faculty of Computing, Harbin Institute of Technology, Harbin 150001, China. (e-mail: yzhe610@stu.hit.edu.cn; 25B303031@stu.hit.edu.cn; ht166chen@163.com; liwr@hit.edu.cn; man-hengyu@hotmail.com; wmzuo@hit.edu.cn;). Xiaopeng Fan is with the Faculty of Computing, Harbin Institute of Tech-nology, Harbin 150001, China. He is also with the Peng Cheng Laboratory, Shenzhen 518000, China, and the Harbin Institute of Technology Suzhou Research Institute, Suzhou 215000, China. (e-mail: fxp@hit.edu.cn). 𝑉 𝑣 
+
+> ……
+
+Heterogeneous Hierarchical Graph 
+
+𝐴 𝑣 
+
+𝑉 1 
+
+> 𝑝
+
+𝑉 3
+
+> 𝑝
+
+𝑉 2 
+
+> 𝑝
+
+𝑉 𝑇  
+
+> 𝑝
+
+𝐴 1 
+
+> 𝑝
+
+𝐴 3
+
+> 𝑝
+
+𝐴 2 
+
+> 𝑝
+
+𝐴 𝑇 
+
+> 𝑝
+> Cross -modal edge
+> Intra -modal undirected edge Hierarchical edge
+> Intra -modal backward edge
+> Intra -modal forward edge
+
+Fig. 1. An illustration of the heterogeneous hierarchical graph in HSCHG. It contains segment-level visual nodes V pt 
+
+> Tt=1
+
+and audio nodes Apt
+
+> Tt=1
+
+,as well as video-level nodes V v and Av . Intra-modal edges capture forward, backward, and undirected temporal dependencies. Hierarchical edges connect segments to video-level nodes for cross-granularity aggregation. Cross-modal edges link aligned audio and visual segments to learn audio-visual consistency under noise and misalignment. 
+
+goal of these tasks is to align the semantic and temporal cues of different modalities, utilizing complementary information to improve robustness and discriminative power. As a key task in complex video understanding, audio-visual event localization (AVEL) aims to jointly model audio and visual cues to identify event categories and locate their occurrence intervals. This capability is of great value in various applications, such as understanding and retrieving video content, short video rec-ommendation, subtitle generation, and intelligent surveillance. AVEL can help systems automatically identify key event segments from noisy and complex videos, supporting more efficient content management. Most existing AVEL methods learn joint representations of audio and visual information in Euclidean space and perform inference at the video or segment level to accomplish event classification and temporal localization. Early work [15], [16] defined AVEL as a temporal localization task that holds only when an event is simultaneously audible and visible, and established a basic framework using a sequence labeling paradigm. These methods typically assume that audio and visual cues are roughly synchronized in time. Therefore, they mainly rely on feature fusion or cross-modal attention to achieve better localization results. In practical scenarios, due to frequent camera changes and sudden noise in videos, the assumption of audio-visual synchronization often does not hold. Models easily mistake segments that are significant in  
+
+> arXiv:2606.07033v1 [cs.AI] 5 Jun 2026 JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 2
+
+Audio  :
+
+Visual  :
+
+> Time
+
+𝑐𝑙𝑖 𝑝 1 𝑐𝑙𝑖 𝑝 2 𝑐𝑙𝑖 𝑝 3 𝑐𝑙𝑖 𝑝 4 𝑐𝑙𝑖 𝑝 5 𝑐𝑙𝑖 𝑝 6                       
+
+> Dog barking People speech Dog barking People speech People speech Dog barking
+> Dog barking Dog barking Dog barking Dog barking People speech People speech
+> Dog barking Background Dog barking Background Background Background
+
+Label  :   
+
+> Fig. 2. An illustration of OV-AVEL. The model jointly leverages segment-level audio and visual cues to determine whether a target event that is both audible and visible is present. This example highlights two key challenges in open-vocabulary settings: (1) asynchronous audio and visual signals can cause cross-modal semantic conflicts (e.g., in clip 2, the audio indicates “people speaking” while the visual suggests “dog barking”); (2) segments from previously seen categories may be mistakenly treated as evidence for the target event (e.g., in clip 6, “people speaking” is incorrectly associated with the target event), resulting in false positives and inaccurate localization.
+
+only one modality but inconsistent across modalities as event evidence. CMBS [17] re-models the task from the perspec-tive of cross-modal background, defining the background as content with cross-modal semantic mismatch or appearing in only a single modality. To further improve the connection between different modes of data, the DMIN approach [18] enhances cross-modal interaction by transitioning from sparse attention to a more concentrated form. It achieves this by incorporating a finer-grained audio-guided mechanism and a more comprehensive cross-channel attention model. Although the methods mentioned above improve robustness to noise and audio-visual inconsistencies, considering the background as a general category and learning a unified localization rule overlooks modality bias at the event level. Therefore, MAML [19] proposes a localization paradigm that first predicts the event category and then performs segment localization based on the localization preference of that category. The above research mainly stays in a closed-set setting. If unseen events appear during the testing phase, the model can often only identify them as background or visible categories, making it difficult to provide clear semantic categories. Recently, works such as OV-AVE [20], [21] propose an open-vocabulary audio-visual event localization (OV-AVEL) task setting that is closer to real-world scenarios. This requires the model to simultaneously perform temporal localization of audible and visible events at the segment level and output specific category names for both seen and unseen categories. Although the methods above have achieved promising progress, representation learning based on Euclidean space still faces critical bottlenecks in open-vocabulary scenarios. First, audio-visual events typically exhibit significant multi-scale variations along the time axis. The model needs to cap-ture local segment information while achieving robust audio-visual synchronization across multi-scale temporal structures. Secondly, under open-vocabulary conditions, the lack of ef-fective hierarchical constraints between segment semantics and video semantics prevents the model from establishing semantic consistency between videos and segments. As shown in Fig. 2, a trained model incorrectly identifies a segment containing ”person speaking” (seen category) as the target event ”dog barking.” From a geometric representation perspective, the volume of Euclidean space grows only polynomially with the radius, making it difficult to effectively represent hierarchical relationships within modalities and tree-like structures between modalities. With its exponential volume growth property, hyperbolic space has a natural advantage in characterizing such hierarchical and tree-like structures [22]. Recent works [23], [24] attempt to embed audio-visual features into ahyperbolic manifold and achieve modality alignment in the tangent space to improve zero-shot recognition performance. However, they only perform modality alignment on video-level representations, failing to effectively capture the hierarchical relationships between audio-visual temporal features and cat-egory semantics. Furthermore, the strong non-linear nature of hyperbolic space itself is not suitable for directly modeling complex intra-modal and inter-modal temporal dependencies. Therefore, the core of this research is to construct a robust multi-level temporal structure for audio-visual signals and model it jointly with category semantics. This joint modeling aims to improve generalization in open vocabulary audio-visual event localization by enforcing temporal consistency and semantic alignment across modalities and levels. In this paper, we propose a hierarchical semantic-constrained heterogeneous graph (HSCHG) for audio-visual event localization. We first construct a heterogeneous hierar-chical graph in Euclidean embedding space and jointly learn audio-visual consistency representations of segment-level and video-level semantics by aggregating features between cross-modal segment nodes and video-level nodes, as shown in Fig. 1. Subsequently, we map the multi-modal hierarchical features to hyperbolic space, using a hierarchical entailment loss to jointly constrain intra-modal and inter-modal relationships, JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 3
+
+ensuring consistency with the geometric structure of categor-ical semantic prototypes. Specifically, we construct a hierar-chical heterogeneous graph using audio and visual segment-level nodes and their corresponding video-level nodes. For intra-modal segment nodes, we use undirected, forward, and backward edges to capture complete temporal information. During feature aggregation, we employ threshold-weighted aggregation to suppress the propagation of spurious neighbor information, thereby improving the robustness of temporal rea-soning. For cross-modal nodes, we introduce a dual-threshold filtering and gated fusion mechanism, injecting cross-modal information only when the alignment confidence is high, thus reducing noise interference. Finally, we employ attention to establish bidirectional semantic constraints between segment-level and video-level representations. The segment sequence is calibrated for video-level semantic consistency, and the updated segment features refine the video-level semantics in reverse. Based on this multi-level representation, we uniformly map the video-level and segment-level audio-visual features and their corresponding hierarchical text embeddings into a hyperbolic manifold. We explicitly characterize the hierar-chical relationships within and across modalities using an entailment cone loss based on hyperbolic geometry. Within modalities, we constrain the video-level embedding to con-tain its segment embeddings. Across modalities, we use text prototypes as parent nodes and impose entailment constraints on different levels of audio-visual embeddings, ensuring that multi-modal instances fall within the semantic cone of their corresponding categories and achieving hierarchical alignment. Our main contributions are summarized as follows:  
+
+> •
+
+We propose a hierarchical semantic-constrained heteroge-neous graph framework for OV-AVEL. We jointly learn segment-level and video-level audio-visual consistency representations in Euclidean space, and further map multi-level instance and category semantics to hyperbolic space for geometric alignment, significantly improving generalization to unseen categories.  
+
+> •
+
+We design a heterogeneous hierarchical graph network. We also introduce multi-directional temporal edges and a gated fusion strategy with dual-threshold filtering to achieve robust cross-modal temporal reasoning.  
+
+> •
+
+We propose a hierarchical entailment regularization loss. Based on entailment cone constraints, we explicitly char-acterize the hierarchical relationships between videos and segments within modalities, and between text and audio-visual features across modalities.  
+
+> •
+
+Extensive experiments on the OV-AVEL benchmark dataset demonstrate that our method outperforms existing methods. Our ablation studies also validate the effective-ness of the proposed model and its components. II. R ELATED WORK 
+
+A. Audio-Visual Event Localization 
+
+audio-visual event localization requires jointly modeling audio and visual cues to locate audible and visible event segments on a timeline. Existing methods typically rely on feature fusion and temporal modeling, performing inference and scoring at the segment level. However, natural scenes often contain semantic and temporal inconsistencies caused by environmental noise and camera changes. Simple global fusion easily incorporates mismatched cross-modal information into event representations, reducing localization reliability. To improve robustness, research emphasizes cross-modal consistency filtering and more refined interaction modeling. CSS-Net [25] uses bidirectional guided collaborative attention to establish complementary relationships between audio and visual modalities. DMIN [18] extends cross-modal interac-tion from sparse attention to dense cross-channel attention. It enhances correspondence modeling through finer-grained audio guidance and uses unimodal discriminative constraints to reduce the dilution of effective information during fusion. CCLN [26] divides audio-visual integration into three stages: fusion, interaction, and integration. It introduces weakly su-pervised cross-modal contrastive constraints to make cross-modal semantics of the same category more concentrated, thus mitigating error amplification caused by misaligned sam-ples. Besides consistency modeling, different events have varying dependencies on the two modalities, and a unified rule easily overlooks event-level modality bias. MAML [19] adopts an event-aware localization paradigm that first predicts video event categories and then uses the category-specific modality preferences to guide segment localization. CCNet [27] aggregates consistent event semantics using cross-modal attention. It introduces temporal consistency gating constraints to guide the other modality to focus on key segments in the temporal dimension and improves localization accuracy in overlapping scenes through multi-scale temporal collabora-tion. SVED [28] uses multi-scale spatial attention to capture subtle motion differences. It enhances the completeness of fused representations by improving modality alignment and suppresses misleading irrelevant salient regions through spatial interference elimination. Recent works such as OV-AVE [20] extend the task to an open-vocabulary setting, requiring the output of specific names and localization for unseen categories. Although the above methods have made progress, there is still a lack of stable multi-level semantic constraints under open-vocabulary conditions to maintain consistency between video-level and segment-level semantics. From a multi-level modeling perspective, we construct a cross-modal hierarchi-cal heterogeneous graph in Euclidean space to jointly learn segment-level and video-level audio-visual consistency repre-sentations, thereby improving audio-visual consistency under an open vocabulary setting. 
+
+B. Hierarchical Representation Learning 
+
+Hierarchical representation learning focuses on organizing semantics at different granularities and establishing learnable cross-granularity constraints, enabling models to form stable global context while preserving local evidence. This problem is prevalent in data with compositional structures or conceptual hierarchies. For example, text consists of words and sentences, videos consist of frames and segments, and category semantics include superordinate and subordinate relationships. Effective hierarchical modeling typically requires addressing two points JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 4
+
+simultaneously: first, how to capture local dependencies and long-range relationships within a granularity, and second, how to establish consistency constraints between granularities to prevent local noise from disrupting global semantics. In Euclidean space, mainstream methods often achieve cross-granularity aggregation through explicit hierarchical en-coding structures, with different levels assuming different modeling responsibilities. HAN [29] performs attention aggre-gation at the word and sentence levels, first forming sentence vectors and then aggregating them into document vectors, thus filtering local evidence at lower levels and obtaining more stable topic representations at higher levels. In video localiza-tion, HISAN [30] uses a two-level self-attention mechanism to model temporal dependencies and spatial context separately, allowing the segment level to focus on locally discriminative segments, and the global level to provide long-range context to support localization inference. In a weakly supervised setting, HiCo [31] decomposes consistency learning into local consistency over short time spans and thematic consistency over long time spans, mitigating the error accumulation caused by forcibly aligning all segments according to a uniform rule. From a geometric representation perspective, the volume of Euclidean space grows polynomially with the radius, making it difficult to accurately represent hierarchical relationships and tree structures with low distortion. Poincar´ e Embeddings [22] demonstrate that hyperbolic space can more effectively embed hierarchical data while preserving both similarity and hierar-chical structure. HEC [32] further explicitly parameterize par-tial order relationships using hyperbolic geodesic cones, giving entailment constraints a direct geometric interpretation. Hy-CoCLIP [33] organizes images, regions, and text descriptions into a cross-granularity hierarchical structure, jointly learning cross-granularity alignment with hyperbolic contrastive objec-tives and entailment cone constraints, thereby simultaneously improving hierarchical awareness and compositional general-ization capabilities. For audio-visual Multi-modal data, Hyper-AVCA [23] learns audio and visual embeddings in hyperbolic space and performs cross-modal alignment, demonstrating that hyperbolic geometry can serve as an effective representation carrier for Multi-modal hierarchical relationships. Although the methods mentioned above have achieved promising results, OV-AVEL still faces higher demands for multi-level consistency. In this paper, we map the multi-level representations obtained through graph structures to hyper-bolic space, explicitly modeling the hierarchical relationships between videos and segments, and between text and audio-visual modalities using implicit constraints, thereby improving the generalization ability of OV-AVEL. III. M ETHODOLOGY 
+
+A. Task Definition 
+
+Given a video X, we split it into T consecutive non-overlapping temporal segments and obtain segment-level audio-visual pairs {(at, v t)}Tt=1 . In OV-AVEL, the test-time category space is open-vocabulary. The model is trained on seen classes but must generalize to both seen and un-seen classes at test time. We denote the dataset as D =
+
+{(ai, vi, yi)}. For sample i, ai = {ai,t }Tt=1 and vi =
+
+{vi,t }Tt=1 are the audio and visual feature sequences, and 
+
+yi = {yi,t }Tt=1 is the segment-level label sequence. The training split is Dtrain with label set Cseen :
+
+yi,t ∈ { 0, 1}|Cseen |+1 , X
+
+> c∈Cseen ∪{ 0}
+
+yi,t,c = 1 , (1) where c = 0 denotes the background class. The test split is 
+
+Dtest with an expanded label set: 
+
+C = Cseen ∪ Cunseen , Cseen ∩ Cunseen = ∅. (2) The goal is to learn a classifier f : ( at, v t) 7 → pt, where 
+
+pt ∈ R|C|+1 , that is trained with supervision from Cseen but can localize events over C at test time. The architecture of HSCHG is shown in Fig. 3. For fair comparison, we adopt the same pretrained feature extractor as OV-AVE [20]. For each video, we obtain segment-level audio features Ap ∈ RT ×D, segment-level visual features Vp ∈
+
+RT ×D, and category text features E ∈ R(|C|+1) ×D . Temporal average pooling yields video-level features Av , Vv ∈ RD .To build text prototypes aligned with video-level semantics for the entailment constraints, we also construct a video-level text feature for each sample. Given the event category, we use the prompt “a full video of {category }” and encode it with the same text encoder to obtain ev ∈ RD . This ev is used to constrain consistency between video-level audio-visual representations and segment-level representations. 
+
+B. Heterogeneous Graph Network 
+
+To ensure semantic consistency between segments and the full video in event localization, we represent each video sam-ple as a hierarchical heterogeneous graph. This model takes segment-level audio and visual sequence features as input and constructs a heterogeneous graph containing segment-level nodes and video-level nodes. For intra-modal segment nodes, we adopt threshold-weighted aggregation to suppress message propagation from background segments. For cross-modal nodes, we apply a dual-threshold filtering strategy combined with gated fusion to reduce noise diffusion caused by incorrect alignments. Finally, we impose bidirectional con-sistency constraints between the segment-level and video-level representations, thereby generating audio-visually consistent hierarchical representations. The node set of the graph consists of segment-level audio nodes {at}Tt=1 , segment-level visual nodes {vt}Tt=1 , as well as a video-level audio node av and a video-level visual node vv . At layer l, the features of segment-level audio and visual nodes are denoted as {ha,l t }Tt=1 and 
+
+{hv,l t }Tt=1 , respectively. They are initialized as ha, (0)  
+
+> t
+
+= Ap
+
+> :,t, :
+
+and hv, (0)  
+
+> t
+
+= V p
+
+> :,t, :
+
+. The video-level representations at layer l
+
+are denoted as Ha,l and Hv,l .
+
+1) Intra-modal Temporal Reasoning: To capture complete temporal dependencies, we construct multi-directional tem-poral edges (MDTE) within each modality. Following [34], for any segment indices i, j ∈ { 1, . . . , T } within a temporal window Kt, we define three types of temporal edges as: 
+
+eij = I(0 < |i − j| ≤ Kt) , (3) JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 5ImageBind 
+
+> Segment -level
+> text
+> arc welding
+> people booing
+> dog barking
+
+… 
+
+> Afull video of {category}
+
+# +
+
+> Video -level text
+
+Input audio 
+
+Input video 
+
+𝐴 𝑝 
+
+𝑉 𝑝 
+
+𝑒 𝑝  𝑒 𝑣 
+
+> Mean
+> Mean
+
+𝑉 𝑣 
+
+𝐴 𝑣    
+
+> …
+> …
+> Bidirectional
+> Semantic Constraints
+> Cross -modal Information
+> Interaction
+> Intra -modal Temporal Reasoning
+> Heterogeneous Hierarchical Graph Network
+> (HHGN )
+
+# 𝑉 𝑣  𝐴 𝑣 
+
+𝑎 𝑝  𝑎 𝑝 
+
+𝑎 𝑝  𝑎 𝑝  𝑎 𝑝 
+
+𝑣 𝑝  𝑣 𝑝  𝑣 𝑝 𝑣 𝑝  𝑣 𝑝  𝑣 𝑝 
+
+𝑎 𝑝          
+
+> 𝑎 1𝑒 1𝑎 1𝑒 2𝑎 1𝑒 3
+> 𝑎 𝑇 𝑒 1𝑎 𝑇 𝑒 2𝑎 𝑇 𝑒 3
+> 𝑎 1𝑒 𝐶 +1
+> 𝑎 𝑇 𝑒 𝐶 +1
+> …
+> …
+> …
+> …
+> …
+> …
+> 𝑣 1𝑒 2𝑣 1𝑒 3
+> 𝑣 𝑇 𝑒 2𝑣 𝑇 𝑒 3
+> 𝑣 1𝑒 𝐶 +1
+> 𝑣 𝑇 𝑒 𝐶 +1
+> …
+> …
+> …
+> …
+> …
+> …
+> 𝑣 1𝑒 1
+> 𝑣 𝑇 𝑒 1Prediction
+> Hyperbolic projection
+> Video -level Segment -level
+
+𝐿 𝑠𝑒𝑔 
+
+𝐿 𝑒𝑛𝑡 
+
+Fig. 3. Architecture of HSCHG. We first extract features from audio, visual, and text inputs using a frozen pre-trained model. Subsequently, a heterogeneous hierarchical graph network performs temporal reasoning within each modality and facilitates information interaction between modalities, while simultaneously imposing bidirectional semantic constraints between segment-level and video-level representations. Finally, the model is optimized in hyperbolic space through hyperbolic projection, trained jointly using a segment localization loss Lseg and a hyperbolic hierarchical entailment regularization term Lent .
+
+ej→i = I(0 < i − j ≤ Kt) , (4) 
+
+ei→j = I(0 < j − i ≤ Kt) , (5) where eij = 1 indicates that an undirected edge exists between nodes i and j. ej→i = 1 indicates a forward directed edge from 
+
+j to i, and ei→j = 1 indicates a backward directed edge from 
+
+i to j. Otherwise, the corresponding indicator equals 0.To suppress the propagation of background information, we adopt threshold-weighted neighbor aggregation. For an edge 
+
+i → j, we define node relevance using cosine similarity: 
+
+sij = h⊤ 
+
+> i
+
+hj
+
+∥hi∥2∥hj ∥2
+
+, (6) where ∥·∥ 2 denotes the ℓ2-norm. Given a intra-modal threshold 
+
+τ and a weighting coefficient αij , the intra-modal temporal feature aggregation is formulated as: 
+
+wj (sij ) = I(sij ≥ τ ), (7) 
+
+mi = X
+
+> j∈N in (i)
+
+αij wj (sij ) hj , (8) where I(·) is the indicator function and Nin (i) denotes the neighbor set of node i.We compute ma,l i and mv,l i over the three temporal relations in the audio and visual modalities, respectively. Then, we update segment-node features using a feed-forward network: 
+
+ehx,l t = LN  hx,l t + FFN( mx,l t ), x ∈ { a, v }, (9) where FFN( ·) is a feed-forward network composed of two linear layers and GELU( ·), and LN( ·) denotes layer normal-ization. 
+
+2) Cross-modal Information Interaction: Cross-modal in-formation is heterogeneous, and directly fusing all cross-modal neighbors can easily introduce noise due to alignment errors. We introduce a dual-threshold gating mechanism (DTGM) to filter and reweight cross-modal messages. Taking an audio node ai as an example, given an alignment radius P , we estab-lish a cross-modal edge between ai and vj when |i − j| ≤ P .Similarly, we compute the cross-modal node relevance sij 
+
+using the same cosine similarity as in Eq.(6). Given two cross-modal thresholds τ1 and τ2, the cross-modal piecewise weight is defined as: 
+
+wj (sij ) = 
+
+
+
+0, sij < τ 1,w1, τ1 ≤ sij < τ 2,w2, sij ≥ τ2,
+
+(10) where w1 and w2 are predefined prior weights. This design makes cross-modal propagation more conservative in early training, thereby improving optimization stability. The cross-modal aggregation for audio node ai is: 
+
+ma,l i = X
+
+> j∈N cr (ai)
+
+αj wj (sij ) ehv,l j , (11) where Ncr (ai) is the set of visual neighbors connected to node 
+
+ai. To prevent cross-modal messages from directly overriding intra-modal semantics under low-confidence scenarios, we introduce a gating vector: 
+
+ga,l t = σ
+
+
+
+Wag
+
+eha,l t ma,l t
+
+
+
+, (12) where [·|· ] denotes vector concatenation, Wag ∈ RC×2C are learnable parameters, and σ(·) is the Sigmoid function. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 6
+
+The updated audio-node feature is then computed as: 
+
+ha,l +1  
+
+> t
+
+= LN 
+
+eha,l t + λl
+
+
+
+ga,l t ⊙ ma,l t
+
+ 
+
+, (13) where ⊙ denotes element-wise multiplication and λl is a layer scaling coefficient. The update method for the visual node features hv,l +1  
+
+> t
+
+is similar. 
+
+3) Bidirectional Semantic Constraints: Segment-level rep-resentations are used for interval discrimination, emphasizing whether a segment matches the target event, but they are susceptible to shot changes and non-target sounds. Video-level representations provide global contextual constraints and are better suited to capturing overall event semantics, yet they cannot directly yield precise temporal boundaries. Motivated by their complementarity, we introduce bidirectional semantic constraints (BSC). Video-level semantics calibrate segment responses in a top-down manner, while segment evidence refines video-level representations in a bottom-up manner, forming a closed-loop consistency. We first perform top-down semantic calibration. We map the video-level semantics of both modalities into context vectors: 
+
+ca,l = Wac Ha,l + Wac Hv,l , (14) 
+
+cv,l = Wvc Hv,l + Wac Ha,l , (15) and then calibrate segment representations as: 
+
+ha,l t = LN( ha,l t + γca,l ), (16) 
+
+hv,l t = LN( hv,l t + γcv,l ), (17) where γ is a learnable intensity coefficient used to control the magnitude of the influence of video-level context on the response of local segments. ha,l t and hv,l t are the calibrated segment-level representations, and LN( ·) denotes layer nor-malization. This process reduces the interference of local noise on localization by imposing global semantic constraints. Next, we refine video-level semantics using segment-level features: 
+
+pa,l t =exp 
+
+
+
+wa⊤ha,l +1 
+
+> t
+
+PTk=1 exp 
+
+
+
+wa⊤ha,l +1 
+
+> k
+
+ , (18) 
+
+Ha,l +1 = LN Ha,l +
+
+> T
+
+X
+
+> t=1
+
+pa,l t Wap ha,l +1 
+
+> t
+
+!
+
+, (19) where wa ∈ RC and Wap ∈ RC×C are the attention scoring vector and projection matrix, respectively. The visual branch obtains Hv,l +1 in the same way. This bottom-up aggregation makes the video-level representation focus on the accumu-lation of event-relevant segments, thereby providing a more reliable semantic prior and improving localization robustness. 
+
+C. Loss Function 
+
+We learn localizable audio-visual representations via segment-level classification supervision, and further introduce hierarchical entailment regularization in hyperbolic space to explicitly enforce semantic consistency between video-level and segment-level representations. The overall optimization objective is: 
+
+L = Lseg + λLent , (20) where Lseg is supervised using segment annotations of seen classes in the training set. Lent does not require extra an-notations. Instead, it stabilizes cross-modal alignment under open-vocabulary testing by imposing hierarchical partial-order constraints. λ is a weighting coefficient. 
+
+1) Cross-Entropy Classification Loss: To ensure a fair comparison, we adopt the same segment-level open-vocabulary event classification supervision as OV-AVE [20], using Lseg .Specifically, we compute cosine similarity matrices between the audio and visual segment features produced by the hetero-geneous hierarchical graph network and the class text feature matrix E. Let the segment-level audio and visual node outputs from the last graph layer be {gap,t }Tt=1 and {gvp,t }Tt=1 . The audio–text and visual–text similarity matrices are defined as: 
+
+Sat = Ga 
+
+> 2
+
+E ⊤ 
+
+> 2
+
+∈ RT ×(|C|+1) , (21) 
+
+Svt = Gv 
+
+> 2
+
+E ⊤ 
+
+> 2
+
+∈ RT ×(|C|+1) , (22) where Ga = [ ga 
+
+> 1
+
+; . . . ; gaT ] ∈ RT ×D, Gv = [ gv 
+
+> 1
+
+; . . . ; gvT ] ∈
+
+RT ×D, and ∥ · ∥ 2 denotes L2 normalization along the last dimension. Since an event occurrence should be supported by both audio and visual cues, we emphasize consistent responses across modalities via element-wise multiplication and obtain the segment-level class distribution: 
+
+P = Softmax 
+
+p ReLU( Sat ⊙ Svt )
+
+
+
+, (23) where ⊙ is the Hadamard product and P ∈ RT ×(|C|+1) . Given segment labels ysi,t ∈ { 0, 1}|Cseen |+1 , we construct supervision using only seen classes during training: 
+
+Lseg = 1
+
+N T 
+
+> N
+
+X
+
+> i=1
+> T
+
+X
+
+> t=1
+
+CE  Pi,t, :, y si,t 
+
+ . (24) 
+
+2) Hierarchical Entailment Regularization Loss: Under the open-vocabulary setting, training supervision covers only 
+
+Cseen , while test-time inference requires aligning segment representations with a larger text category space. To introduce stable semantic constraints without additional annotations, we construct entailment-cone constraints in the Lorentz-model hyperbolic space HDc and regularize event segments. Let ga
+
+> v
+
+and gv 
+
+> v
+
+denote the video-level audio and visual representations, and let et and ev denote the corresponding segment-level class text feature and video-level class text feature, respectively. We map them into HDc via a linear layer W ∈ RD×D and a hyperbolic projection Φc(·) [33]: 
+
+zap,t = Φ c
+
+ Wg ap,t 
+
+ , zvp,t = Φ c
+
+ Wg vp,t 
+
+ ,
+
+za 
+
+> v
+
+= Φ c(Wg a 
+
+> v
+
+) , zv 
+
+> v
+
+= Φ c(Wg v
+
+> v
+
+) ,
+
+eH 
+
+> t
+
+= Φ c(We t) , eH 
+
+> v
+
+= Φ c(We v) .
+
+(25) Given x, y ∈ HDc , where x represents a more general parent concept, we use a hinge-style entailment cost to measure whether y lies inside the semantic cone oriented by x:
+
+h(x, y) = max  0, ∠(x, y) − ap( x), (26) JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 7 
+
+> TABLE I THE PERFORMANCE COMPARISON ON OV-AVEB ENCH DATASETS .
+
+Model Seen Unseen Total 
+
+Acc. Seg. Eve. Avg. Acc. Seg. Eve. Avg. Acc. Seg. Eve. Avg. 
+
+CMRA [37] 65.2 58.8 54.3 59.4 36.0 31.0 26.3 31.3 44.3 38.9 34.3 39.2 AVE [38] 76.6 63.6 56.0 65.4 44.6 33.2 24.0 34.0 53.8 41.9 33.2 42.9 PSP [39] 75.4 66.8 61.0 67.7 33.7 28.2 24.2 28.7 45.6 39.3 34.7 39.9 MM-Pyramid [40] 76.5 66.9 62.3 68.6 36.8 29.0 23.8 29.9 48.4 40.2 35.2 41.2 OV-AVE [20] 72.5 61.8 54.5 62.9 64.9 55.0 47.5 55.8 67.1 56.9 49.5 57.8 
+
+HSCHG 76.4 66.8 63.1 68.8 65.6 55.7 48.2 56.5 68.5 58.8 51.6 59.7 
+
+where ∠(x, y) is the oxy-angle in the Lorentz model and 
+
+ap( x) is the half-aperture [35], [36]. We construct regulariza-tion terms from three types of relationships. First, the video-level representation characterizes the event context of the entire video, while the segment-level representation describes its instantiation on the timeline. Therefore, we constrain the segment embedding to be contained within the corresponding video embedding: 
+
+Lin = 1
+
+|T +|
+
+X 
+
+> t∈T +
+
+
+
+h(za
+
+> v
+
+, zap,t ) + h(zv
+
+> v
+
+, zvp,t )
+
+
+
+, (27) where T + denotes the set of segments in the video that belong to the event: 
+
+T + =  t ∈ { 1, . . . , T } ysi,t = 1 , (28) Visual and audio observations do not exactly align with textual descriptions. Textual semantics are typically more ab-stract and exhibit superordinate conceptual properties, making them more general than audio and visual representations [33]. We treat text as higher-level parent concepts and enforce video-level and segment-level embeddings to be semantically entailed by their corresponding textual embeddings: 
+
+Lcr = h eH 
+
+> v
+
+, za
+
+> v
+
+ + h eH 
+
+> v
+
+, zv
+
+> v
+
+
+
++ 1
+
+|T +|
+
+X 
+
+> t∈T +
+
+
+
+h eH 
+
+> t
+
+, zap,t 
+
+ + h eH 
+
+> t
+
+, zvp,t 
+
+ 
+
+. (29) The hierarchical entailment regularization loss is defined as: 
+
+Lent = Lin + Lcr . (30) IV. E XPERIMENTS 
+
+A. Evaluation Metrics and Dataset 
+
+We primarily conduct OV-AVEL experiments on the OV-AVEBench dataset [20], and evaluate fine-tuning baseline schemes on this benchmark. To ensure the reproducibility of the experiments and a fair comparison, we strictly follow the baseline protocol. Specifically, we use the same seen and unseen category definitions, as well as the same training, validation, and test splits. We also adopt the same evaluation metrics, including Acc. , Seg. , Eve. , and their mean Avg. .OV-AVEBench is built based on YouTube video resources from VGGSound. From VGGSound’s 309 categories, highly similar categories and those rarely seen in real-world scenar-ios were filtered out, ultimately retaining 67 common event categories more suitable for judging audio-visual semantic consistency. These cover human activities, animal activities, musical instruments, transportation, and other scenarios. Each video is evenly divided into 10 one-second segments, with the middle frame of each segment representing the visual content and the corresponding one-second audio representing the auditory content. When the audio and visual semantics are consistent, the segment is labeled as a positive sample. Oth-erwise, it is labeled as the background category. Under open-vocabulary segmentation, 46 of the 67 categories are visible training categories, while the remaining 21 categories only appear during the evaluation phase. The ratio of videos with visible training categories to those without in the validation and test sets is approximately 3:7 to systematically evaluate the model’s generalization ability to unseen categories. 
+
+B. Experimental Settings 
+
+To ensure consistency with prior work, we follow the same feature processing pipeline and training strategy as the base-line. We adopt ImageBind [41] as the feature extractor to ob-tain 1024-dimensional audio, visual, and text representations, respectively. The number of Temporal Layers after feature extraction is kept unchanged at one. The model is trained on a single 40 GB NVIDIA A100 GPU. For optimization, we use the Adam optimizer with an initial learning rate of 
+
+5×10 −5. The batch size is set to 32, and training is conducted for 10 epochs. In the quantitative analysis, we investigate the effects of different hyperparameters in the proposed method. Specifically, the final hyperparameter settings are as follows. The intra-modal threshold is set to τ = 0 .5. The cross-modal thresholds are set to τ1 = 0 .2 and τ2 = 0 .5. The intensity coefficient is set to γ = 0 .1. The entailment-cone loss weight is set to λ = 0 .1.
+
+C. Main Results and Comparison 
+
+We compare HSCHG with CMRA [37], AVE [38], PSP [39], MM-Pyramid [40], and the OV-AVE [20]. Table I re-ports Acc. , Seg. , Eve. , and their mean Avg. for HSCHG and representative method under three evaluation settings: seen, unseen, and total categories. Performance differences JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 8   
+
+> TABLE II ABLATION FOR HSCHG ON OV-AVEB ENCH DATASETS
+
+Method Seen Unseen Total 
+
+Acc. Seg. Eve. Avg. Acc. Seg. Eve. Avg. Acc. Seg. Eve. Avg. 
+
+baseline 72.5 61.8 54.5 62.9 64.9 55.0 47.5 55.8 67.1 56.9 49.5 57.8 W/o HHGN 73.2 64.7 56.9 64.9 65.1 56.0 47.6 56.2 67.6 57.9 50.2 58.6 W/o Lent 74.6 62.9 59.7 65.7 65.3 55.4 48.5 56.4 68.0 57.2 51.0 58.7 
+
+HSCHG 76.4 66.8 63.1 68.8 65.6 55.7 48.2 56.5 68.5 58.8 51.6 59.7                          
+
+> Model Acc. Seg. Eve. Avg.
+> baseline 67.1 56.9 49.5 57.8 W/o MDTE 67.7 57.5 50.8 58.5 W/o DTGM 67.4 57.8 50.6 58.8 W/o BSC 68.2 58.3 50.1 59.3 HHGN 68.5 58.8 51.6 59.7
+> TABLE III ABLATION STUDY OF THE HHGN.
+
+are modest on seen categories but widen substantially on unseen categories, indicating that methods that jointly main-tain localization quality and open-vocabulary generalization are most competitive. On seen categories, HSCHG outper-forms OV-AVE, raising the Avg. from 62.9 to 68.8. This demonstrates that the proposed method performs excellently in open-vocabulary scenarios while remaining effective in closed-set scenarios. Compared with MM-Pyramid, HSCHG is slightly lower on Acc. and Seg. but higher on Eve. ,which leads to a better Avg. . This phenomenon indicates that HSCHG does not over-optimize metrics at the segment level. Instead, it enhances the aggregation and differentiation capabilities of event-level evidence. On unseen categories, several methods with a bias towards closed-set settings showed significant performance degradation. Thanks to the structured prior provided by the hierarchical entailment loss introduced in HSCHG, the model maintains stronger generalization ability and achieves superior performance on unseen categories. In the all-category setting, HSCHG achieved an Avg. of 59.7, significantly higher than OV-AVE’s 57.8, further demonstrat-ing the method’s stable gains and stronger robustness under different category divisions. These improvements arise from hierarchical segment- and video-level semantic constraints that suppress the influence of noisy segments on global seman-tics, together with non-Euclidean modeling of hierarchical entailment that provides stable structured priors for unseen categories. Consequently, HSCHG improves robustness and cross-category generalization for open-vocabulary localization without additional supervision. 
+
+D. Ablation Study 
+
+This section investigates the contribution of each key com-ponent within the proposed HSCHG framework.                           
+
+> Loss Acc. Seg. Eve. Avg.
+> Lseg 68.0 57.2 51.0 58.7
+> Lseg +Lin 68.1 57.8 51.1 59.0
+> Lseg +Lcr 68.2 58.2 50.8 59.1
+> Lseg +Lent 68.5 58.8 51.6 59.7
+> TABLE IV ABLATION STUDY OF THE LOSS FUNCTION .
+
+1) Effectiveness of HSCHG Components: Table II eval-uates the impact of the Heterogeneous Hierarchical Graph Network (HHGN) and the Hierarchical Entailment Regular-ization Loss ( Lent ). On seen categories, removing HHGN causes a significant performance drop (Avg. declines from 68.8 to 64.9), confirming the necessity of the graph structure for learning robust semantic consistency between segments and video-level context. Furthermore, the exclusion of Lent 
+
+degrades performance across all settings. Specifically, the Avg. on unseen categories drops, indicating that Lent provides essential structured priors for open-vocabulary generaliza-tion. By enforcing entailment constraints where video-level representations encompass segment-level evidence and align with text prototypes, Lent ensures geometric consistency in the hyperbolic space, which is critical for handling unseen categories. 
+
+2) Effectiveness of HHGN Components: We further analyze the key modules of HHGN, including Multi-Directional Tem-poral Edges (MDTE), the Dual-Threshold Gating Mechanism (DTGM), and Bidirectional Semantic Constraints (BSC), as reported in Table III. Removing MDTE causes the largest performance drop, with Avg. decreasing to 58.5. This indicates that modeling long-range temporal dependencies is crucial for separating events from background. Without DTGM, the Avg. falls to 58.8. This confirms that the dual-threshold strategy helps filter unreliable cross-modal messages and reduces noise propagation during alignment. Ablating BSC also leads to a consistent degradation. This suggests that the closed-loop calibration between global video-level semantics and local segment-level evidence is important for robust localization. 
+
+3) Effectiveness of Loss Functions: Table IV examines the specific contributions of the intra-modal entailment loss (Lin ) and the cross-modal entailment loss ( Lcr ). Compared to using only the segmentation supervision ( Lseg ), adding 
+
+Lin improves the Avg. to 59.0, suggesting that enforcing JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 90.05 0.1 0.15 0.2 0.25 0.3 
+
+> 57.0
+> 57.5
+> 58.0
+> 58.5
+> 59.0
+> 59.5
+> Avg
+> OV-AVEBench
+> HSCHG
+> Baseline
+
+(a). γ0.2 0.3 0.4 0.5 0.6 0.7  
+
+> 57.0
+> 57.5
+> 58.0
+> 58.5
+> 59.0
+> 59.5
+> Avg
+> OV-AVEBench
+> HSCHG
+> Baseline
+
+(b). τ0.05 0.15 0.2 0.25 0.3 0.35 
+
+> 57.0
+> 57.5
+> 58.0
+> 58.5
+> 59.0
+> 59.5
+> Avg
+> OV-AVEBench
+> HSCHG
+> Baseline
+
+(c). τ10.3 0.35 0.4 0.45 0.5 0.55  
+
+> 57.0
+> 57.5
+> 58.0
+> 58.5
+> 59.0
+> 59.5
+> Avg
+> OV-AVEBench
+> HSCHG
+> Baseline
+
+(d). τ2 
+
+> Fig. 4. Hyperparameter analysis on OV-AVEBench dataset.
+
+hierarchical inclusion within modalities stabilizes feature rep-resentation. The introduction of Lcr further elevates per-formance (Avg. 59.1) by treating text prototypes as upper-level concepts, thereby optimizing cross-modal alignment. The full objective Lent , which combines Lin and Lcr , achieves the best performance (Avg. 59.7). This confirms that intra-modal consistency and cross-modal structural alignment are complementary, jointly regularizing the embedding space to enhance both discrimination and generalization. 
+
+E. Hyper Parameter Setting 1) Intensity Coefficient γ: Fig. 4a evaluates the impact of the intensity coefficient γ on the OV-AVEBench dataset. This parameter plays a pivotal role in modulating the semantic calibration between video-level context and local segment responses. As γ increases, the performance initially improves. This indicates that incorporating global semantic priors helps rectify local ambiguities inherent in individual segments. How-ever, performance peaks at γ = 0 .1 and subsequently declines. An overly small γ results in insufficient global guidance. This leaves local predictions vulnerable to noise. Conversely, an excessively large γ enforces global context too aggressively. This tends to over-smooth the feature sequence and suppress discriminative local cues necessary for precise boundary detec-tion. Consequently, we fix γ = 0 .1 to achieve an optimal trade-off. This setting ensures that global consistency reinforces rather than overrides local evidence. 
+
+2) Intra-modal Threshold τ : Fig. 4b reports the sensitivity of the model to the intra-modal threshold τ . This parameter governs the density of the temporal graph by filtering neighbor aggregation. In our framework, τ acts as a noise filter. It determines which neighboring segments are sufficiently rel-evant to contribute to the current node’s representation. The results demonstrate a clear performance trajectory that peaks at τ = 0 .5. Lower thresholds ( τ < 0.5) lead to the inclusion of excessive background or ambiguous segments. This dilutes the target event features with irrelevant temporal noise. On the other hand, higher thresholds ( τ > 0.5) yield an overly sparse neighborhood structure. This impedes the flow of temporal information and severs beneficial long-range dependencies. Thus, τ = 0 .5 is selected to maximize the suppression of spurious connections. It also preserves the essential temporal context required for robust reasoning. 
+
+3) Cross-modal Thresholds τ1 and τ2: Fig. 4c and Fig. 4d analyze the dual thresholds τ1 and τ2. These parameters jointly define the piecewise weighting strategy for cross-modal interaction. This design is critical for handling asynchronous signals. It aims to suppress unreliable cross-modal messages when alignment confidence is low. Simultaneously, it allows effective interaction when the alignment is strong. For the lower threshold, performance improves as τ1 rises to 0.2. This confirms that filtering out weakly aligned pairs is essential to prevent the propagation of erroneous cross-modal noise. Regarding the upper threshold τ2, the model achieves optimal performance at 0.5. A value lower than this causes the model to over-activate cross-modal messages. This allows them to dominate and obscure unimodal temporal patterns. Conversely, a value set too high makes the model overly conservative. It fails to reward and utilize valid high-confidence alignments. Therefore, we set τ1 = 0 .2 and τ2 = 0 .5 to ensure a balanced and noise-resistant cross-modal fusion. 
+
+F. Qualitative analysis 
+
+As shown in Fig. 6, the cross-modal cosine similarity heatmap exhibits a clear enhancement along the main diagonal. This indicates that most temporal segments are synchronized across audio and visual streams. It suggests that the model can learn stable temporal alignment between the two modal-ities. The block-like high-similarity regions often come from repeated scenes or recurring similar segments. Such regions can introduce temporal ambiguity. Local dark vertical bands and stripes indicate cross-modal mismatches. For example, the visual signal is salient but the audio cue is missing. In other cases, the audio is strong but weakly related to the visual semantics. If these segments are directly fused, noise can be injected and propagate across time. Fig. 5 further shows that our temporal-level cross-modal context suppression alleviates these inconsistencies. The fig-ure includes the video frame response, the audio waveform, and time-varying visual and audio gating values. Within the event interval marked by the red box, both audio gating and visual response are high. The model therefore strengthens consistent cross-modal evidence in this interval. It produces a more continuous event response and matches the ground-truth boundaries better. In several background segments, the visual response remains high but the audio gate drops significantly. The model then suppresses segments dominated by unimodal cues. This helps avoid treating salient but irrelevant motion as an event. This behavior is consistent with the dual-threshold segment weighting in cross-modal interaction. Confidence fil-tering and gated fusion work together to reduce low-confidence message injection. As a result, boundary prediction becomes more stable and localization is more robust. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 10 GT  bg  playing                  
+
+> violin
+> playing
+> violin
+> bg bg bg bg bg playing
+> violin
+> playing
+> violin
+> OV -AVE bg playing
+> violin
+> playing
+> violin bg bg playing
+> violin
+> playing
+> violin
+> HSCHG bg playing
+> violin
+> playing
+> violin
+> bg bg bg bg bg playing
+> violin
+> playing
+> violin
+> playing
+> violin
+> bg playing
+> violin
+> Fig. 5. Qualitative results of our model. The red regions stand for the answer we predict.
+> Fig. 6. Audio-visual cross-modal cosine similarity heatmap: The bright main diagonal indicates temporal alignment consistency, the block-like regions correspond to similarities in repeated scenes, and the dark vertical bands and stripes reflect local mismatches or anomalous segments.
+
+G. Visualization 1) T-SNE Visualizations: To further evaluate the role of HSCHG in audio-visual representation learning, we selected 30 categories from OV-AVEBench dataset and used t-SNE [42] to visualize the distribution of audio and video features at different stages. Fig. 7 shows that the audio and visual features output by the encoder are severely mixed, with high intra-class dispersion and unclear inter-class boundaries, indicating that stable discriminative structures are difficult to form with only basic encoding. After HHGN, both modalities exhibit clearer cluster structures, with increased separation between cate-gories. This indicates that HHGN improves feature consistency and robustness by performing intra-modal temporal reasoning and cross-modal interaction on a hierarchical heterogeneous graph containing segment nodes and video nodes. After adding the hierarchical entailment loss, the clusters become tighter and more distinctly separated, and the categorical organization of audio and visual features becomes more consistent. This demonstrates that hierarchical constraints between and within modalities can effectively improve the model’s generalization ability under open-vocabulary conditions. 
+
+2) UMAP Visualizations: To demonstrate the advantage of hyperbolic embedding optimization in HSCHG for hierarchi-cal semantic modeling, inspired by [43], we use UMAP [44] to project the optimized embeddings into a 2D space, as shown in Fig. 8. Different colors denote different classes. Circles represent text prototypes, triangles represent audio features, and pentagrams represent visual features. Point size indicates feature granularity. Larger points correspond to video-level representations, while smaller points correspond to segment-level representations. We can see that the negative curvature of the hyperbolic space helps represent the hierarchical structure of audio-visual semantics. Video-level features tend to lie closer to the inner region, while segment-level features are more concentrated in the outer region and form local groups around their corresponding video-level features. This pattern matches the semantic inclusion relation, where segment se-mantics gradually aggregate into video-level semantics, which supports the ability of hyperbolic space to model tree-like or hierarchical structures. In addition, text prototypes often appear near the center or the main structure of each class cluster, and audio and visual samples lie nearby. This indicates strong cross-modal consistency in a shared space. Compared with Euclidean space, hyperbolic space can separate different levels more clearly in limited dimensions. Some semantically related classes are closer in local regions, which suggests that the model captures shared structure in the high-dimensional space. A small number of samples are close across classes. These often correspond to basic segments or background cues with common audio-visual patterns. They remain consistent within a class while also showing shared traits across classes. This indicates that the model learns a hierarchy-aware organi-zation rather than simple class separation. This visualization supports our claim that hyperbolic embedding optimization can better capture hierarchical relations in audio-visual data and improves generalization in the open-vocabulary setting. V. C ONCLUSION 
+
+This paper introduces HSCHG, a hierarchical semantic constrained heterogeneous graph framework for open vocab-JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 11 Audio feature after Encoder 
+
+> Visual feature after Encoder
+> Audio feature after HHGN
+> Visual feature after HHGN
+> Audio feature after Loss
+> Visual feature after Loss
+
+Fig. 7. T-SNE visualization of audio and visual feature distributions at different stages of HSCHG. 
+
+Fig. 8. The HSCHG embedding is used to represent the OV-AVEBench dataset on the Poincar´ e disk. 
+
+ulary audio-visual event localization. HSCHG first builds a heterogeneous hierarchical graph in Euclidean space to model segment- and video-level audio-visual semantics. It learns audio-visual consistency through intra-modal temporal edges, cross-modal edges, and hierarchical edges. HSCHG then maps the learned multi-level representations into hyperbolic space. It enforces entailment based constraints with text prototypes to preserve hierarchical relations and support open vocabulary generalization. Experiments on the OV-AVEBench dataset show consistent gains in both localization and recognition, indicating improved robustness and generalization. REFERENCES [1] Wenrui Li, Ruiqin Xiong, and Xiaopeng Fan. Multi-layer probabilistic association reasoning network for image-text retrieval. IEEE Transac-tions on Circuits and Systems for Video Technology , 34(10):9706–9717, 2024. [2] Yueying Feng, Fan Ma, Wang Lin, Chang Yao, Jingyuan Chen, and Yi Yang. Fedpam: Federated personalized augmentation model for text-to-image retrieval. In Proceedings of the 2024 International Conference on Multimedia Retrieval , pages 1185–1189, 2024. [3] Wenrui Li, Zhengyu Ma, Liang-Jian Deng, Xiaopeng Fan, and Yonghong Tian. Neuron-based spiking transmission and reasoning network for robust image-text retrieval. IEEE Transactions on Circuits and Systems for Video Technology , 33(7):3516–3528, 2023. [4] Wenrui Li, Zhengyu Ma, Liang-Jian Deng, Penghong Wang, Jinqiao Shi, and Xiaopeng Fan. Reservoir computing transformer for image-text retrieval. In Proceedings of the 31st ACM International Conference on Multimedia , pages 5605–5613, 2023. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 10, JULY 2024 12 
+
+[5] Haonan Zhang, Pengpeng Zeng, Lianli Gao, Jingkuan Song, Yihang Duan, Xinyu Lyu, and Heng Tao Shen. Text-video retrieval with global-local semantic consistent learning. IEEE Transactions on Image Processing , 34:3463–3474, 2025. [6] Haonan Zhang, Pengpeng Zeng, Lianli Gao, Jingkuan Song, and Heng Tao Shen. Ump: Unified modality-aware prompt tuning for text-video retrieval. IEEE Transactions on Circuits and Systems for Video Technology , 34(11):11954–11964, 2024. [7] Yu Lu, Ruijie Quan, Linchao Zhu, and Yi Yang. Exploiting unlabeled videos for video-text retrieval via pseudo-supervised learning. IEEE Transactions on Image Processing , 33:6748–6760, 2024. [8] Yu Lu, Ruijie Quan, Linchao Zhu, and Yi Yang. Zero-shot video ground-ing with pseudo query lookup and verification. IEEE Transactions on Image Processing , 33:1643–1654, 2024. [9] Jianzhi Liu, Junchen Zhu, Pengpeng Zeng, Lianli Gao, Heng Tao Shen, and Jingkuan Song. Aicl: Action in-context learning for text-to-video generation. In Proceedings of the 33rd ACM International Conference on Multimedia , pages 9414–9423, 2025. [10] Wenrui Li, Penghong Wang, Ruiqin Xiong, and Xiaopeng Fan. Spiking tucker fusion transformer for audio-visual zero-shot learning. IEEE Transactions on Image Processing , 33:4840–4852, 2024. [11] Wenrui Li, Penghong Wang, Xingtao Wang, Wangmeng Zuo, Xiaopeng Fan, and Yonghong Tian. Multi-timescale motion-decoupled spiking transformer for audio-visual zero-shot learning. IEEE Transactions on Circuits and Systems for Video Technology , pages 1–1, 2025. [12] Wenrui Li, Xi-Le Zhao, Zhengyu Ma, Xingtao Wang, Xiaopeng Fan, and Yonghong Tian. Motion-decoupled spiking transformer for audio-visual zero-shot learning. In Proceedings of the 31st ACM International Conference on Multimedia , pages 3994–4002, 2023. [13] Zhe Yang, Wenrui Li, Jinxiu Hou, and Guanghui Cheng. Multi-modal spiking tensor regression network for audio-visual zero-shot learning. 
+
+Neurocomputing , 629:129636, 2025. [14] Wenrui Li, Wei Han, Liang-Jian Deng, Ruiqin Xiong, and Xiaopeng Fan. Spiking variational graph representation inference for video summarization. IEEE Transactions on Image Processing , 34:5697–5709, 2025. [15] Yapeng Tian, Jing Shi, Bochen Li, Zhiyao Duan, and Chenliang Xu. Audio-visual event localization in unconstrained videos. In Proceedings of the European Conference on Computer Vision , September 2018. [16] Hanyu Xuan, Lei Luo, Zhenyu Zhang, Jian Yang, and Yan Yan. Dis-criminative cross-modality attention network for temporal inconsistent audio-visual event localization. IEEE Transactions on Image Processing ,30:7878–7888, 2021. [17] Yan Xia and Zhou Zhao. Cross-modal background suppression for audio-visual event localization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 19989– 19998, June 2022. [18] Shuo Liu, Weize Quan, Chaoqun Wang, Yuan Liu, Bin Liu, and Dong-Ming Yan. Dense modality interaction network for audio-visual event localization. IEEE Transactions on Multimedia , 25:2734–2748, 2023. [19] Shiping Ge, Zhiwei Jiang, Yafeng Yin, Cong Wang, Zifeng Cheng, and Qing Gu. Learning event-specific localization preferences for audio-visual event localization. In Proceedings of the 31st ACM International Conference on Multimedia , pages 3446–3454, 2023. [20] Jinxing Zhou, Dan Guo, Ruohao Guo, Yuxin Mao, Jingjing Hu, Yiran Zhong, Xiaojun Chang, and Meng Wang. Towards open-vocabulary audio-visual event localization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 8362– 8371, June 2025. [21] Jiale Yu, Baopeng Zhang, Zhu Teng, and Jianping Fan. Ov-davel: Towards open-vocabulary dense audio-visual event localization in untrimmed videos. In Proceedings of the 33rd ACM International Conference on Multimedia , pages 553–562, 2025. [22] Maximillian Nickel and Douwe Kiela. Poincar´ e embeddings for learn-ing hierarchical representations. In Advances in Neural Information Processing Systems , volume 30, 2017. [23] Jie Hong, Zeeshan Hayder, Junlin Han, Pengfei Fang, Mehrtash Harandi, and Lars Petersson. Hyperbolic audio-visual zero-shot learning. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 7873–7883, October 2023. [24] Zhe Yang, Wenrui Li, and Guanghui Cheng. Shmamba: Structured hyperbolic state space model for audio-visual question answering. IEEE Transactions on Audio, Speech and Language Processing , 33:3582– 3593, 2025. [25] Fan Feng, Yue Ming, Nannan Hu, Hui Yu, and Yuanan Liu. Css-net: A consistent segment selection network for audio-visual event localization. 
+
+IEEE Transactions on Multimedia , 26:701–713, 2024. [26] Chao Sun, Min Chen, Chuanbo Zhu, Sheng Zhang, Ping Lu, and Jincai Chen. Listen with seeing: Cross-modal contrastive learning for audio-visual event localization. IEEE Transactions on Multimedia , 27:2650– 2665, 2025. [27] Ziheng Zhou, Jinxing Zhou, Wei Qian, Shengeng Tang, Xiaojun Chang, and Dan Guo. Dense audio-visual event localization under cross-modal consistency and multi-temporal granularity collaboration. In Proceed-ings of the AAAI Conference on Artificial Intelligence , volume 39, pages 10905–10913, April 2025. [28] Baoyu Fan, Lu Liu, Xiaochuan Li, Runze Zhang, Liang Jin, and Jin Zhang. Fine-grained audio–visual event localization. IEEE Transactions on Neural Networks and Learning Systems , pages 1–15, 2025. [29] Zichao Yang, Diyi Yang, Chris Dyer, Xiaodong He, Alex Smola, and Ed-uard Hovy. Hierarchical attention networks for document classification. In Proceedings of the 2016 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies , pages 1480–1489, 2016. [30] Rizard Renanda Adhi Pramono, Yie-Tarng Chen, and Wen-Hsien Fang. Hierarchical self-attention network for action localization in videos. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , October 2019. [31] Zhiwu Qing, Shiwei Zhang, Ziyuan Huang, Yi Xu, Xiang Wang, Mingqian Tang, Changxin Gao, Rong Jin, and Nong Sang. Learning from untrimmed videos: Self-supervised video representation learning with hierarchical consistency. In Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition , pages 13821–13831, June 2022. [32] Octavian Ganea, Gary Becigneul, and Thomas Hofmann. Hyperbolic entailment cones for learning hierarchical embeddings. In Proceedings of the 35th International Conference on Machine Learning , pages 1646– 1655, July 2018. [33] Avik Pal, Max van Spengler, Guido Maria D’Amely di Melendugno, Alessandro Flaborea, Fabio Galasso, and Pascal Mettes. Compositional entailment learning for hyperbolic vision-language models. In The Thirteenth International Conference on Learning Representations , 2025. [34] Wenrui Li, Wei Han, Hengyu Man, Wangmeng Zuo, Xiaopeng Fan, and Yonghong Tian. Language-guided graph representation learning for video summarization. IEEE Transactions on Pattern Analysis and Machine Intelligence , pages 1–17, 2025. [35] James W Cannon, William J Floyd, Richard Kenyon, Walter R Parry, et al. Hyperbolic geometry. Flavors of Geometry , 31:59–115, 1997. [36] Matthew Le, Stephen Roller, Laetitia Papaxanthos, Douwe Kiela, and Maximilian Nickel. Inferring concept hierarchies from text corpora via hyperbolic embeddings. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics , pages 3231–3241, July 2019. [37] Haoming Xu, Runhao Zeng, Qingyao Wu, Mingkui Tan, and Chuang Gan. Cross-modal relation-aware networks for audio-visual event localization. In Proceedings of the 28th ACM International Conference on Multimedia , pages 3893–3901, 2020. [38] Yapeng Tian, Jing Shi, Bochen Li, Zhiyao Duan, and Chenliang Xu. Audio-visual event localization in unconstrained videos. In Proceedings of the European Conference on Computer Vision , September 2018. [39] Jinxing Zhou, Liang Zheng, Yiran Zhong, Shijie Hao, and Meng Wang. Positive sample propagation along the audio-visual event line. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 8436–8444, June 2021. [40] Jiashuo Yu, Ying Cheng, Rui-Wei Zhao, Rui Feng, and Yuejie Zhang. Mm-pyramid: Multimodal pyramid attentional network for audio-visual event localization and video parsing. In Proceedings of the 30th ACM International Conference on Multimedia , pages 6241–6249, 2022. [41] Rohit Girdhar, Alaaeldin El-Nouby, Zhuang Liu, Mannat Singh, Kalyan Vasudev Alwala, Armand Joulin, and Ishan Misra. Imagebind: One embedding space to bind them all. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 15180–15190, June 2023. [42] Laurens van der Maaten and Geoffrey Hinton. Visualizing data using t-sne. Journal of Machine Learning Research , 9(Nov):2579–2605, 2008. [43] Wenrui Li, Zhe Yang, Wei Han, Hengyu Man, Xingtao Wang, and Xiaopeng Fan. Hyperbolic-constraint point cloud reconstruction from single rgb-d images. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pages 4959–4967, April 2025. [44] Leland McInnes, John Healy, and James Melville. Umap: Uniform manifold approximation and projection for dimension reduction. arXiv preprint arXiv:1802.03426 , 2020.

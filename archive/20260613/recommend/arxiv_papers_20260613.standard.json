@@ -1,0 +1,181 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-13T20:43:45.963151+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.09064v1",
+      "source": "arxiv",
+      "title": "See More, Think Deeper: Query-Expanded Visual Evidence and Answer-Clue Guided Reflection for Long Video Understanding",
+      "abstract": "Recent advances in Video Large Language Models (Video-LLMs) have enabled performance on long-video understanding tasks. However, existing methods still face two key limitations: evidence acquisition often relies on a single search intent, and answer generation lacks an effective visual feedback mechanism. To address these limitations, we propose \\textbf{CoVER}, a Comprehensive Visual Evidence and Reflection framework for long-video understanding. CoVER enables Video-LLMs to \\textbf{See More} by dynamically gathering query-expanded visual evidence, and \\textbf{Think Deeper} by verifying draft answers with effective answer-specific visual feedback. Together, these mechanisms shift long-video understanding from answer-centric generation to evidence-centric and visually verifiable reasoning. Experimental results show that CoVER-7B substantially outperforms models with the same parameter scale and even surpasses state-of-the-art closed-source models on certain metrics.",
+      "authors": [
+        "Shuning Wang",
+        "Zhiheng Wu",
+        "YiNuo Lu",
+        "Naiming Liu",
+        "Chen Jia",
+        "Bowen Liu",
+        "Shuo Nie",
+        "Weijie Zhu",
+        "Yumeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-08T06:02:05+00:00",
+      "link": "https://arxiv.org/pdf/2606.09064v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "A framework for long video understanding that uses query expansion and answer-driven reflection with Video-LLMs, enabling deeper reasoning.",
+      "llm_evidence_cn": "一种利用查询扩展和答案驱动反思的长视频理解框架，增强多模态模型推理能力。",
+      "llm_evidence": "一种利用查询扩展和答案驱动反思的长视频理解框架，增强多模态模型推理能力。",
+      "canonical_evidence": "一种利用查询扩展和答案驱动反思的长视频理解框架，增强多模态模型推理能力。",
+      "llm_tldr_en": "CoVER improves long video understanding by dynamically expanding visual evidence through query expansion and refining answers via answer-specific visual feedback, shifting from single-pass to iterative reasoning with Video-LLMs.",
+      "llm_tldr_cn": "现有视频大模型在长视频理解中证据获取依赖单一搜索意图，答案生成缺乏视觉反馈。本文提出CoVER框架，通过查询扩展动态收集多样化视觉证据，并利用答案线索引导反思以验证草案答案。该方法将长视频理解从单次推理转变为迭代优化过程，在多个长视频基准上取得显著提升，展示了结合检索与反思的有效性。",
+      "llm_tldr": "现有视频大模型在长视频理解中证据获取依赖单一搜索意图，答案生成缺乏视觉反馈。本文提出CoVER框架，通过查询扩展动态收集多样化视觉证据，并利用答案线索引导反思以验证草案答案。该方法将长视频理解从单次推理转变为迭代优化过程，在多个长视频基准上取得显著提升，展示了结合检索与反思的有效性。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "vision language model for video understanding",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.07033v1",
+      "source": "arxiv",
+      "title": "Hierarchical Semantic-Constrained Heterogeneous Graph for Audio-Visual Event Localization",
+      "abstract": "Open-vocabulary audio-visual event localization (OV-AVEL) jointly models audio-visual cues to recognize and temporally localize events, including categories unseen during training. Existing methods primarily learn joint audio-visual representations in Euclidean space, but still face two significant challenges. First, the lack of supervision signals for unseen categories makes it difficult to maintain audio-visual consistency across multiple temporal scales. Second, the lack of hierarchical constraints between segment- and video-level semantics prevents the model from establishing semantic consistency across different levels. To address these challenges, we propose a hierarchical semantic constrained heterogeneous graph (HSCHG) for audio-visual event localization framework. We first construct a heterogeneous hierarchical graph in Euclidean space, which includes audio and visual segment nodes and their corresponding video-level nodes. We use multi-directional temporal edges to capture complete temporal information within each modality. Simultaneously, we employ a dual-threshold filtering gated fusion strategy, introducing cross-modal information only when the alignment confidence is high. Furthermore, we introduce bidirectional semantic constraints between segment- and video-level representations to achieve semantic consistency across different levels. Based on this, we map the multi-level audio-visual representations and text prototypes uniformly into hyperbolic space. We use a hierarchical entailment regularization loss to characterize the hierarchical relationships between videos and segments. Extensive experimental results show that our method outperforms existing methods on the OV-AVEL benchmark. Ablation studies further validate the effectiveness of our method.",
+      "authors": [
+        "Zhe Yang",
+        "Ruyi Zhang",
+        "Hongtao Chen",
+        "Wenrui Li",
+        "Hengyu Man",
+        "Wangmeng Zuo",
+        "Xiaopeng Fan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-06-05T08:23:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.07033v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Open-vocabulary audio-visual event localization in video",
+      "llm_evidence_cn": "视频中开放词汇的视听事件定位",
+      "llm_evidence": "视频中开放词汇的视听事件定位",
+      "canonical_evidence": "视频中开放词汇的视听事件定位",
+      "llm_tldr_en": "Proposes a hierarchical semantic constrained heterogeneous graph to improve open-vocabulary audio-visual event localization by enforcing consistency across scales and levels.",
+      "llm_tldr_cn": "针对开放词汇视听事件定位中跨尺度一致性差和层次语义约束缺失的问题，本文提出分层语义约束异构图，通过联合建模片段级和视频级语义来增强事件定位。实验表明该方法在开放词汇场景下有效提升了定位性能，为多模态视频事件理解提供了新的图建模思路。",
+      "llm_tldr": "针对开放词汇视听事件定位中跨尺度一致性差和层次语义约束缺失的问题，本文提出分层语义约束异构图，通过联合建模片段级和视频级语义来增强事件定位。实验表明该方法在开放词汇场景下有效提升了定位性能，为多模态视频事件理解提供了新的图建模思路。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "video grounding task",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.08511v1",
+      "source": "arxiv",
+      "title": "Look Less, Reason More: Block-wise Attention Skipping for Efficient Multimodal LLMs",
+      "abstract": "Multimodal Large Language Models (MLLMs) face a significant inference bottleneck due to the quadratic computational cost of self-attention over long visual token sequences. However, we identify a critical inefficiency in current architectures: Visual Attention Saturation. Our analysis reveals that visual tokens rapidly establish their spatial structure and intra-modal relationships in early layers, rendering visual-to-visual self-attention in deeper layers computationally redundant. Conversely, Feed-Forward Networks (FFNs) in these layers remain essential for projecting visual features into the evolving textual semantic space. Leveraging this insight, we present Visual-Skip (V-Skip), a training-free inference paradigm that decouples spatial interaction from semantic evolution. Rather than discarding tokens, V-Skip imposes block-wise structured sparsity by selectively bypassing saturated visual self-attention modules. Furthermore, recognizing that varying downstream tasks demand distinct reasoning depths, V-Skip employs a lightweight, few-shot calibration to dynamically route the task-optimal sparsity path. Extensive experiments demonstrate that V-Skip effectively bypasses redundant vision attention to achieve block-wise sparsity, maintaining a 94.16% to 100.31% performance retention across diverse MLLMs. Ultimately, we prove that to reason more effectively, models do not need to discard what they see -- they simply need to \"look less\" at the right depth.",
+      "authors": [
+        "Jie Ma",
+        "Zhike Qiu",
+        "Jiayi Ji",
+        "Xiaoshuai Sun",
+        "Rongrong Ji"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-07T08:32:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.08511v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free block-wise attention skipping reduces vision token computation, enabling efficient video understanding with MLLMs",
+      "llm_evidence_cn": "训练无关的块级注意力跳过降低视觉标记计算，实现高效视频理解",
+      "llm_evidence": "训练无关的块级注意力跳过降低视觉标记计算，实现高效视频理解",
+      "canonical_evidence": "训练无关的块级注意力跳过降低视觉标记计算，实现高效视频理解",
+      "llm_tldr_en": "V-Skip is a training-free inference method that skips redundant visual self-attention in later layers of MLLMs, significantly reducing compute while maintaining performance.",
+      "llm_tldr_cn": "多模态大模型推理瓶颈源自视觉标记间的冗余自注意力，V-Skip利用视觉注意力饱和特性，提出训练无关的块级跳过策略，在深层中省略视觉-视觉注意力，大幅降低计算量且性能无损，为低成本视频理解提供了实用方案。",
+      "llm_tldr": "多模态大模型推理瓶颈源自视觉标记间的冗余自注意力，V-Skip利用视觉注意力饱和特性，提出训练无关的块级跳过策略，在深层中省略视觉-视觉注意力，大幅降低计算量且性能无损，为低成本视频理解提供了实用方案。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "low-cost and efficient video understanding",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.06819v1",
+      "source": "arxiv",
+      "title": "VideoSEG-O3: A Multi-turn Reinforcement Learning Framework for Reasoning Video Object Segmentation",
+      "abstract": "Reasoning Video Object Segmentation (RVOS) demands a sophisticated integration of temporal dynamics, spatial details, and linguistic reasoning to achieve precise pixel-level localization. Existing methods are limited to reasoning over fixed initial inputs and lack the capacity to actively acquire further visual evidence, which is often essential for resolving complex references in long or intricate videos. To address this, we propose \\textbf{VideoSEG-O3}, the first multi-turn reinforcement learning framework for RVOS that emulates the human \\textit{``coarse-to-fine''} cognitive process. It employs a \\textit{multi-turn temporal-spatial chain-of-thought} to capture fine-grained details by iteratively pinpointing critical intervals and keyframes. Additionally, to enable the policy to perceive segmentation quality beyond mere text probability of \\texttt{[SEG]} during the RL stage, we introduce \\textit{SEG-aware logit calibration}, which integrates pixel-wise segmentation feedback directly into the token-level logits. Furthermore, we design a \\textit{decoupled thinking trace} to hierarchically decompose the reasoning process into temporal, spatial, and linguistic dimensions, and construct \\textbf{VTS-CoT}, a specialized cold-start dataset featuring comprehensive reasoning trajectories. The code and models will be released at https://github.com/Dmmm1997/VideoSEG-O3.",
+      "authors": [
+        "Ming Dai",
+        "Sen Yang",
+        "Boqiang Duan",
+        "Boyuan Tong",
+        "Jiedong Zhuang",
+        "Wankou Yang",
+        "Jingdong Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-05T01:44:38+00:00",
+      "link": "https://arxiv.org/pdf/2606.06819v1",
+      "tags": [
+        "keyword:TF-VL-AG",
+        "query:TF-VL-AG"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Multi-turn RL framework with coarse-to-fine chain-of-thought for reasoning video object segmentation, mimicking agentic grounding process",
+      "llm_evidence_cn": "多轮强化学习框架模仿智能体由粗到细的推理过程，用于推理视频目标分割",
+      "llm_evidence": "多轮强化学习框架模仿智能体由粗到细的推理过程，用于推理视频目标分割",
+      "canonical_evidence": "多轮强化学习框架模仿智能体由粗到细的推理过程，用于推理视频目标分割",
+      "llm_tldr_en": "Introduces a multi-turn reinforcement learning method for reasoning video object segmentation that iteratively refines pixel-level localization via temporal-spatial chain-of-thought, resembling an agentic grounding process.",
+      "llm_tldr_cn": "提出多轮强化学习框架，模拟人类由粗到细的认知过程，通过时序-空间思维链迭代精确定位关键帧和区域，大幅提升复杂长视频中推理对象分割的精度与可解释性。",
+      "llm_tldr": "提出多轮强化学习框架，模拟人类由粗到细的认知过程，通过时序-空间思维链迭代精确定位关键帧和区域，大幅提升复杂长视频中推理对象分割的精度与可解释性。",
+      "llm_tags": [
+        "query:tf-vl-ag"
+      ],
+      "matched_query_tag": "query:tf-vl-ag",
+      "matched_query_text": "agent-based method for video grounding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

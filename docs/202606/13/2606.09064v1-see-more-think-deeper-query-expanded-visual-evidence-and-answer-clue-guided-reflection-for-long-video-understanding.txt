@@ -1,0 +1,595 @@
+Title: See More, Think Deeper: Query-Expanded Visual Evidence and Answer-Clue Guided Reflection for Long Video Understanding
+
+URL Source: https://arxiv.org/pdf/2606.09064v1
+
+Published Time: Tue, 09 Jun 2026 02:46:22 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+## See More, Think Deeper: Query-Expanded Visual Evidence and Answer-Clue Guided Reflection for Long Video Understanding 
+
+Shuning Wang ∗1, Zhiheng Wu ∗§ 1, YiNuo Lu ∗2, Naiming Liu 2, Chen Jia 1, Bowen Liu 3,Shuo Nie 2, Weijie Zhu 1, Yumeng Zhang †11Baidu Inc., 2Harbin Institute of Technology, 
+
+3Hong Kong University of Science and Technology  
+
+> ∗
+
+Equal contribution. § Project leader. † Corresponding author. 
+
+Abstract 
+
+Recent advances in Video Large Language Models (Video-LLMs) have enabled perfor-mance on long-video understanding tasks. However, existing methods still face two key limitations: evidence acquisition often relies on a single search intent, and answer genera-tion lacks an effective visual feedback mech-anism. To address these limitations, we pro-pose CoVER , a Comprehensive Visual Ev-idence and Reflection framework for long-video understanding. CoVER enables Video-LLMs to See More by dynamically gathering query-expanded visual evidence, and Think Deeper by verifying draft answers with effec-tive answer-specific visual feedback. Together, these mechanisms shift long-video understand-ing from answer-centric generation to evidence-centric and visually verifiable reasoning. Ex-perimental results show that CoVER-7B sub-stantially outperforms models with the same parameter scale and even surpasses state-of-the-art closed-source models on certain metrics. 
+
+1 Introduction 
+
+Recent advances in Video Large Language Mod-els (Video-LLMs) have greatly improved video question answering, event understanding, and long-video reasoning (Fu et al., 2025b; Lin et al., 2024; Ouyang et al., 2025; Li et al., 2024d). These mod-els can now interpret complex video content and respond in natural language (Liu et al.). However, long-video understanding is not merely about see-ing more frames. It requires identifying sparse but crucial evidence across extended temporal contexts. Key evidence may appear only in a few segments, local regions, or brief moments. Thus, models must not only capture global context, but also lo-cate fine-grained visual evidence during reason-ing. Recent studies have therefore shifted from coarse-grained video understanding to fine-grained temporal or spatio-temporal grounding. For ex-ample, VideoChat-R1.5 uses Iterative Perception What is the first food item displayed in the video? A. Avocado B.            
+
+> Beverage with ice cubes C. Watermelon D. Apple E. Potato chips
+> <think>The global observation is insufficient. I need to zoom in
+> on possible food -related moments.</think>
+> Zoom -in Clips:
+> <think>The zoom -in clips show a beverage .... Later, watermelon
+> slices appear, and then a woman is holding a cup with a straw.
+> Since the visible drink scene comes after the watermelon, the
+> first food item should be watermelon </think> <draft_answer >
+> \\boxed{C} </ draft_answer >
+> <clue>Verify whether the beverage with ice cubes appears
+> before or after the watermelon slices.</clue>
+> <think>Oh! I missed the earlier beverage clip . It appears
+> before the watermelon slices , so the first food item is the
+> beverage with ice cubes.</think>
+> <final_answer >\\boxed{B}</ final_answer >
+> Zoom -in Clips:
+> Query -Expanded Visual Evidence
+> Answer -Clue Guided Reflection
+
+......    
+
+> <pseudo_queries >1. Is there a drink or cup with ice cubes at
+> the beginning?2. Are watermelon slices shown before or after
+> the drink?3.If an apple appear in the video ?</ pseudo _queries >
+> .... .... ....
+> ... ...
+
+Figure 1: Illustration of CoVER reasoning process. 
+
+CoVER retrieves task-relevant zoom-in evidence with pseudo-queries, then uses an answer-specific clue to verify and refine the draft answer with visual evidence. 
+
+to progressively focus on high-confidence spatio-temporal regions (Yan et al., 2026), while LongVT first skims the video globally and then inspects rel-evant clips with a video-cropping tool (Yang et al., 2025). Although these methods improve evidence lo-calization, existing VideoQA (Zhang et al., 2025a; Liu et al., 2025a) still face a fundamental chal-lenge: a correct answer may rely on incorrect or incomplete evidence. Prior work on visually grounded VideoQA shows that high answer accu-racy does not necessarily imply accurate evidence grounding (Ouyang et al., 2025; Wang et al., 2026). VideoZeroBench (Meng et al., 2026) further high-1
+
+> arXiv:2606.09064v1 [cs.CV] 8 Jun 2026
+
+lights this gap, showing that model performance drops sharply when both answer correctness and spatio-temporal evidence correctness are required. This suggests that current video reasoning often relies on linguistic priors, salient partial cues, or incomplete context, rather than complete and veri-fiable visual evidence. One reason is incomplete evidence acquisition. Existing methods (Wang et al., 2025b; Fu et al., 2025b) often retrieve evidence using only the origi-nal question or a single search intent. This may be sufficient for simple questions, but complex video reasoning usually requires multiple cues, such as object attributes, human actions, state changes, spatial relations, and temporal order. A single coarse-grained query may capture only salient cues while missing other critical details. To address this, we introduce query-expanded evidence ac-quisition. Given the original question, we gener-ate diverse evidence-seeking queries that decom-pose the reasoning demand into observable and retrievable visual cues. In this paper, we refer to these model-generated evidence-seeking queries as pseudo-queries. This helps the model collect more comprehensive evidence before reasoning. Another limitation is the lack of visual verifi-cation after answer generation. Existing Video-LLMs typically reason over available visual or tex-tual context and directly produce an answer (Wu et al., 2026b; Yang et al., 2026). Once the answer is generated, the process stops. The model rarely checks whether the answer is supported by visual evidence, nor does it revise the answer when new evidence is found. To address this, we introduce answer-clue-guided visual reflection. After produc-ing an initial answer, the model derives verifiable visual clues from the answer and retrieves related evidence from the video. The visual feedback is then used to re-evaluate and revise the answer when necessary. Based on these insights, we propose CoVER ,a Co mprehensive Visual Evidence and Reflection framework for long-video understanding. CoVER is equipped with a text-aware video evidence tool that retrieves relevant video segments and provides magnified visual information for reasoning. As shown in Fig. 1, it contains two modules: (1) query-expanded visual evidence acquisition, which gen-erates diverse evidence-seeking queries to help the model See More ; (2) answer-clue-guided visual reflection, which retrieves evidence based on clues derived from the initial answer and uses visual feedback to Think Deeper . Together, these mod-ules shift long-video understanding from answer-centric generation to evidence-centric and visu-ally verifiable reasoning. Experiments show that CoVER improves long-video understanding perfor-mance. Compared with Qwen2.5-VL-7B, CoVER-7B achieves gains of +3.9% on MLVU and +4.6% on LVBench. Our contributions are summarized as follows: • We are the first to introduce visual-feedback re-flection into Video-LLM reasoning, transforming open-loop inference into a closed-loop paradigm. • We propose CoVER, a framework that com-bines query-expanded visual evidence acqui-sition with answer-clue guided reflection for evidence-centric reasoning. • Experiments on long-video benchmarks show that CoVER brings substantial gains over the baseline. 
+
+2 Related Work 
+
+Long Video Understanding. Large Video Lan-guage Models (LVLMs) have advanced and demon-strated strong capability across video understand-ing tasks (Bai et al., 2025a; Zhang et al.; Li et al., 2025c, 2024a; Lin et al., 2024). Existing ap-proaches commonly adopt uniform frame sam-pling (Maaz et al., 2024), where frames are sam-pled at fixed intervals and concatenated as model input. However, in long-video settings, this strat-egy leads to a rapid increase in visual tokens. To improve efficiency, prior studies explore to-ken compression, keyframe selection, long-context modeling, and agent-based multi-stage process-ing (Tang et al., 2025; Wang et al., 2025a; Tang et al., 2026; Wang et al., 2026). Unlike these ap-proaches, CoVER uses query expansion to adap-tively retrieve task-relevant evidence and verifies draft predictions with answer-specific visual clues, enabling evidence-grounded long-video reasoning. 
+
+Chain-of-Thought for Multimodal Reasoning. 
+
+Recent reasoning models show that long Chain-of-Thought (CoT) can improve complex reasoning by decomposing problems into intermediate steps (Li et al., 2025a; Wei et al., 2023; Wu et al., 2026a). For video understanding, prior studies further incor-porate visual information into reasoning, enabling operations such as zoom-in, grounding, and evi-dence selection (Zhang et al., 2025c; Jiang et al., 2025; Jian et al., 2025). Recent methods, includ-ing VITAL (Zhang et al., 2025a), LOVE-R1 (Fu 2et al., 2025b), REVISOR (Li et al., 2025b), and Co-nan (Ouyang et al., 2025), explore dynamic video reasoning and multimodal reflection with tool use or multi-scale visual evidence. Other evidence-centric approaches study search-guided ground-ing, semantic-visual evidence consensus, and ex-plicit spatio-temporal evidence for long-video an-swers (Wu et al., 2026b; Sheng et al., 2025; Wei et al., 2026). Unlike these methods, CoVER unifies question-side evidence acquisition and answer-side verification in a closed-loop process, using pseudo-queries to expand visual evidence and answer-specific clues to refine draft predictions. 
+
+RL-based Reasoning in VLMs. Recent progress in reinforcement learning (RL) and preference op-timization has become an effective paradigm for improving reasoning in Vision-Language Models (VLMs) (Guo et al., 2025; Yu et al., 2025; Rafailov et al., 2023). This trend has also been extended to video understanding, where existing efforts can be broadly grouped into three directions: optimiz-ing temporal sampling for long-video understand-ing, such as TSPO (Tang et al., 2026); improv-ing temporally grounded and consistent reason-ing, as in Video-R2 (Maaz et al., 2025); and en-hancing dynamic multi-step video reasoning, as explored by LOVE-R1 (Fu et al., 2025b) and Video-Thinker (Wang et al., 2025c). Unlike these meth-ods, CoVER focuses on evidence completeness and answer verification: it uses query expansion to retrieve task-relevant visual evidence and answer-specific clues to verify and refine draft predictions. 
+
+3 Method 
+
+3.1 Overview 
+
+We propose CoVER, a Co mprehensive Visual 
+
+Evidence and Reflection framework for long-video understanding. CoVER enables the model to ac-quire comprehensive visual evidence before an-swer generation and further reflect on draft answers with answer-specific visual clues. Instead of rely-ing only on a low-resolution global observation, CoVER combines query-expanded visual evidence acquisition with answer-clue guided visual reflec-tion, allowing the model to reason over both holis-tic video context and fine-grained visual evidence. As illustrated in Fig. 2, the model first builds a low-resolution global observation of the input video V to capture holistic context with reduced computation. Based on the question q and the global observation, it decides whether to invoke the visual zoom-in tool for fine-grained evidence ac-quisition. When additional evidence is needed, the model generates pseudo-queries P = {pm}Mm=1 
+
+from the question and global observation. These pseudo-queries act as evidence-seeking queries that describe potentially missing visual facts. Together with the original question, they guide the zoom-in tool to retrieve evidence clips from the full video. The retrieved query-expanded evidence comple-ments the global observation and supports draft answer generation. After producing a draft answer, the model derives an answer-specific visual clue and invokes the zoom-in tool again to retrieve veri-fication evidence. It then checks whether the draft answer is visually supported and either preserves or revises it. Thus, CoVER forms a closed-loop rea-soning process that acquires missing evidence, ver-ifies draft predictions, and refines answers through explicit visual feedback. Overall, CoVER con-sists of two components: Query-Expanded Visual Evidence (QVE) for draft answer generation, and 
+
+Answer-Clue-Guided Reflection (AGR) for answer verification and refinement. 
+
+3.2 CueZoom: Cue-Aware Visual Evidence Zoom-In Tool 
+
+To support evidence acquisition and verification in CoVER, we introduce CueZoom , a cue-aware vi-sual evidence zoom-in tool. CueZoom retrieves visual evidence clips according to textual cues, including the original question, pseudo-queries, and answer-specific clues. Given textual cues 
+
+U = {uj }Mj=1 and sampled video frames {fi}Ni=1 ,CueZoom computes the relevance score si of each frame fi by averaging its similarity to all cues: 
+
+si = 1
+
+M
+
+> M
+
+X
+
+> j=1
+
+sim  ϕt(uj ), ϕ v(fi), (1) where ϕt(·) and ϕv(·) are the text and visual en-coders, respectively, and sim( ·, ·) denotes cosine similarity. Since frame-level relevance scores can be noisy and may contain isolated responses, we ap-ply Laplacian Temporal Smoothing (LTS) to obtain more stable visual evidence: 
+
+˜si =
+
+> r
+
+X
+
+> j=−r
+
+κj si+j , κj ∝ exp( −| j|/h ), (2) where ˜si denotes the smoothed relevance score of frame fi, κj is the smoothing weight for its neigh-boring offset j, r is the smoothing radius, and h
+
+3Input  
+
+> Long Video
+> V
+> TQuestion
+> Q
+
+Low -resolution Global Observation(Uniform Sampling) 
+
+......  
+
+> 1
+
+Query -Expanded Visual Evidence                 
+
+> Pseudo -query
+> Generation
+> TWhy the car is
+> fired?
+> Pseudo -queries
+> P𝑷 𝟏 :𝑾𝒂𝒔 ..𝒉𝒊𝒕𝒆𝒅 ?
+> 𝑷 𝒎 :𝑾𝒉𝒚 𝒄𝒂𝒓 ..?
+> 𝑷 𝟐 :𝑾𝒉𝒐 ...𝒄𝒂𝒓 ?
+> 2
+
+Answer -Clue Guided Reflection 
+
+> Draft Answer &
+> Clue
+> Because this ca
+> r was targeted.
+> Verifiable Clue
+> Draft Answer
+> The car was blown
+> up before it
+> caught fire.
+
+Sufficient? 
+
+> YES
+
+NO   
+
+> Clue -Driven Retrieval
+> Top -K high -resolution Clips
+> ......
+> ......
+> Verification &
+> Revision
+> ✅Consistent
+> Keep the
+> answer
+> ❌Inconsistent
+> Revise the
+> answer
+> Final Answer
+> This was caused by the
+> car rolling over after
+> he knocked it down..
+
+.......       
+
+> Zoom -in Evidence
+> Clips
+> high -resolution Clips
+> ......
+> ......
+> ......
+> Call CueZoom
+> Call CueZoom
+> Temporal Smoothing
+> （Laplacian ）
+> Scores
+> Threshold τ
+> Smoothed
+> scores
+> Selected
+> Peaks
+> Relevance Score
+> Time pM
+> ...
+> Retrieval over Global
+> Observation
+> Cosine
+> similarity
+> High
+> Low
+> q
+> p1
+> 𝒇 𝟏 𝒇 𝟐 𝒇 #...
+> CueZoom : Cue -Aware Visual Evidence Zoom -In Tool
+
+Training 
+
+Pipeline 
+
+> Long Video
+
+V 
+
+> TQuestion
+
+Q
+
+Two -stage SFT     
+
+> <think> ithink...</think>.... <draft_an
+> swer >car was targeted .</ draft_an
+> swer >
+> Pre:
+> <think> Inmy ....</think>....... <draft_
+> answer> because the car... </draft_
+> answer>
+> Loss
+
+GT: draft_ans : ❌ draft_ans : ✅  
+
+> ...< draft_answer >The car
+> overheated and
+> combusted</ draft_answer >
+> .....< final_answer >car . was..t
+> argeted .</ final _answer >
+> ...< draft_answer >The .. car.. wa
+> s..targeted .</ draft _answer >..
+> ...< final_answer >car .. was..targ
+> eted .</ final _answer >
+
+GRPO 
+
+Answer Reward 
+
+Verify Reward 
+
+Format Reward 
+
+Stage 1: QVE SFT Stage 2: AGR SFT w/o loss 
+
+> w/ loss
+
+Figure 2: The overview of the proposed CoVER framework. CoVER first uses pseudo-queries to retrieve task-relevant zoom-in clips for evidence-aware draft generation, and then uses an answer-specific clue to retrieve verification evidence for final-answer refinement. The model is trained with staged supervised fine-tuning and evidence-guided reinforcement learning using answer, verification, and format rewards. 
+
+controls the decay rate of the smoothing kernel. Lo-cal normalization is applied near video boundaries. We then select frames whose smoothed scores ex-ceed an adaptive threshold τ = μ(˜ s) + ασ (˜ s),where μ(˜ s) and σ(˜ s) are the mean and standard deviation of the smoothed relevance sequence, and 
+
+α controls the selectivity of evidence selection. Fi-nally, neighboring selected frames are merged into coherent visual evidence clips. 
+
+3.3 Query-Expanded Visual Evidence 
+
+Given a long video V and a question q, the low-resolution global observation Vglobal provides over-all semantic context, but may miss sparse or fine-grained evidence. To improve evidence coverage before answer generation, we introduce Query-Expanded Visual Evidence (QVE) . Specifically, the model generates a set of pseudo-queries P =
+
+{pd}Dd=1 from q and Vglobal , where D ≤ 3 in our implementation. These pseudo-queries act as evidence-seeking queries that describe question-relevant visual facts to be further verified. We com-bine the original question and pseudo-queries into expanded textual cues: Uqe = {q} ∪ P . CueZoom uses these cues to locate and retrieve relevant video clips from the full video. The retrieved clips Cqe 
+
+serve as high-resolution query-expanded visual ev-idence for draft answer generation. 
+
+3.4 Answer-Clue Guided Reflection 
+
+Although query-expanded visual evidence im-proves draft answer generation, the draft answer may still be insufficiently verified by visual evi-dence. To address this, we introduce Answer-Clue-Guided Reflection (AGR) . Given a draft answer 
+
+ˆa, the model derives an answer-specific clue c,which describes the visual condition expected to hold if ˆa is correct. We use c as the verification cue: Uver = {c}. CueZoom then retrieves answer-relevant evidence clips based on this cue. Un-like pseudo-query-based retrieval, which expands question-relevant evidence coverage, clue-guided retrieval focuses on evidence that directly supports or contradicts the draft answer. This enables the model to reflect on ˆa using explicitly retrieved vi-sual evidence rather than treating it as final. 4TrainSet             
+
+> （LLava -video -178K ）
+> Qwen2.5 -VL -7B
+> ✅❌
+> <think> ithink ......</think >
+> <draft_answer >//boxed{
+> A.}</ draft_answer ><clue
+> >The video is ......</clue >
+> <think >.......</think >
+> <final_answer >A .</ final _
+> answer >
+> 30B
+> ❌
+> ✅
+> <think> ithink ......</think >
+> <draft_answer >//boxed{A.}
+> </ draft_answer >
+> <clue>The video is .....</clue >
+> <think >.......</think >
+> <final_answer >A .</ final _ans
+> wer >
+> <think> ithink ......</think >
+> <pseudo_queries>...</ pseudo
+> _queries ><think>...</think>
+> <draft_answer>//boxed{A.}
+> </draft_answer><clue>The
+> video is ......</clue>
+> <think >.......</think >
+> <final_answer >A .</ final _ans
+> wer >
+> Cold Start
+> 122B 122B
+> Balance
+> 122B RL
+> RL
+> ❌
+> ❌❌
+> Stage1 Stage2
+> Draft
+> answer ✅
+> ✅
+> ❌
+> Correct Response
+> False Response
+> All
+
+Figure 3: Training data construction pipeline. Sam-ples are partitioned by difficulty and annotated into struc-tured trajectories. Correct draft-answer trajectories are used for Stage-1 QVE SFT, while all annotated trajec-tories support Stage-2 AGR SFT; incorrectly answered samples are further used for RL optimization. 
+
+3.5 Data Construction and Two-Stage SFT Data Construction. To provide a cold start for RL, we construct 11K high-quality SFT samples from LLaVA-Video-178K (Zhang et al., 2024c) through the automated pipeline shown in Fig. 3. The pipeline consists of three steps: (1) Data Partition-ing. We first evaluate each sample with Qwen2.5-VL-7B. Samples correctly answered by Qwen2.5-VL-7B are treated as easier cases, while failed sam-ples are further processed by Qwen3-VL-30B-A3B to identify tool-dependent or harder cases. This par-tition allows the dataset to cover both direct-answer and evidence-seeking reasoning patterns. (2) CoT Annotation Generation. Qwen3.5-122B-A10B is used to generate structured reasoning traces, includ-ing draft answers, pseudo-queries when additional evidence is needed, visual clues, retrieved evidence, and final verified answers. These traces provide su-pervision for both pseudo-query guided evidence acquisition and clue-guided answer verification. (3) Data Balancing and Cleaning. We balance different trace types, upsample rare answer-revision cases where retrieved evidence corrects an incorrect draft answer, and apply rule-based filtering to remove malformed or inconsistent samples. The detailed distribution of the dataset is show in Fig. 4. 
+
+Stage-1: QVE SFT. This stage aims to train the model to generate reliable draft answers from avail-0-30s   
+
+> 22.2%
+> 30-60s
+> 23.0%
+> 1-2min
+> 27.5%
+> 2-3min
+> 27.2%
+> w/ pseudo_queries w/o pseudo_queries
+> 0
+> 2000
+> 4000
+> 6000
+> Count  4,529
+> (41.3%)
+> 6,433
+> (58.7%)
+> Corrected
+> (draft != final)
+> Not Corrected
+> (draft == final)
+> 0
+> 1000
+> 2000
+> 3000
+> Count
+> 3,005
+> (50.1%) 2,995
+> (49.9%)
+
+Figure 4: Statistics of the constructed training data. 
+
+The dataset covers diverse video durations, both pseudo-query and direct-answer trajectories, and balanced corrected/no-corrected draft-answer cases. 
+
+able visual evidence. Cold-start trajectories with correct draft answers are used as Stage-1 data. Given the global observation and question, the model learns an adaptive tool-use policy: it invokes the tool with pseudo-queries to retrieve additional visual evidence when needed, and bypasses the tool to directly produce a draft answer when the available evidence is sufficient. In both cases, the model also generates an answer-specific visual clue for subsequent verification. This stage initializes evidence-aware draft prediction while avoiding su-pervision from erroneous intermediate answers. 
+
+Stage-2: AGR SFT. This stage trains the model to verify draft answers with answer-clue guided evidence. Given the question, global observation, draft answer, answer clue, and verification clips, the model learns to assess whether the draft answer is visually supported and decide whether the final answer should be revised. To avoid optimizing to-ward unreliable intermediate drafts, we mask the loss on incorrect draft answers while keeping super-vision for verification reasoning and final-answer generation: 
+
+LAGR = −
+
+TX
+
+t=1 
+
+mt log pθ(yt | x, y <t ),mt =
+
+(
+
+0, ¬zˆa ∧ (t < t da ),
+
+1, otherwise ,
+
+(3) where T is the sequence length, yt is the target token at position t, x is the input context, and y<t 
+
+denotes preceding target tokens. The binary mask 
+
+mt controls whether token yt contributes to the loss. zˆa indicates whether the draft answer ˆa is correct, and tda denotes the position of the closing 
+
+</draft_answer> tag. When the draft answer is 5incorrect, tokens before this tag are masked out. 
+
+3.6 GRPO with Evidence-Guided Rewards 
+
+We adopt Group Relative Policy Optimization (GRPO) (Guo et al., 2025) to encourage dynamic and autonomous tool use during reinforcement learning. Given a generated reasoning trajectory τ ,GRPO jointly optimizes final-answer correctness, answer-level verification, and format consistency through a composite reward: 
+
+R(τ ) = λans Rans + λver Rver + λfmt Rfmt , (4) where λans , λver , and λfmt are reward weights. We set them to 0.6, 0.25 , and 0.15 , respectively. 
+
+Answer Reward (Yu et al., 2026). The answer reward Rans serves as the primary task-level signal for encouraging correct final predictions by com-paring the final answer with the ground-truth. 
+
+Verification Reward. The verification reward mea-sures whether the transition from the draft answer to the final answer is consistent with evidence-grounded verification. Given the extracted draft answer d, final answer f , and label answer y:
+
+Rver =
+
+
+
+1, f = y, 
+
+−0.5, d = y and f̸ = y, 
+
+−0.5, d = ∅,
+
+−1, f = ∅,
+
+0, otherwise .
+
+(5) This reward assigns a positive score when the final answer is correct, regardless of whether the model preserves a correct draft or revises an incorrect one. It penalizes cases where a correct draft is revised into an incorrect final answer, thereby discouraging unsupported answer changes. Missing draft or final answers are also penalized to encourage complete verification trajectories. 
+
+Format Reward (Zhang et al., 2025b). The format reward Rfmt encourages the model to follow the predefined response format. 
+
+4 Experiments 
+
+4.1 Experimental Setup Implementations. We instantiate our framework with Qwen2.5-VL-7B (Bai et al., 2025b) as the base model. For supervised fine-tuning, we adopt two stages: Stage-1 is trained for 3 epochs to es-tablish evidence-aware reasoning, and Stage-2 for 1 epoch to enhance final-answer verification and correction. For reinforcement learning, we fur-ther train with GRPO (Guo et al., 2025) on 4K high-quality reasoning samples using the proposed evidence-guided rewards. All experiments are con-ducted on 8 NVIDIA A800 GPUs, with more de-tails reported in the Appendix. 
+
+Benchmarks for Evaluation. We conduct a comprehensive experimental analysis to assess the video reasoning capability of our method. For a broad evaluation, we adopt representa-tive video understanding benchmarks, including MLVU (Zhou et al., 2025), Video-MME (Fu et al., 2025a), LongVideoBench (Wu et al., 2024), and LVBench (Wang et al., 2025d). MLVU and Video-MME evaluate general video understanding and reasoning. LongVideoBench and LVBench focus on long-video comprehension, evidence aggrega-tion, and temporal-semantic reasoning. 
+
+4.2 Main Results 
+
+Table 1 provides a comprehensive comparison of CoVER with representative video MLLMs across four benchmarks, including open-source, agen-tic, and reasoning-oriented models such as Video-MTR (Xie et al., 2025) and Conan (Ouyang et al., 2025). For a fair comparison, Qwen2.5-VL-7B is evaluated with its default inference setting and a comparable visual-token budget using 128 uni-formly sampled frames at approximately 448 ×448 
+
+resolution. CoVER consistently outperforms this baseline, achieving gains of +3.9% on MLVU, +0.7% on VideoMME, +1.1% on VideoMME-Long, +2.3% on LongVideoBench, and +4.6% on LVBench. CoVER also outperforms Video-MTR and Conan on their reported metrics. These results demonstrate the effectiveness of query-expanded visual evidence and answer-clue guided reflection for evidence-aware video reasoning. CoVER maintains strong general video under-standing on MLVU and VideoMME and achieves larger gains on LongVideoBench and LVBench, where sparse evidence requires visual verification. Its competitive performance against 7B-scale rea-soning models shows that explicit evidence acqui-sition and clue-guided verification improve long-video reasoning without increasing model scale. 
+
+4.3 Ablation Study Ablation Study on Training Stages. Table 2 evaluates the contribution of each training stage. CoVER achieves the best performance across all benchmarks, reaching 70.3 on MLVU, 63.8 on 6Table 1: Comparison with SOTA video-LLMs on long-video benchmarks. We compare CoVER with proprietary, open-source, agentic, and reasoning-oriented models on MLVU, VideoMME, LongVideoBench, and LVBench. * denotes our reproduced result. ∆ reports the performance improvement of CoVER over baseline. 768L+32H denotes 768 low-resolution and 32 high-resolution frames. 
+
+Models Size #Frames Context MLVU VideoMME LongVideoBench LVBench 3∼120 min Overall Long 0∼60 min 4101 sec 
+
+Proprietary Models 
+
+GPT-4V – 1fps – – 60.7 56.9 – –GPT-4o – 1fps – 66.2 77.2 72.1 66.7 34.7 
+
+Open-Source Video MLLMs 
+
+Video-LLaVA (Lin et al., 2024) 7B 8 – 47.3 40.4 38.1 39.1 –LLaMA-VID (Li et al., 2024d) 7B 1fps – 33.2 – – – 23.9 ShareGPT4Video (Chen et al., 2024) 8B 16 – 46.4 43.6 37.9 39.7 –LLaVA-NeXT-Video (Zhang et al., 2024b) 7B 32 – – 46.5 – 43.5 –VideoLLaMA2 (Cheng et al., 2024) 7B 32 – 48.5 46.6 43.8 – –LongVA (Zhang et al., 2024a) 7B 128 – 56.3 54.3 47.6 – –VideoChat2 (Li et al., 2024b) 7B 16 – 47.9 54.6 39.2 – –LLaVA-OneVision (Li et al., 2024a) 7B 32 – 64.7 58.2 46.7 – –Vamba (Ren et al., 2025) 10B 1024 – 65.9 57.8 – 55.9 42.1 VideoChat-T (Zeng et al., 2025) 7B 12 – – 46.3 41.9 – –Video-XL (Shu et al., 2025) 7B 256 – 64.9 55.5 – 50.7 –Video-XL-Pro (Liu et al., 2025b) 7B 240 – 70.6 60.0 – 56.7 –LongVILA (Chen et al., 2025) 7B 256 – – 60.1 53.0 57.1 –LongVU (Shen et al., 2024) 7B 1fps – 65.4 60.6 59.5 – –Hour-LLaVA (Lin et al., 2026) 7B 1fps – – 63.6 55.0 60.4 45.6 LongVITA-128K (Shen et al., 2025) 14B 256 – – 66.4 58.8 60.9 –VILAMP (Cheng et al., 2025) 7B 1fps – 72.6 67.5 57.8 61.2 45.2 VideoChat-Flash (Li et al., 2024c) 7B 512 – 74.7 65.3 55.4 – 48.2 
+
+Open-Source Agent Video MLLMs 
+
+VideoMind (Bhatnagar et al., 2026) 7B – – 64.4 58.2 49.2 56.3 40.8 Video-RAG (Luo et al., 2026) 7B – – 72.4 62.1 59.8 58.7 –
+
+Open-Source Reasoning Video MLLMs 
+
+Video-MTR (Xie et al., 2025) 7B 32 4k 48.4 59.0 51.0 – –Video-R1 (Feng et al., 2026) 7B 32 4k – 59.3 – – –VITAL (Zhang et al., 2025a) 7B 1024 32k – 64.1 54.0 – –LongVILA-R1 (Chen et al., 2026) 7B 512 132k – 65.1 55.2 58.0 –Conan (Ouyang et al., 2025) 7B 32 – 63.4 60.5 – 56.6 39.2 
+
+Ours 
+
+Qwen2.5-VL* (Bai et al., 2025b) 7B 128 16k 66.4 63.1 53.6 56.0 42.0 
+
+CoVER 7B 768L + 32H 16k 70.3 63.8 54.7 58.3 46.6 
+
+∆ – – – +3.9 +0.7 +1.1 +2.3 +4.6 
+
+Table 2: Ablation on training stages. LongVB denotes LongVideoBench. 
+
+Model MLVU VideoMME LongVB LVBench 
+
+CoVER 70.3 63.8 58.3 46.6 
+
+w/o Stage-1 SFT 67.5 62.9 57.0 45.8 w/o Stage-2 SFT 66.9 63.0 56.2 42.2 w/o RL 63.3 61.5 56.4 42.6 w/o SFT + RL 43.4 50.3 40.8 31.0 
+
+VideoMME, 58.3 on LongVideoBench, and 46.6 on LVBench. Removing either Stage-1 SFT or Stage-2 SFT degrades performance, showing that both stages are important for evidence-grounded reasoning. In particular, removing Stage-2 SFT causes a 4.4% drop on LVBench, indicating the im-portance of supervised verification for long-video understanding. Removing RL leads to a larger drop than removing either SFT stage on MLVU and LVBench, highlighting its role in further optimiz-ing evidence-grounded reasoning after supervised training. The variant without SFT or RL performs 
+
+Table 3: Ablation study on CoVER components. 
+
+LongVB denotes LongVideoBench. 
+
+Model MLVU VideoMME LongVB LVBench w/o QVE 66.4 63.1 56.0 44.0 w/o AGR 67.4 63.3 57.1 45.3 
+
+CoVER 70.3 63.8 58.3 46.6 
+
+worst, showing all training stages are important. 
+
+Table 4: CueZoom hyperparameter sensitivity on LVBench. Each hyperparameter is varied indepen-dently, with the default setting (r = 4 , h = 1 , α = 0 .5) 
+
+highlighted in gray. 
+
+Param. r h α
+
+Val. 0 4 8 0.5 1 2 0.25 0.5 1
+
+Score 43.8 46.6 45.7 46.0 46.6 46.0 45.6 46.6 45.0 
+
+Ablation Study on CoVER Components. Ta-ble 3 ablates CoVER’s two core components: Query-Expanded Visual Evidence (QVE) and Answer-Clue Guided Reflection (AGR). Removing QVE or AGR consistently degrades performance 740s 90s 170s 210s 305s 270s 380s 440s 
+
+Video overview 
+
+What sentence appears with the Czech Ethnicity pie chart, where blue is largest, red second, and 
+
+light green smallest? (A) 25% "Unspecified" (B) 60% "declared" Czech (C) 95% Czech (D) 38% Czech 
+
+> Ground
+> truth ：
+
+A
+
+Round 1 
+
+Global observation 
+
+Round 2 QVE                                                     
+
+> <think> The pie chart labels and
+> specific percentage values are
+> illegible in the provided low -
+> resolution frames .</think>
+> <pseudo_queries> 1.Is there apie
+> chart showing 95 %Czech, 38 %
+> unspecified, and 60 %red? 2.Does
+> the screen display text indicating
+> 25 %unspecified for the pie chart?
+> 3.Is the pie chart labeled with 60 %
+> declared Czech and 38 %
+> Czech ?</ pseudo _queries >
+> <think>Around 03:29, The pie chart shows
+> large blue (90%), medium red (25%), and small
+> light green (5%). The text labels correspond
+> to \"90% Czech \", \"25% Unspecified \", and
+> \"5% Other \". Option B mentions 60%, which
+> corresponds to the red segment but the text
+> is \"declared \" Czech, not just \"Czech \".
+> Option C says 95% , which matches the blue
+> segment. Option D says 38%, which does not
+> match any segment size. The visual evidence
+> points to 90%Czech. </think>
+> <draft_answer> \\boxed{C}</draft_answer>
+> <clue>The pie chart displays three segments:
+> large blue (90%), medium red (25%), and small
+> light green (5%).</clue>
+
+Round 3 AGR      
+
+> Revised
+> (aligned)
+> <think>The pie chart appears around 03:29. It
+> shows three segments: large blue (90%),
+> medium red (25%), and small light green (5%).
+> The text labels correspond to \"90% Czech \",
+> \"25% Unspecified \", and \"5% Other \".
+> Option C says 95% Czech, not 90%, so the
+> previous answer was wrong. However, The text
+> label for the red segment is \"25%
+> Unspecified \". Therefore, the correct option
+> is A.</think>
+> <final_answer> \\boxed{A}</final_answer>
+> Corrected
+> answer: A
+
+C -> A        
+
+> Clip 1 Clip 2 Clip 3
+> …………
+> Clip 1 Clip 2 Clip 3
+
+…Figure 5: Case study of CoVER’s reasoning process. This example illustrates CoVER’s two-step evidence process: pseudo-query based zoom-in for fine-grained evidence retrieval, followed by answer-specific verification to revise an unsupported draft into the correct answer. 
+
+across all benchmarks, showing that both compo-nents contribute to CoVER’s final performance. Compared with w/o QVE, CoVER improves by +3.9 on MLVU, +0.7 on VideoMME, +2.3 on LongVideoBench, and +2.6 on LVBench. Com-pared with w/o AGR, CoVER further improves by +2.9, +0.5, +1.2, and +1.3, respectively. 
+
+4.4 Hyperparameter Sensitivity. 
+
+We analyze the sensitivity of CueZoom Tool’s three hyperparameters: the smoothing radius r, Lapla-cian bandwidth h, and adaptive threshold coeffi-cient α. As shown in Table 4, the default setting (r = 4 , h = 1 , α = 0 .5) achieves the best per-formance. Removing temporal smoothing ( r = 0 )clearly hurts performance, while overly large radius values also lead to degradation. This indicates that moderate smoothing helps suppress noisy peaks without blurring fine-grained evidence. Results for 
+
+h and α further highlight the importance of proper temporal aggregation and thresholding. 
+
+4.5 Case Study 
+
+Fig. 5 shows a representative case of CoVER’s evidence-grounded reasoning. When the low-resolution global observation is insufficient, pseudo-queries help retrieve fine-grained zoom-in evidence that improves evidence coverage. The answer-specific clue then guides verification to-ward evidence directly related to the draft answer, enabling CoVER to identify unsupported predic-tions and revise them. This case highlights the complementary roles of QVE and AGR in finding missing evidence and verifying answer grounding. Additional qualitative results, including more case studies and representative failure cases, are pro-vided in the appendix. 
+
+5 Conclusion 
+
+We present CoVER , a visual evidence and re-flection framework for long-video understanding. CoVER improves Video-LLM reasoning from two aspects: it gathers more complete visual evidence through query-expanded evidence acquisition, and it verifies answers through answer-clue guided vi-sual reflection. By integrating these two modules, CoVER shifts long-video understanding from open-loop answer generation to evidence-centric and vi-sually verifiable reasoning. Experiments show that CoVER improves over the baseline, demonstrating the importance of comprehensive evidence acqui-sition and visual-feedback reflection for reliable long-video reasoning. 86 Limitations 
+
+Although CoVER improves evidence-grounded long-video reasoning, it still depends on the quality of generated evidence-seeking queries and answer-specific clues. Ambiguous or biased queries may retrieve incomplete or misleading evidence. In ad-dition, answer-clue-guided reflection is conditioned on the initial answer, so incorrect initial predictions may lead to biased verification clues. The zoom-in based evidence retrieval process also introduces extra computation compared with direct uniform sampling. Finally, CoVER may be less effective for questions that require holistic video understanding rather than localized visual evidence. Future work can improve query robustness, tool invocation, and retrieval efficiency. 
+
+References 
+
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, and 1 others. 2025a. Qwen3-vl technical report. arXiv preprint arXiv:2511.21631 .Shuai Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wen-bin Ge, Sibo Song, Kai Dang, Peng Wang, Shijie Wang, Jun Tang, and 1 others. 2025b. Qwen2. 5-vl technical report. arXiv preprint arXiv:2502.13923 .Shubhang Bhatnagar, Renxiong Wang, Kapil Krishnaku-mar, Adel Ahmadyan, Zhaojiang Lin, Lambert Math-ias, Xin Luna Dong, Babak Damavandi, Narendra Ahuja, and Seungwhan Moon. 2026. Videomind: Thinking in steps for long video understanding. In 
+
+Proceedings of the 19th Conference of the European Chapter of the Association for Computational Lin-guistics (Volume 5: Industry Track) , pages 406–416. Lin Chen, Xilin Wei, Jinsong Li, Xiaoyi Dong, Pan Zhang, Yuhang Zang, Zehui Chen, Haodong Duan, Bin Lin, Zhenyu Tang, and 1 others. 2024. Sharegpt4video: Improving video understanding and generation with better captions. Advances in Neural Information Processing Systems , 37:19472–19495. Yukang Chen, Wei Huang, Baifeng Shi, Qinghao Hu, Hanrong Ye, Ligeng Zhu, Zhijian Liu, Pavlo Molchanov, Jan Kautz, Xiaojuan Qi, and 1 others. 2026. Scaling rl to long videos. Advances in Neural Information Processing Systems , 38:172842–172870. Yukang Chen, Fuzhao Xue, Dacheng Li, Qinghao Hu, Ligeng Zhu, Xiuyu Li, Yunhao Fang, Haotian Tang, Shang Yang, Zhijian Liu, and 1 others. 2025. Longvila: Scaling long-context visual language mod-els for long videos. In International Conference on Learning Representations , volume 2025, pages 18227–18246. Chuanqi Cheng, Jian Guan, Wei Wu, and Rui Yan. 2025. Scaling video-language models to 10k frames via hierarchical differential distillation. arXiv preprint arXiv:2504.02438 .Zesen Cheng, Sicong Leng, Hang Zhang, Yifei Xin, Xin Li, Guanzheng Chen, Yongxin Zhu, Wenqi Zhang, Ziyang Luo, Deli Zhao, and 1 others. 2024. Videol-lama 2: Advancing spatial-temporal modeling and audio understanding in video-llms. arXiv preprint arXiv:2406.07476 .Kaituo Feng, Kaixiong Gong, Bohao Li, Zonghao Guo, Yibing Wang, Tianshuo Peng, Junfei Wu, Xiaoy-ing Zhang, Benyou Wang, and Xiangyu Yue. 2026. Video-r1: Reinforcing video reasoning in mllms. Ad-vances in Neural Information Processing Systems ,38:99114–99137. Chaoyou Fu, Yuhan Dai, Yongdong Luo, Lei Li, Shuhuai Ren, Renrui Zhang, Zihan Wang, Chenyu Zhou, Yunhang Shen, Mengdan Zhang, and 1 others. 2025a. Video-mme: The first-ever comprehensive evaluation benchmark of multi-modal llms in video analysis. In Proceedings of the IEEE/CVF confer-ence on computer vision and pattern recognition ,pages 24108–24118. Shenghao Fu, Qize Yang, Yuan-Ming Li, Xihan Wei, Xiaohua Xie, and Wei-Shi Zheng. 2025b. Love-r1: Advancing long video understanding with an adaptive zoom-in mechanism via multi-step reasoning. arXiv preprint arXiv:2509.24786 .Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang, Qihao Zhu, Runxin Xu, Ruoyu Zhang, Shirong Ma, Xiao Bi, and 1 others. 2025. Deepseek-r1 incentivizes reasoning in llms through reinforce-ment learning. Nature , 645(8081):633–638. Pu Jian, Junhong Wu, Wei Sun, Chen Wang, Shuo Ren, and Jiajun Zhang. 2025. Look again, think slowly: Enhancing visual reflection in vision-language mod-els. In Proceedings of the 2025 Conference on Empir-ical Methods in Natural Language Processing , pages 9262–9281. Chaoya Jiang, Yongrui Heng, Wei Ye, Han Yang, Haiyang Xu, Ming Yan, Ji Zhang, Fei Huang, and Shikun Zhang. 2025. Vlm-r 3: Region recognition, reasoning, and refinement for enhanced multimodal chain-of-thought. arXiv preprint arXiv:2505.16192 .Bo Li, Yuanhan Zhang, Dong Guo, Renrui Zhang, Feng Li, Hao Zhang, Kaichen Zhang, Peiyuan Zhang, Yanwei Li, Ziwei Liu, and 1 others. 2024a. Llava-onevision: Easy visual task transfer. arXiv preprint arXiv:2408.03326 .Jiachun Li, Pengfei Cao, Yubo Chen, Jiexin Xu, Huaijun Li, Xiaojian Jiang, Kang Liu, and Jun Zhao. 2025a. Towards better chain-of-thought: A reflection on ef-fectiveness and faithfulness. In Findings of the As-sociation for Computational Linguistics: ACL 2025 ,pages 10747–10765. 
+
+9Jiaze Li, Hao Yin, Wenhui Tan, Jingyang Chen, Boshen Xu, Yuxun Qu, Yijing Chen, Jianzhong Ju, Zhenbo Luo, and Jian Luan. 2025b. Revisor: Beyond textual reflection, towards multimodal introspective reason-ing in long-form video understanding. arXiv preprint arXiv:2511.13026 .KunChang Li, Yinan He, Yi Wang, Yizhuo Li, Wen-hai Wang, Ping Luo, Yali Wang, Limin Wang, and Yu Qiao. 2025c. Videochat: Chat-centric video un-derstanding. Science China Information Sciences ,68(10):200102. Kunchang Li, Yali Wang, Yinan He, Yizhuo Li, Yi Wang, Yi Liu, Zun Wang, Jilan Xu, Guo Chen, Ping Luo, and 1 others. 2024b. Mvbench: A com-prehensive multi-modal video understanding bench-mark. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 22195–22206. Xinhao Li, Yi Wang, Jiashuo Yu, Xiangyu Zeng, Yuhan Zhu, Haian Huang, Jianfei Gao, Kunchang Li, Yinan He, Chenting Wang, and 1 others. 2024c. Videochat-flash: Hierarchical compression for long-context video modeling. arXiv preprint arXiv:2501.00574 .Yanwei Li, Chengyao Wang, and Jiaya Jia. 2024d. Llama-vid: An image is worth 2 tokens in large lan-guage models. In European Conference on Computer Vision , pages 323–340. Springer. Bin Lin, Yang Ye, Bin Zhu, Jiaxi Cui, Munan Ning, Peng Jin, and Li Yuan. 2024. Video-llava: Learning united visual representation by alignment before pro-jection. In Proceedings of the 2024 conference on empirical methods in natural language processing ,pages 5971–5984. Jingyang Lin, Jialian Wu, Ximeng Sun, Ze Wang, Jiang Liu, Yusheng Su, Xiaodong Yu, Hao Chen, Jiebo Luo, Zicheng Liu, and 1 others. 2026. Unleashing hour-scale video training for long video-language understanding. Advances in Neural Information Pro-cessing Systems , 38:17523–17552. Runtao Liu, Ziyi Liu, Jiaqi Tang, Yue Ma, Renjie Pi, Jipeng Zhang, and Qifeng Chen. 2025a. Longvideoa-gent: Multi-agent reasoning with long videos. arXiv preprint arXiv:2512.20618 .Xiangrui Liu, Yan Shu, Zheng Liu, Ao Li, Yang Tian, and Bo Zhao. 2025b. Video-xl-pro: Reconstructive token compression for extremely long video under-standing. arXiv preprint arXiv:2503.18478 .Ye Liu, Kevin Qinghong Lin, Chang Wen Chen, and Mike Zheng Shou. Videomind: A chain-of-lora agent for temporal-grounded video reasoning. In NeurIPS 2025 Workshop on Bridging Language, Agent, and World Models for Reasoning and Planning .Yongdong Luo, Xiawu Zheng, Guilin Li, Shukang Yin, Haojia Lin, Chaoyou Fu, Jinfa Huang, Jiayi Ji, Fei Chao, Jiebo Luo, and 1 others. 2026. Video-rag: Visually-aligned retrieval-augmented long video com-prehension. Advances in Neural Information Process-ing Systems , 38:168008–168033. Muhammad Maaz, Hanoona Rasheed, Fahad Shahbaz Khan, and Salman Khan. 2025. Video-r2: Reinforc-ing consistent and grounded reasoning in multimodal language models. arXiv preprint arXiv:2511.23478 .Muhammad Maaz, Hanoona Rasheed, Salman Khan, and Fahad Khan. 2024. Video-chatgpt: Towards detailed video understanding via large vision and language models. In Proceedings of the 62nd An-nual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 12585– 12602. Jiahao Meng, Tan Yue, Qi Xu, Haochen Wang, Zhong-wei Ren, Weisong Liu, Yuhao Wang, Renrui Zhang, Yunhai Tong, and Haodong Duan. 2026. Videoze-robench: Probing the limits of video mllms with spatio-temporal evidence verification. arXiv preprint arXiv:2604.01569 .Kun Ouyang, Yuanxin Liu, Linli Yao, Yishuo Cai, Hao Zhou, Jie Zhou, Fandong Meng, and Xu Sun. 2025. Conan: Progressive learning to reason like a detec-tive over multi-scale visual evidence. arXiv preprint arXiv:2510.20470 .Rafael Rafailov, Archit Sharma, Eric Mitchell, Christo-pher D Manning, Stefano Ermon, and Chelsea Finn. 2023. Direct preference optimization: Your language model is secretly a reward model. Advances in neural information processing systems , 36:53728–53741. Weiming Ren, Wentao Ma, Huan Yang, Cong Wei, Ge Zhang, and Wenhu Chen. 2025. Vamba: Un-derstanding hour-long videos with hybrid mamba-transformers. In Proceedings of the IEEE/CVF In-ternational Conference on Computer Vision , pages 21197–21208. Xiaoqian Shen, Yunyang Xiong, Changsheng Zhao, Lemeng Wu, Jun Chen, Chenchen Zhu, Zechun Liu, Fanyi Xiao, Balakrishnan Varadarajan, Florian Bor-des, and 1 others. 2024. Longvu: Spatiotemporal adaptive compression for long video-language under-standing. arXiv preprint arXiv:2410.17434 .Yunhang Shen, Chaoyou Fu, Shaoqi Dong, Xiong Wang, Yi-Fan Zhang, Peixian Chen, Mengdan Zhang, Haoyu Cao, Ke Li, Shaohui Lin, and 1 others. 2025. Long-vita: Scaling large multi-modal models to 1 million tokens with leading short-context accuracy. 
+
+arXiv preprint arXiv:2502.05177 .Yuan Sheng, Yanbin Hao, Chenxu Li, Shuo Wang, and Xiangnan He. 2025. Sevices: Unifying semantic-visual evidence consensus for long video understand-ing. arXiv preprint arXiv:2510.20622 .Yan Shu, Zheng Liu, Peitian Zhang, Minghao Qin, Junjie Zhou, Zhengyang Liang, Tiejun Huang, and Bo Zhao. 2025. Video-xl: Extra-long vision lan-guage model for hour-scale video understanding. In 
+
+10 Proceedings of the Computer Vision and Pattern Recognition Conference , pages 26160–26169. Canhui Tang, Zifan Han, Hongbo Sun, Sanping Zhou, Xuchong Zhang, Xin Wei, Ye Yuan, Huayu Zhang, Jinglin Xu, and Hao Sun. 2026. Tspo: Temporal sampling policy optimization for long-form video language understanding. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 40, pages 9368–9376. Xi Tang, Jihao Qiu, Lingxi Xie, Yunjie Tian, Jianbin Jiao, and Qixiang Ye. 2025. Adaptive keyframe sam-pling for long video understanding. In Proceedings of the Computer Vision and Pattern Recognition Con-ference , pages 29118–29128. Han Wang, Yuxiang Nie, Yongjie Ye, Yanjie Wang, Shuai Li, Haiyang Yu, Jinghui Lu, and Can Huang. 2025a. Dynamic-vlm: Simple dynamic visual token compression for videollm. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 20812–20823. Qunzhong Wang, Jie Liu, Jiajun Liang, Yilei Jiang, Yuanxing Zhang, Yaozhi Zheng, Xintao Wang, Pengfei Wan, Xiangyu Yue, and Jiaheng Liu. 2025b. Vr-thinker: Boosting video reward models through thinking-with-image reasoning. arXiv preprint arXiv:2510.10518 .Shijian Wang, Jiarui Jin, Xingjian Wang, Linxin Song, Runhao Fu, Hecheng Wang, Zongyuan Ge, Yuan Lu, and Xuelian Cheng. 2025c. Video-thinker: Spark-ing" thinking with videos" via reinforcement learning. 
+
+arXiv preprint arXiv:2510.23473 .Weihan Wang, Zehai He, Wenyi Hong, Yean Cheng, Xi-aohan Zhang, Ji Qi, Ming Ding, Xiaotao Gu, Shiyu Huang, Bin Xu, and 1 others. 2025d. Lvbench: An extreme long video understanding benchmark. In 
+
+Proceedings of the IEEE/CVF International Confer-ence on Computer Vision , pages 22958–22967. Zheng Wang, Haoran Chen, Haoxuan Qin, Zhipeng Wei, Tianwen Qian, and Cong Bai. 2026. Think, then verify: A hypothesis-verification multi-agent frame-work for long video understanding. arXiv preprint arXiv:2603.04977 .Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed Chi, Quoc Le, and Denny Zhou. 2023. Chain-of-thought prompting elic-its reasoning in large language models. Preprint ,arXiv:2201.11903. Zhaoyang Wei, Guoliang Wang, Guohua Gao, Yanchao Hao, Mingda Li, Wenchao Ding, Xi Chen, Shizhu He, and Xuehui Yu. 2026. Seeing is believing: Ground-ing long-video understanding in spatio-temporal vi-sual evidence. In Proceedings of the AAAI Con-ference on Artificial Intelligence , volume 40, pages 10584–10592. Haoning Wu, Dongxu Li, Bei Chen, and Junnan Li. 2024. Longvideobench: A benchmark for long-context interleaved video-language understanding. 
+
+Advances in Neural Information Processing Systems ,37:28828–28857. Zhiheng Wu, Tong Wang, Shuning Wang, Naiming Liu, and Yumeng Zhang. 2026a. See further, think deeper: Advancing vlm’s reasoning ability with low-level visual cues and reflection. arXiv preprint arXiv:2604.24339 .Zhixuan Wu, Quanxing Zha, Teng Wang, Genbao Xu, Wenyuan Gu, Wei Rao, Nan Ma, Bo Cheng, and Soujanya Poria. 2026b. Chain-of-glimpse: Search-guided progressive object-grounded reason-ing for video understanding. arXiv preprint arXiv:2604.14692 .Yuan Xie, Tianshui Chen, Zheng Ge, and Lionel Ni. 2025. Video-mtr: Reinforced multi-turn reason-ing for long video understanding. arXiv preprint arXiv:2508.20478 .Ziang Yan, Yinan He, Xinhao Li, Zhengrong Yue, Xi-angyu Zeng, Yali Wang, Yu Qiao, Limin Wang, and Yi Wang. 2026. Videochat-r1. 5: Visual test-time scaling to reinforce multimodal reasoning by iter-ative perception. Advances in Neural Information Processing Systems , 38:119152–119184. Ruoliu Yang, Chu Wu, Caifeng Shan, Ran He, and Chaoyou Fu. 2026. Videodetective: Clue hunt-ing via both extrinsic query and intrinsic rele-vance for long video understanding. arXiv preprint arXiv:2603.22285 .Zuhao Yang, Sudong Wang, Kaichen Zhang, Keming Wu, Sicong Leng, Yifan Zhang, Bo Li, Chengwei Qin, Shijian Lu, Xingxuan Li, and 1 others. 2025. Longvt: Incentivizing" thinking with long videos" via native tool calling. arXiv preprint arXiv:2511.20785 .Qiying Yu, Zheng Zhang, Ruofei Zhu, Yufeng Yuan, Xiaochen Zuo, Yu Yue, Weinan Dai, Tiantian Fan, Gaohong Liu, Lingjun Liu, and 1 others. 2025. Dapo: An open-source llm reinforcement learning system at scale. arXiv preprint arXiv:2503.14476 .Qiying Yu, Zheng Zhang, Ruofei Zhu, Yufeng Yuan, Xiaochen Zuo, Yu Yue, Weinan Dai, Tiantian Fan, Gaohong Liu, Lingjun Liu, and 1 others. 2026. Dapo: An open-source llm reinforcement learning system at scale. Advances in Neural Information Processing Systems , 38:113222–113244. Xiangyu Zeng, Kunchang Li, Chenting Wang, Xinhao Li, Tianxiang Jiang, Ziang Yan, Songze Li, Yansong Shi, Zhengrong Yue, Yi Wang, and 1 others. 2025. Timesuite: Improving mllms for long video under-standing via grounded tuning. In International Con-ference on Learning Representations , volume 2025, pages 38057–38081. Haoji Zhang, Xin Gu, Jiawen Li, Chixiang Ma, Sule Bai, Chubin Zhang, Bowen Zhang, Zhichao Zhou, 
+
+11 Dongliang He, and Yansong Tang. 2025a. Think-ing with videos: Multimodal tool-augmented rein-forcement learning for long video reasoning. arXiv preprint arXiv:2508.04416 .Peiyuan Zhang, Kaichen Zhang, Bo Li, Guangtao Zeng, Jingkang Yang, Yuanhan Zhang, Ziyue Wang, Hao-ran Tan, Chunyuan Li, and Ziwei Liu. 2024a. Long context transfer from language to vision. arXiv preprint arXiv:2406.16852 .Yi-Fan Zhang, Xingyu Lu, Xiao Hu, Chaoyou Fu, Bin Wen, Tianke Zhang, Changyi Liu, Kaiyu Jiang, Kaibing Chen, Kaiyu Tang, and 1 others. 2025b. R1-reward: Training multimodal reward model through stable reinforcement learning. arXiv preprint arXiv:2505.02835 .Yongheng Zhang, Xu Liu, Ruihan Tao, Qiguang Chen, Hao Fei, Wanxiang Che, and Libo Qin. 2025c. Vitcot: Video-text interleaved chain-of-thought for boosting video understanding in large language models. In 
+
+Proceedings of the 33rd ACM International Confer-ence on Multimedia , pages 5267–5276. Yuanhan Zhang, Bo Li, haotian Liu, Yong jae Lee, Liangke Gui, Di Fu, Jiashi Feng, Ziwei Liu, and Chunyuan Li. 2024b. Llava-next: A strong zero-shot video understanding model. Yuanhan Zhang, Jinming Wu, Wei Li, Bo Li, Zejun Ma, Ziwei Liu, and Chunyuan Li. Video instruction tuning with synthetic data, 2024. URL https://arxiv. org/abs/2410.02713 , 17. Yuanhan Zhang, Jinming Wu, Wei Li, Bo Li, Zejun Ma, Ziwei Liu, and Chunyuan Li. 2024c. Llava-video: Video instruction tuning with synthetic data. arXiv preprint arXiv:2410.02713 .Junjie Zhou, Yan Shu, Bo Zhao, Boya Wu, Zhengyang Liang, Shitao Xiao, Minghao Qin, Xi Yang, Yong-ping Xiong, Bo Zhang, and 1 others. 2025. Mlvu: Benchmarking multi-task long video understanding. In Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition , pages 13691– 13701. 
+
+12

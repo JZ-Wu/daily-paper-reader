@@ -6,40 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-12
-- 运行时间：2026-06-12 21:52:09 UTC
+- 最新运行日期：2026-06-13
+- 运行时间：2026-06-13 20:48:47 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：4
-- 速读区：2
+- 本次总论文数：4
+- 精读区：3
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读两篇前沿论文，聚焦多模态大模型的零样本推理与视频理解，洞见视觉语义与记忆机制。  
-最值得关注的是《Metadata-Aware Multi-Prompt Reasoning》对零样本事故理解的突破，以及《Watch, Remember, Reason》如何模拟人类视角理解视频，两者均在可解释性与场景落地性上表现突出。  
-建议读者重点关注将抽象知识（如元数据、记忆链）注入大模型以缓解幻觉的实践思路，可尝试在自身业务中试水“记忆增强”式推理。
-- 详情：[/202606/12/README](/202606/12/README)
+今日精读两篇聚焦长视频理解与音视频事件定位，速读一篇视频分割强化学习框架。  
+高亮方向：查询扩展视觉证据+反思机制让长视频推理更准，层次语义约束异质图提升音视频事件定位。  
+下一步可尝试将反思式推理从长视频扩展至多模态事件检测。
+- 详情：[/202606/13/README](/202606/13/README)
 
 ### 精读区论文标签
-1. [Metadata-Aware Multi-Prompt Reasoning for Zero-Shot Accident Understanding](/202606/12/2606.12047v1-metadata-aware-multi-prompt-reasoning-for-zero-shot-accident-understanding)  
-   标签：评分：10.0/10、query:tf-vl-ag
-   evidence：从监控视频中零样本事故理解，利用视觉语言相似性和多提示推理定位撞击事件的时间、类型和位置，与高效零样本视频定位直接相关。
-2. [Watch, Remember, Reason: Human-View Video Understanding with MLLMs](/202606/12/2606.07433v1-watch-remember-reason-human-view-video-understanding-with-mllms)  
+1. [See More, Think Deeper: Query-Expanded Visual Evidence and Answer-Clue Guided Reflection for Long Video Understanding](/202606/13/2606.09064v1-see-more-think-deeper-query-expanded-visual-evidence-and-answer-clue-guided-reflection-for-long-video-understanding)  
    标签：评分：9.0/10、query:tf-vl-ag
-   evidence：提出面向多模态大语言模型的统一视频理解框架，将能力组织为观看、记忆与推理。
-3. [LongSpace: Exploring Long-Horizon Spatial Memory from Perception to Recall in Video](/202606/12/2606.05677v1-longspace-exploring-long-horizon-spatial-memory-from-perception-to-recall-in-video)  
+   evidence：一种利用查询扩展和答案驱动反思的长视频理解框架，增强多模态模型推理能力。
+2. [Hierarchical Semantic-Constrained Heterogeneous Graph for Audio-Visual Event Localization](/202606/13/2606.07033v1-hierarchical-semantic-constrained-heterogeneous-graph-for-audio-visual-event-localization)  
    标签：评分：8.0/10、query:tf-vl-ag
-   evidence：提出使用多模态大语言模型进行长视频空间推理的记忆框架
-4. [Harnessing Streaming Video in the Wild](/202606/12/2606.08615v1-harnessing-streaming-video-in-the-wild)  
+   evidence：视频中开放词汇的视听事件定位
+3. [Look Less, Reason More: Block-wise Attention Skipping for Efficient Multimodal LLMs](/202606/13/2606.08511v1-look-less-reason-more-block-wise-attention-skipping-for-efficient-multimodal-llms)  
    标签：评分：8.0/10、query:tf-vl-ag
-   evidence：通过训练目标和基础设施适配视觉语言模型进行流式视频理解
+   evidence：训练无关的块级注意力跳过降低视觉标记计算，实现高效视频理解
 
 ### 速读区论文标签
-1. [MultiToP: Learning to Patch Visual Tokens to Mitigate Hallucinations in Video Large Multimodal Models](/202606/12/2606.11792v1-multitop-learning-to-patch-visual-tokens-to-mitigate-hallucinations-in-video-large-multimodal-models)  
-   标签：评分：7.0/10、query:tf-vl-ag
-   evidence：通过修补视觉令牌缓解视频VLMs的幻觉，提升视频理解可靠性
-2. [MemoVAD: Resource-Efficient Video Anomaly Detection via Dynamic Semantic Memory in Edge Computing Scenarios](/202606/12/2606.07669v1-memovad-resource-efficient-video-anomaly-detection-via-dynamic-semantic-memory-in-edge-computing-scenarios)  
+1. [VideoSEG-O3: A Multi-turn Reinforcement Learning Framework for Reasoning Video Object Segmentation](/202606/13/2606.06819v1-videoseg-o3-a-multi-turn-reinforcement-learning-framework-for-reasoning-video-object-segmentation)  
    标签：评分：6.0/10、query:tf-vl-ag
-   evidence：利用视觉语言模型语义并通过边云协同实现资源高效视频异常检测
+   evidence：多轮强化学习框架模仿智能体由粗到细的推理过程，用于推理视频目标分割
 
 
 <div class="dpr-home-promo-card">
