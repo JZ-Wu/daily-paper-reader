@@ -2,6 +2,7 @@
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 
 * Conference Papers
+  * ICLR 2023 <!--dpr-conference:iclr-2023-->
   * NEURIPS 2025 <!--dpr-conference:neurips-2025-->
     * tf-vl-ag <!--dpr-conference-topic:neurips-2025:query-tf-vl-ag-->
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/conference/neurips-2025/openreview-neurips-2025-rfnin2renm-uncertainty-quantified-rollout-policy-adaptation-for-unlabelled-cross-domain-video-temporal-grounding" data-sidebar-item="{&quot;title&quot;: &quot;Uncertainty-quantified Rollout Policy Adaptation for Unlabelled Cross-domain Video Temporal Grounding&quot;, &quot;link&quot;: &quot;https://openreview.net/forum?id=RfNiN2rENM&quot;, &quot;score&quot;: &quot;10.0&quot;, &quot;selection_source&quot;: &quot;conference_retrieval&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tf-vl-ag&quot;}], &quot;evidence&quot;: &quot;利用VLM的无标签跨域视频时序定位不确定性量化策略自适应&quot;}">Uncertainty-quantified Rollout Policy Adaptation for Unlabelled Cross-domain Video Temporal Grounding</a>
