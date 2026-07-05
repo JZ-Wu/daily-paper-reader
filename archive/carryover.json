@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-04T21:29:50.970836+00:00",
-  "updated_date": "20260704",
+  "generated_at": "2026-07-05T20:08:30.724872+00:00",
+  "updated_date": "20260705",
   "carryover_days": 9,
   "tag_states": {
     "TF-VL-AG": {
-      "updated_date": "20260704",
+      "updated_date": "20260705",
       "carryover_days": 9,
       "items": []
     }
